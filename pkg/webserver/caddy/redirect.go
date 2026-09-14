@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -17,7 +18,7 @@ func redirectStatus(r types.Redirect) int {
 	return r.StatusCode
 }
 
-func (v *baseVhost) buildRedirects(body *nodeList) {
+func (v *baseVhost) buildRedirects(body *conf.Block) {
 	for i, r := range v.redirects {
 		name := fmt.Sprintf("@ace_redirect_%d", i)
 		to := r.To
@@ -38,9 +39,9 @@ func (v *baseVhost) buildRedirects(body *nodeList) {
 	}
 }
 
-func (v *baseVhost) loadRedirects(body *nodeList) {
-	for _, d := range body.Directives("redir") {
-		m := body.Directive(d.Arg(0))
+func (v *baseVhost) loadRedirects(body *conf.Block) {
+	for _, d := range body.GetAll("redir") {
+		m := body.Get(d.Arg(0))
 		if m == nil || !strings.HasPrefix(d.Arg(0), "@ace_redirect_") {
 			continue
 		}
@@ -52,8 +53,8 @@ func (v *baseVhost) loadRedirects(body *nodeList) {
 		}
 		v.redirects = append(v.redirects, r)
 	}
-	for _, h := range body.Directives("handle_errors") {
-		if d := h.Directive("redir"); h.Arg(0) == "404" && d != nil {
+	for _, h := range body.GetAll("handle_errors") {
+		if d := h.Get("redir"); h.Arg(0) == "404" && d != nil {
 			r := redirectFromArgs(d.Arg(0), d.Arg(1))
 			r.Type = types.RedirectType404
 			v.redirects = append(v.redirects, r)

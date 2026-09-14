@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -49,18 +51,18 @@ func TestRoundTripSemantics(t *testing.T) {
 	cfg, err := ParseString(realWorldConfig)
 	require.NoError(t, err)
 
-	out := cfg.Export()
+	out := Export(cfg)
 	// 语义无损：原文与导出的指令/块序列（合并续行、分词去引号后）完全一致
 	assert.Equal(t, semanticLines(realWorldConfig), semanticLines(out), "语义无损")
 	// 幂等
 	cfg2, err := ParseString(out)
 	require.NoError(t, err)
-	assert.Equal(t, out, cfg2.Export(), "幂等")
+	assert.Equal(t, out, Export(cfg2), "幂等")
 
 	// 抽查深层嵌套指令（VirtualHost > Directory > IfModule > RewriteRule）完整保留
 	rr := cfg.FindOne("VirtualHost.Directory.IfModule.RewriteRule")
 	require.NotNil(t, rr)
-	assert.Equal(t, []string{"^(.*)$", "https://new.example.com$1", "[R=301,L]"}, argValues(rr.Args))
+	assert.Equal(t, []string{"^(.*)$", "https://new.example.com$1", "[R=301,L]"}, rr.Values())
 }
 
 // TestRobustnessTrickySyntax 针对真实 apache 配置里最刁钻的语法做精确断言
@@ -114,12 +116,12 @@ func TestRobustnessTrickySyntax(t *testing.T) {
 		require.NoError(t, err, c.name)
 		d := cfg.Get(c.dir)
 		require.NotNil(t, d, c.name)
-		assert.Equal(t, c.wantArgs, argValues(d.Args), c.name)
+		assert.Equal(t, c.wantArgs, d.Values(), c.name)
 
 		// round-trip 后值仍一致
-		cfg2, err := ParseString(cfg.Export())
+		cfg2, err := ParseString(Export(cfg))
 		require.NoError(t, err, c.name+" 重解析")
-		assert.Equal(t, c.wantArgs, argValues(cfg2.Get(c.dir).Args), c.name+" round-trip")
+		assert.Equal(t, c.wantArgs, conf.Values(cfg2.Get(c.dir).Args), c.name+" round-trip")
 	}
 }
 
@@ -141,11 +143,11 @@ func TestRobustnessEdgeCases(t *testing.T) {
 </VirtualHost>`
 		cfg, err := ParseString(input)
 		require.NoError(t, err)
-		ra := cfg.VirtualHosts()[0].GetBlock("Directory").GetBlock("Files").
+		ra := cfg.Blocks("VirtualHost")[0].GetBlock("Directory").GetBlock("Files").
 			GetBlock("IfModule").GetBlock("Limit").GetBlock("RequireAll")
 		require.NotNil(t, ra)
-		assert.Equal(t, []string{"all", "granted"}, ra.Values("Require"))
-		assert.Equal(t, cfg.Export(), mustReparse(t, cfg.Export()).Export(), "幂等")
+		assert.Equal(t, []string{"all", "granted"}, ra.Get("Require").Values())
+		assert.Equal(t, Export(cfg), Export(mustReparse(t, Export(cfg))), "幂等")
 	})
 
 	t.Run("If表达式含尖括号", func(t *testing.T) {
@@ -155,27 +157,27 @@ func TestRobustnessEdgeCases(t *testing.T) {
 		blocks := cfg.FindBlocks("If")
 		require.Len(t, blocks, 1)
 		assert.Equal(t, `%{QUERY_STRING} =~ /(>|<)/`, blocks[0].Args[0].Value)
-		assert.Equal(t, cfg.Export(), mustReparse(t, cfg.Export()).Export(), "幂等")
+		assert.Equal(t, Export(cfg), Export(mustReparse(t, Export(cfg))), "幂等")
 	})
 
 	t.Run("CRLF行尾", func(t *testing.T) {
 		cfg, err := ParseString("<Directory /a>\r\n    Require all granted\r\n</Directory>\r\n")
 		require.NoError(t, err)
-		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("Directory").Values("Require"))
+		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("Directory").Get("Require").Values())
 	})
 
 	t.Run("未闭合块容错", func(t *testing.T) {
 		cfg, err := ParseString("<Directory /a>\n    Require all granted")
 		require.NoError(t, err)
 		require.NotNil(t, cfg.GetBlock("Directory"))
-		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("Directory").Values("Require"))
+		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("Directory").Get("Require").Values())
 	})
 
 	t.Run("闭合标签大小写不匹配", func(t *testing.T) {
 		cfg, err := ParseString("<directory /a>\n    Require all granted\n</Directory>")
 		require.NoError(t, err)
 		require.NotNil(t, cfg.GetBlock("directory"))
-		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("directory").Values("Require"))
+		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("directory").Get("Require").Values())
 	})
 
 	t.Run("空块", func(t *testing.T) {
@@ -188,7 +190,7 @@ func TestRobustnessEdgeCases(t *testing.T) {
 	t.Run("制表符缩进", func(t *testing.T) {
 		cfg, err := ParseString("<Directory /a>\n\t\tRequire all granted\n</Directory>")
 		require.NoError(t, err)
-		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("Directory").Values("Require"))
+		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("Directory").Get("Require").Values())
 	})
 
 	t.Run("只有注释", func(t *testing.T) {
@@ -209,11 +211,11 @@ func TestRobustnessEdgeCases(t *testing.T) {
 		d := cfg.GetBlock("Directory")
 		require.NotNil(t, d)
 		assert.Equal(t, "/var/www/my site", d.Args[0].Value)
-		assert.Contains(t, cfg.Export(), `<Directory "/var/www/my site">`)
+		assert.Contains(t, Export(cfg), `<Directory "/var/www/my site">`)
 	})
 }
 
-func mustReparse(t *testing.T, s string) *Config {
+func mustReparse(t *testing.T, s string) *conf.Config {
 	cfg, err := ParseString(s)
 	require.NoError(t, err)
 	return cfg
@@ -238,7 +240,7 @@ func semanticLines(src string) []string {
 	return out
 }
 
-func joinValues(args []Argument) string {
+func joinValues(args []conf.Arg) string {
 	vals := make([]string, len(args))
 	for i, a := range args {
 		vals[i] = a.Value

@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -17,7 +18,7 @@ func redirectStatus(r types.Redirect) int {
 	return r.StatusCode
 }
 
-func (v *baseVhost) buildRedirects(cfg *Config) {
+func (v *baseVhost) buildRedirects(cfg *conf.Config) {
 	for _, r := range v.redirects {
 		switch r.Type {
 		case types.RedirectTypeURL:
@@ -45,12 +46,12 @@ func (v *baseVhost) buildRedirects(cfg *Config) {
 var hostCondPattern = regexp.MustCompile(`^%\{HTTP_HOST\}\s+\^(.+)\$\s+\[NC\]$`)
 var hostRulePattern = regexp.MustCompile(`^\^\(\.\*\)\$\s+(\S+)\s+\[R=(\d+),L\]$`)
 
-func (v *baseVhost) loadRedirects(cfg *Config) {
+func (v *baseVhost) loadRedirects(cfg *conf.Config) {
 	for _, ctx := range cfg.Blocks("context") {
 		if !strings.EqualFold(ctx.Value("type"), "redirect") {
 			continue
 		}
-		from := strings.TrimPrefix(ctx.Arg, "exp:^")
+		from := strings.TrimPrefix(ctx.Arg(0), "exp:^")
 		keepURI := strings.HasSuffix(from, "(.*)$")
 		from = strings.TrimSuffix(strings.TrimSuffix(from, "(.*)$"), "$")
 		code, _ := strconv.Atoi(ctx.Value("statusCode"))
@@ -64,7 +65,7 @@ func (v *baseVhost) loadRedirects(cfg *Config) {
 	}
 
 	for _, page := range cfg.Blocks("errorpage") {
-		if page.Arg == "404" {
+		if page.Arg(0) == "404" {
 			v.redirects = append(v.redirects, types.Redirect{
 				Type:       types.RedirectType404,
 				To:         page.Value("url"),
@@ -73,24 +74,24 @@ func (v *baseVhost) loadRedirects(cfg *Config) {
 		}
 	}
 
-	rw := cfg.Block("rewrite")
+	rw := cfg.GetBlock("rewrite")
 	if rw == nil {
 		return
 	}
 	host := ""
 	for _, n := range rw.Nodes {
-		d, ok := n.(*Directive)
+		d, ok := n.(*conf.Directive)
 		if !ok {
 			continue
 		}
 		switch {
 		case strings.EqualFold(d.Name, "RewriteCond"):
 			host = ""
-			if m := hostCondPattern.FindStringSubmatch(d.Value); m != nil {
+			if m := hostCondPattern.FindStringSubmatch(d.Arg(0)); m != nil {
 				host = strings.ReplaceAll(m[1], `\.`, ".")
 			}
 		case strings.EqualFold(d.Name, "RewriteRule") && host != "":
-			if m := hostRulePattern.FindStringSubmatch(d.Value); m != nil {
+			if m := hostRulePattern.FindStringSubmatch(d.Arg(0)); m != nil {
 				code, _ := strconv.Atoi(m[2])
 				v.redirects = append(v.redirects, types.Redirect{
 					Type:       types.RedirectTypeHost,

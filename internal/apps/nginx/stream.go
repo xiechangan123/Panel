@@ -16,6 +16,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	webserverNginx "github.com/acepanel/panel/v3/pkg/webserver/nginx"
 )
 
@@ -284,77 +285,33 @@ func (s *App) parseStreamServers() ([]StreamServer, error) {
 
 // parseStreamServerFile 解析单个 Stream Server 配置文件
 func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer, error) {
-	p, err := webserverNginx.NewParserFromFile(filePath)
+	cfg, err := webserverNginx.ParseFile(filePath)
 	if err != nil {
 		return nil, err
 	}
+	srv := cfg.GetBlock("server")
+	if srv == nil {
+		return nil, errors.New("no server block found")
+	}
 
 	server := &StreamServer{
-		Name: name,
+		Name:                name,
+		ProxyPass:           srv.Value("proxy_pass"),
+		ProxyProtocol:       srv.Value("proxy_protocol") == "on",
+		ProxyTimeout:        parseNginxDuration(srv.Value("proxy_timeout")),
+		ProxyConnectTimeout: parseNginxDuration(srv.Value("proxy_connect_timeout")),
+		SSLCertificate:      srv.Value("ssl_certificate"),
+		SSLCertificateKey:   srv.Value("ssl_certificate_key"),
 	}
-
-	// 解析 listen 指令
-	listenDirs, err := p.Find("server.listen")
-	if err == nil && len(listenDirs) > 0 {
-		params := listenDirs[0].GetParameters()
-		if len(params) > 0 {
-			server.Listen = params[0].Value
-			for i := 1; i < len(params); i++ {
-				switch params[i].Value {
-				case "udp":
-					server.UDP = true
-				case "ssl":
-					server.SSL = true
-				}
+	if listen := srv.Get("listen"); listen != nil {
+		server.Listen = listen.Arg(0)
+		for _, arg := range listen.Values()[1:] {
+			switch arg {
+			case "udp":
+				server.UDP = true
+			case "ssl":
+				server.SSL = true
 			}
-		}
-	}
-	// 解析 proxy_pass 指令
-	proxyPassDir, err := p.FindOne("server.proxy_pass")
-	if err == nil {
-		params := proxyPassDir.GetParameters()
-		if len(params) > 0 {
-			server.ProxyPass = params[0].Value
-		}
-	}
-	// 解析 proxy_protocol 指令
-	proxyProtocolDir, err := p.FindOne("server.proxy_protocol")
-	if err == nil {
-		params := proxyProtocolDir.GetParameters()
-		if len(params) > 0 && params[0].Value == "on" {
-			server.ProxyProtocol = true
-		}
-	}
-	// 解析 proxy_timeout 指令
-	proxyTimeoutDir, err := p.FindOne("server.proxy_timeout")
-	if err == nil {
-		params := proxyTimeoutDir.GetParameters()
-		if len(params) > 0 {
-			server.ProxyTimeout = parseNginxDuration(params[0].Value)
-		}
-	}
-	// 解析 proxy_connect_timeout 指令
-	proxyConnectTimeoutDir, err := p.FindOne("server.proxy_connect_timeout")
-	if err == nil {
-		params := proxyConnectTimeoutDir.GetParameters()
-		if len(params) > 0 {
-			server.ProxyConnectTimeout = parseNginxDuration(params[0].Value)
-		}
-	}
-	// 解析 ssl_certificate 指令
-	sslCertDir, err := p.FindOne("server.ssl_certificate")
-	if err == nil {
-		params := sslCertDir.GetParameters()
-		if len(params) > 0 {
-			server.SSLCertificate = params[0].Value
-		}
-	}
-	// 解析 ssl_certificate_key 指令
-	sslKeyDir, err := p.FindOne("server.ssl_certificate_key")
-	if err == nil {
-		params := sslKeyDir.GetParameters()
-		if len(params) > 0 {
-			server.SSLCertificateKey = params[0].Value
 		}
 	}
 
@@ -405,29 +362,18 @@ func (s *App) parseStreamUpstreams() ([]StreamUpstream, error) {
 
 // parseStreamUpstreamFile 解析单个 Stream Upstream 配置文件
 func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*StreamUpstream, error) {
-	p, err := webserverNginx.NewParserFromFile(filePath)
+	cfg, err := webserverNginx.ParseFile(filePath)
 	if err != nil {
 		return nil, err
 	}
-
-	cfg := p.Config()
-	if cfg == nil || cfg.Block == nil {
-		return nil, errors.New("invalid config")
-	}
-
-	// 查找 upstream 块
-	upstreamDirectives := cfg.Block.FindDirectives("upstream")
-	if len(upstreamDirectives) == 0 {
+	up := cfg.GetBlock("upstream")
+	if up == nil {
 		return nil, errors.New("no upstream block found")
 	}
-
-	upstreamDir := upstreamDirectives[0]
-	params := upstreamDir.GetParameters()
-	if len(params) == 0 {
+	name := up.Arg(0)
+	if name == "" {
 		return nil, errors.New("upstream name not found")
 	}
-
-	name := params[0].Value
 	if expectedName != "" && name != expectedName {
 		return nil, errors.New("upstream name mismatch")
 	}
@@ -437,51 +383,29 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 		Servers:  make(map[string]string),
 		Resolver: []string{},
 	}
-
-	upstreamBlock := upstreamDir.GetBlock()
-	if upstreamBlock == nil {
-		return nil, errors.New("upstream block is empty")
-	}
-
-	// 解析 upstream 块中的指令
-	for _, dir := range upstreamBlock.GetDirectives() {
-		switch dir.GetName() {
+	for _, d := range up.All() {
+		switch d.Name {
 		case "server":
-			dirParams := dir.GetParameters()
-			if len(dirParams) > 0 {
-				addr := dirParams[0].Value
-				var options []string
-				for i := 1; i < len(dirParams); i++ {
-					options = append(options, dirParams[i].Value)
-				}
-				upstream.Servers[addr] = strings.Join(options, " ")
+			if d.Arg(0) != "" {
+				upstream.Servers[d.Arg(0)] = strings.Join(d.Values()[1:], " ")
 			}
 		case "least_conn", "ip_hash", "random":
-			upstream.Algo = dir.GetName()
+			upstream.Algo = d.Name
 		case "hash":
-			dirParams := dir.GetParameters()
-			if len(dirParams) > 0 {
-				upstream.Algo = "hash " + dirParams[0].Value
-				// 检查是否有 consistent 参数
-				if len(dirParams) > 1 && dirParams[1].Value == "consistent" {
+			if d.Arg(0) != "" {
+				upstream.Algo = "hash " + d.Arg(0)
+				if d.Arg(1) == "consistent" {
 					upstream.Algo += " consistent"
 				}
 			}
 		case "least_time":
-			dirParams := dir.GetParameters()
-			if len(dirParams) > 0 {
-				upstream.Algo = "least_time " + dirParams[0].Value
+			if d.Arg(0) != "" {
+				upstream.Algo = "least_time " + d.Arg(0)
 			}
 		case "resolver":
-			dirParams := dir.GetParameters()
-			for _, param := range dirParams {
-				upstream.Resolver = append(upstream.Resolver, param.Value)
-			}
+			upstream.Resolver = append(upstream.Resolver, d.Values()...)
 		case "resolver_timeout":
-			dirParams := dir.GetParameters()
-			if len(dirParams) > 0 {
-				upstream.ResolverTimeout = parseNginxDuration(dirParams[0].Value)
-			}
+			upstream.ResolverTimeout = parseNginxDuration(d.Arg(0))
 		}
 	}
 
@@ -490,60 +414,37 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 
 // saveStreamServerConfig 生成并保存 Stream Server 配置
 func (s *App) saveStreamServerConfig(filePath string, server *StreamServer) error {
-	p, err := webserverNginx.NewParserFromString("server {}")
-	if err != nil {
-		return err
-	}
-	p.SetConfigPath(filePath)
+	cfg := &conf.Config{}
+	srv := cfg.AddBlock("server")
 
-	// listen 指令
-	listenParams := []string{server.Listen}
+	listen := []string{server.Listen}
 	if server.UDP {
-		listenParams = append(listenParams, "udp")
+		listen = append(listen, "udp")
 	}
 	if server.SSL {
-		listenParams = append(listenParams, "ssl")
+		listen = append(listen, "ssl")
 	}
-	if err = p.SetOne("server.listen", listenParams); err != nil {
-		return err
-	}
-	// proxy_pass 指令
-	if err = p.SetOne("server.proxy_pass", []string{server.ProxyPass}); err != nil {
-		return err
-	}
-	// proxy_protocol 指令
+	srv.Add("listen", listen...)
+	srv.Add("proxy_pass", server.ProxyPass)
 	if server.ProxyProtocol {
-		if err = p.SetOne("server.proxy_protocol", []string{"on"}); err != nil {
-			return err
-		}
+		srv.Add("proxy_protocol", "on")
 	}
-	// proxy_timeout 指令
 	if server.ProxyTimeout > 0 {
-		if err = p.SetOne("server.proxy_timeout", []string{formatNginxDuration(server.ProxyTimeout)}); err != nil {
-			return err
-		}
+		srv.Add("proxy_timeout", formatNginxDuration(server.ProxyTimeout))
 	}
-	// proxy_connect_timeout 指令
 	if server.ProxyConnectTimeout > 0 {
-		if err = p.SetOne("server.proxy_connect_timeout", []string{formatNginxDuration(server.ProxyConnectTimeout)}); err != nil {
-			return err
-		}
+		srv.Add("proxy_connect_timeout", formatNginxDuration(server.ProxyConnectTimeout))
 	}
-	// SSL 配置
 	if server.SSL {
 		if server.SSLCertificate != "" {
-			if err = p.SetOne("server.ssl_certificate", []string{server.SSLCertificate}); err != nil {
-				return err
-			}
+			srv.Add("ssl_certificate", server.SSLCertificate)
 		}
 		if server.SSLCertificateKey != "" {
-			if err = p.SetOne("server.ssl_certificate_key", []string{server.SSLCertificateKey}); err != nil {
-				return err
-			}
+			srv.Add("ssl_certificate_key", server.SSLCertificateKey)
 		}
 	}
 
-	return os.WriteFile(filePath, []byte(p.Dump()), 0600)
+	return os.WriteFile(filePath, []byte(webserverNginx.Export(cfg)), 0600)
 }
 
 // saveStreamUpstreamConfig 生成并保存 Stream Upstream 配置

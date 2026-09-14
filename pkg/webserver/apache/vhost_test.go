@@ -307,7 +307,7 @@ func (s *VhostTestSuite) TestExport() {
 	s.NoError(s.vhost.SetServerName([]string{"export-test.com"}))
 	s.NoError(s.vhost.SetRoot("/var/www/export-test"))
 
-	content := s.vhost.config.Export()
+	content := Export(s.vhost.config)
 	s.NotEmpty(content)
 	s.Contains(content, "export-test.com")
 	s.Contains(content, "/var/www/export-test")
@@ -323,7 +323,7 @@ func (s *VhostTestSuite) TestExportWithSSL() {
 	}
 	s.NoError(s.vhost.SetSSLConfig(sslConfig))
 
-	content := s.vhost.config.Export()
+	content := Export(s.vhost.config)
 	s.Contains(content, "SSLEngine on")
 	s.Contains(content, "SSLCertificateFile")
 	s.Contains(content, "SSLCertificateKeyFile")
@@ -350,7 +350,7 @@ func (s *VhostTestSuite) TestDirectoryBlock() {
 	root := "/var/www/test-dir"
 	s.NoError(s.vhost.SetRoot(root))
 
-	content := s.vhost.config.Export()
+	content := Export(s.vhost.config)
 	s.Contains(content, "<Directory "+root+">")
 	s.Contains(content, "</Directory>")
 }

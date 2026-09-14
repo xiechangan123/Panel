@@ -60,7 +60,6 @@ require (
 	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.12.1
 	github.com/studio-b12/gowebdav v0.13.0
-	github.com/tufanbarisyildirim/gonginx v0.0.0-20260220081509-8e17ce617db3
 	github.com/urfave/cli/v3 v3.11.0
 	github.com/valyala/fastjson v1.6.10
 	github.com/wneessen/go-mail v0.8.1
@@ -102,7 +101,6 @@ require (
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/subcommands v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/imega/luaformatter v0.0.0-20211025140405-86b0a68d6bef // indirect
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
@@ -122,8 +120,6 @@ require (
 	github.com/richardlehane/msoleps v1.0.6 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
 	github.com/tiendc/go-deepcopy v1.7.2 // indirect
-	github.com/timtadh/data-structures v0.6.2 // indirect
-	github.com/timtadh/lexmachine v0.2.3 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
 	github.com/tklauser/numcpus v0.11.0 // indirect

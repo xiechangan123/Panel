@@ -1,0 +1,131 @@
+// Package conf 是各 Web 服务器配置共用的语法树：指令由名称、参数和可选子块组成，
+// 各方言只负责自己的分词、解析与渲染，查询与修改在这里统一实现
+package conf
+
+// Quote 参数的引号风格，解析时记录原样，生成时由方言按 QuoteAuto 决定是否加引号
+type Quote uint8
+
+const (
+	QuoteAuto     Quote = iota // 生成的参数，渲染时按方言规则判断
+	QuoteNone                  // 裸值
+	QuoteDouble                // 双引号
+	QuoteSingle                // 单引号
+	QuoteBacktick              // 反引号
+	QuoteHeredoc               // 多行值
+	QuoteRaw                   // 原样输出的块体，如 nginx 的 lua 块
+)
+
+// Arg 指令参数：解引号后的纯值与引号风格
+type Arg struct {
+	Value string
+	Quote Quote
+}
+
+// Node 配置节点：指令、注释或空行
+type Node interface {
+	node()
+}
+
+// Comment 整行注释，不含注释符
+type Comment struct {
+	Text string
+}
+
+// Blank 空行，只在生成时用于分组
+type Blank struct{}
+
+// Directive 指令，Block 非 nil 时带子块，Trailing 为行尾注释
+type Directive struct {
+	Name string
+	Args []Arg
+	*Block
+	Trailing string
+}
+
+// Block 有序节点列表，Config 与带子块的指令共用查询与修改方法，方法对 nil 接收者安全
+type Block struct {
+	Nodes []Node
+}
+
+// Config 配置文件根
+type Config struct {
+	Block
+}
+
+func (*Comment) node()   {}
+func (*Blank) node()     {}
+func (*Directive) node() {}
+
+// Dir 构造一条指令
+func Dir(name string, args ...string) *Directive {
+	return &Directive{Name: name, Args: Args(args...)}
+}
+
+// Blk 构造一条带子块的指令
+func Blk(name string, args ...string) *Directive {
+	return &Directive{Name: name, Args: Args(args...), Block: &Block{}}
+}
+
+// Cmt 构造一条注释，文本前补一个空格
+func Cmt(text string) *Comment {
+	return &Comment{Text: " " + text}
+}
+
+// Args 由纯值构造参数
+func Args(values ...string) []Arg {
+	if len(values) == 0 {
+		return nil
+	}
+	out := make([]Arg, len(values))
+	for i, v := range values {
+		out[i] = Arg{Value: v}
+	}
+	return out
+}
+
+// Values 取参数的纯值
+func Values(args []Arg) []string {
+	if len(args) == 0 {
+		return nil
+	}
+	out := make([]string, len(args))
+	for i, a := range args {
+		out[i] = a.Value
+	}
+	return out
+}
+
+// Arg 第 i 个参数的值，nil 或越界返回空串
+func (d *Directive) Arg(i int) string {
+	if d == nil || i < 0 || i >= len(d.Args) {
+		return ""
+	}
+	return d.Args[i].Value
+}
+
+// Values 全部参数的值
+func (d *Directive) Values() []string {
+	if d == nil {
+		return nil
+	}
+	return Values(d.Args)
+}
+
+// SetArgs 替换参数
+func (d *Directive) SetArgs(values ...string) {
+	d.Args = Args(values...)
+}
+
+// AppendArg 追加参数
+func (d *Directive) AppendArg(value string) {
+	d.Args = append(d.Args, Arg{Value: value})
+}
+
+// Append 向子块追加节点，无子块时先创建，返回自身便于链式调用
+func (d *Directive) Append(nodes ...Node) *Directive {
+	if d.Block == nil {
+		d.Block = &Block{}
+	}
+	d.Nodes = append(d.Nodes, nodes...)
+	return d
+}

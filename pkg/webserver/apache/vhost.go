@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -29,8 +30,8 @@ type ProxyVhost struct {
 
 // baseVhost Apache 虚拟主机基础实现
 type baseVhost struct {
-	config    *Config
-	vhost     *Block // 主 VirtualHost 块
+	config    *conf.Config
+	vhost     *conf.Directive // 主 VirtualHost 块
 	configDir string
 	siteName  string
 }
@@ -46,7 +47,7 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 		siteName:  filepath.Base(filepath.Dir(configDir)),
 	}
 
-	var config *Config
+	var config *conf.Config
 	configFile := filepath.Join(configDir, "apache.conf")
 	if _, err := os.Stat(configFile); err == nil {
 		config, err = ParseFile(configFile)
@@ -64,10 +65,10 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 	}
 
 	v.config = config
-	if vhosts := config.VirtualHosts(); len(vhosts) > 0 {
+	if vhosts := config.Blocks("VirtualHost"); len(vhosts) > 0 {
 		v.vhost = vhosts[0]
 	} else {
-		v.vhost = config.AddVirtualHost("*:80")
+		v.vhost = config.AddBlock("VirtualHost", "*:80")
 	}
 
 	return v, nil
@@ -132,7 +133,7 @@ func (v *baseVhost) SetEnable(enable bool) error {
 func (v *baseVhost) Listen() []types.Listen {
 	var result []types.Listen
 	// Apache 的监听写在 <VirtualHost *:80> 标签参数中
-	for _, addr := range v.vhost.ArgValues() {
+	for _, addr := range v.vhost.Values() {
 		result = append(result, types.Listen{Address: addr, Args: []string{}})
 	}
 	return result
@@ -158,7 +159,7 @@ func (v *baseVhost) ServerName() []string {
 		names = append(names, name)
 	}
 	for _, alias := range v.vhost.GetAll("ServerAlias") {
-		names = append(names, argValues(alias.Args)...)
+		names = append(names, alias.Values()...)
 	}
 	return names
 }
@@ -168,7 +169,7 @@ func (v *baseVhost) SetServerName(serverName []string) error {
 		return nil
 	}
 	v.vhost.Set("ServerName", serverName[0])
-	v.vhost.RemoveAll("ServerAlias")
+	v.vhost.Remove("ServerAlias")
 	if len(serverName) > 1 {
 		v.vhost.Add("ServerAlias", serverName[1:]...)
 	}
@@ -176,7 +177,7 @@ func (v *baseVhost) SetServerName(serverName []string) error {
 }
 
 func (v *baseVhost) Index() []string {
-	if values := v.vhost.Values("DirectoryIndex"); values != nil {
+	if values := v.vhost.Get("DirectoryIndex").Values(); values != nil {
 		return values
 	}
 	return []string{}
@@ -203,9 +204,9 @@ func (v *baseVhost) SetRoot(root string) error {
 		dirBlock.SetArgs(root)
 	} else {
 		v.vhost.AddBlock("Directory", root).Append(
-			Dir("Options", "-Indexes", "+FollowSymLinks"),
-			Dir("AllowOverride", "All"),
-			Dir("Require", "all", "granted"),
+			conf.Dir("Options", "-Indexes", "+FollowSymLinks"),
+			conf.Dir("AllowOverride", "All"),
+			conf.Dir("Require", "all", "granted"),
 		)
 	}
 	return nil
@@ -224,8 +225,8 @@ func (v *baseVhost) Includes() []types.IncludeFile {
 }
 
 func (v *baseVhost) SetIncludes(includes []types.IncludeFile) error {
-	v.vhost.RemoveAll("Include")
-	v.vhost.RemoveAll("IncludeOptional")
+	v.vhost.Remove("Include")
+	v.vhost.Remove("IncludeOptional")
 	for _, inc := range includes {
 		v.vhost.Add("Include", inc.Path)
 	}
@@ -247,9 +248,9 @@ func (v *baseVhost) SetAccessLog(accessLog string) error {
 	if accessLog == "" {
 		return v.RemoveConfig("020-access-log.conf", types.ScopeSite)
 	}
-	cfg := &Config{}
-	cfg.Append(Dir("CustomLog", accessLog, "combined"))
-	return v.SetConfig("020-access-log.conf", "site", cfg.Export()+"\n")
+	cfg := &conf.Config{}
+	cfg.Append(conf.Dir("CustomLog", accessLog, "combined"))
+	return v.SetConfig("020-access-log.conf", "site", Export(cfg)+"\n")
 }
 
 func (v *baseVhost) ErrorLog() string {
@@ -267,14 +268,14 @@ func (v *baseVhost) SetErrorLog(errorLog string) error {
 	if errorLog == "" {
 		return v.RemoveConfig("020-error-log.conf", types.ScopeSite)
 	}
-	cfg := &Config{}
-	cfg.Append(Dir("ErrorLog", errorLog))
-	return v.SetConfig("020-error-log.conf", "site", cfg.Export()+"\n")
+	cfg := &conf.Config{}
+	cfg.Append(conf.Dir("ErrorLog", errorLog))
+	return v.SetConfig("020-error-log.conf", "site", Export(cfg)+"\n")
 }
 
 func (v *baseVhost) Save() error {
 	configFile := filepath.Join(v.configDir, "apache.conf")
-	if err := os.WriteFile(configFile, []byte(v.config.Render()+"\n"), 0600); err != nil {
+	if err := os.WriteFile(configFile, []byte(Render(v.config)+"\n"), 0600); err != nil {
 		return fmt.Errorf("failed to save config file: %w", err)
 	}
 	return nil
@@ -286,7 +287,7 @@ func (v *baseVhost) Reset() error {
 		return fmt.Errorf("failed to reset config: %w", err)
 	}
 	v.config = config
-	if vhosts := config.VirtualHosts(); len(vhosts) > 0 {
+	if vhosts := config.Blocks("VirtualHost"); len(vhosts) > 0 {
 		v.vhost = vhosts[0]
 	}
 	return nil
@@ -335,7 +336,7 @@ func (v *baseVhost) SSLConfig() *types.SSLConfig {
 		Cert: v.vhost.Value("SSLCertificateFile"),
 		Key:  v.vhost.Value("SSLCertificateKeyFile"),
 	}
-	if protocols := v.vhost.Values("SSLProtocol"); protocols != nil {
+	if protocols := v.vhost.Get("SSLProtocol").Values(); protocols != nil {
 		config.Protocols = protocols
 	}
 
@@ -404,11 +405,11 @@ func (v *baseVhost) ClearSSL() error {
 	}
 	v.vhost.RemoveFunc("Header", isHSTSHeader)
 	v.vhost.Remove("RewriteEngine")
-	v.vhost.RemoveAll("RewriteCond")
-	v.vhost.RemoveAll("RewriteRule")
+	v.vhost.Remove("RewriteCond")
+	v.vhost.Remove("RewriteRule")
 
 	var newArgs []string
-	for _, addr := range v.vhost.ArgValues() {
+	for _, addr := range v.vhost.Values() {
 		if portOf(addr) != "443" {
 			newArgs = append(newArgs, addr)
 		}
@@ -422,7 +423,7 @@ func (v *baseVhost) ClearSSL() error {
 
 // hasPort 判断 VirtualHost 是否监听指定端口
 func (v *baseVhost) hasPort(port string) bool {
-	return slices.ContainsFunc(v.vhost.ArgValues(), func(addr string) bool {
+	return slices.ContainsFunc(v.vhost.Values(), func(addr string) bool {
 		return portOf(addr) == port
 	})
 }
@@ -434,7 +435,7 @@ func (v *baseVhost) RateLimit() *types.RateLimit {
 
 	rateLimit := &types.RateLimit{}
 	for _, d := range v.vhost.GetAll("SetEnv") {
-		vals := argValues(d.Args)
+		vals := d.Values()
 		if len(vals) >= 2 && vals[0] == "rate-limit" {
 			rateLimit.Rate, _ = strconv.Atoi(vals[1])
 		}
@@ -449,14 +450,14 @@ func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
 		v.vhost.Set("SetEnv", "rate-limit", strconv.Itoa(limit.Rate))
 	} else {
 		v.vhost.Remove("SetOutputFilter")
-		v.vhost.RemoveAll("SetEnv")
+		v.vhost.Remove("SetEnv")
 	}
 	return nil
 }
 
 func (v *baseVhost) ClearRateLimit() error {
 	v.vhost.Remove("SetOutputFilter")
-	v.vhost.RemoveAll("SetEnv")
+	v.vhost.Remove("SetEnv")
 	return nil
 }
 
@@ -487,10 +488,10 @@ func (v *baseVhost) SetBasicAuth(auths []types.BasicAuth) error {
 	})
 	for _, auth := range auths {
 		v.vhost.AddBlock("Location", auth.Path).Append(
-			Dir("AuthType", "Basic"),
-			Dir("AuthName", "Restricted"),
-			Dir("AuthUserFile", auth.UserFile),
-			Dir("Require", "valid-user"),
+			conf.Dir("AuthType", "Basic"),
+			conf.Dir("AuthName", "Restricted"),
+			conf.Dir("AuthUserFile", auth.UserFile),
+			conf.Dir("Require", "valid-user"),
 		)
 	}
 	return nil
@@ -501,11 +502,11 @@ func (v *baseVhost) ClearBasicAuth() error {
 	for _, name := range []string{"AuthType", "AuthName", "AuthUserFile"} {
 		v.vhost.Remove(name)
 	}
-	v.vhost.RemoveFunc("Require", func(d *Directive) bool {
+	v.vhost.RemoveFunc("Require", func(d *conf.Directive) bool {
 		return len(d.Args) == 1 && d.Args[0].Value == "valid-user"
 	})
-	v.vhost.RemoveBlockFunc("Location", func(b *Block) bool {
-		return b.Has("AuthType")
+	v.vhost.RemoveFunc("Location", func(d *conf.Directive) bool {
+		return d.Block != nil && d.Has("AuthType")
 	})
 	return nil
 }
@@ -528,7 +529,7 @@ func (v *baseVhost) RealIP() *types.RealIP {
 
 func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
 	v.vhost.Remove("RemoteIPHeader")
-	v.vhost.RemoveAll("RemoteIPTrustedProxy")
+	v.vhost.Remove("RemoteIPTrustedProxy")
 
 	if realIP == nil || (len(realIP.From) == 0 && realIP.Header == "") {
 		return nil
@@ -547,7 +548,7 @@ func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
 
 func (v *baseVhost) ClearRealIP() error {
 	v.vhost.Remove("RemoteIPHeader")
-	v.vhost.RemoveAll("RemoteIPTrustedProxy")
+	v.vhost.Remove("RemoteIPTrustedProxy")
 	return nil
 }
 
@@ -580,11 +581,11 @@ func (v *PHPVhost) SetPHP(version uint) error {
 	}
 
 	handler := fmt.Sprintf("proxy:unix:/tmp/php-cgi-%d.sock|fcgi://localhost/", version)
-	cfg := &Config{}
-	cfg.Append(Blk("FilesMatch", `\.php$`).Append(
-		&Directive{Name: "SetHandler", Args: []Argument{dquote(handler)}},
+	cfg := &conf.Config{}
+	cfg.Append(conf.Blk("FilesMatch", `\.php$`).Append(
+		&conf.Directive{Name: "SetHandler", Args: []conf.Arg{dquote(handler)}},
 	))
-	return v.SetConfig("010-php.conf", "site", cfg.Export()+"\n")
+	return v.SetConfig("010-php.conf", "site", Export(cfg)+"\n")
 }
 
 // phpVersionFromHandler 从 SetHandler 值提取 PHP 版本号
@@ -629,12 +630,12 @@ func (v *ProxyVhost) ClearUpstreams() error {
 }
 
 // isHSTSHeader 判断是否为 HSTS 响应头指令
-func isHSTSHeader(d *Directive) bool {
+func isHSTSHeader(d *conf.Directive) bool {
 	return argsContain(d.Args, "Strict-Transport-Security")
 }
 
 // argsContain 判断参数值中是否有任一含子串
-func argsContain(args []Argument, sub string) bool {
+func argsContain(args []conf.Arg, sub string) bool {
 	for _, a := range args {
 		if strings.Contains(a.Value, sub) {
 			return true

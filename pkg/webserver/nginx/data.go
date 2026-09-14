@@ -181,3 +181,9 @@ var order = map[string]int{
 	"access_log": 1500,
 	"error_log":  1501,
 }
+
+// orderDefault 未知指令的排序键，orderBlock 让带块的指令排在最后
+const (
+	orderDefault = 1250
+	orderBlock   = 10000
+)

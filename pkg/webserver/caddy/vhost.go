@@ -13,6 +13,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -116,9 +117,9 @@ func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 
 var phpSocketPattern = regexp.MustCompile(`php-cgi-(\d+)\.sock$`)
 
-func (v *baseVhost) load(cfg *Config) {
+func (v *baseVhost) load(cfg *conf.Config) {
 	v.loadUpstreams(cfg)
-	sites := cfg.Sites()
+	sites := sites(cfg)
 	if len(sites) == 0 {
 		return
 	}
@@ -126,31 +127,31 @@ func (v *baseVhost) load(cfg *Config) {
 	v.loadSSL(sites)
 
 	// 站点主体在片段里，手写的最简配置则直接取站点块
-	body := &sites[0].nodeList
-	if snippet := cfg.Directive("(" + v.siteSnippet() + ")"); snippet != nil {
-		body = &snippet.nodeList
+	body := sites[0].Block
+	if snippet := cfg.Get("(" + v.siteSnippet() + ")"); snippet != nil {
+		body = snippet.Block
 	}
-	if d := body.Directive("root"); d != nil {
-		v.root = d.Arg(len(d.Args()) - 1)
+	if d := body.Get("root"); d != nil {
+		v.root = d.Arg(len(d.Values()) - 1)
 	}
 	v.index = []string{}
-	if fs := body.Directive("file_server"); fs != nil {
-		if idx := fs.Directive("index"); idx != nil {
-			v.index = idx.Args()
+	if fs := body.Get("file_server"); fs != nil {
+		if idx := fs.Get("index"); idx != nil {
+			v.index = idx.Values()
 		}
 	}
 	v.accessLog = ""
-	if l := body.Directive("log"); l != nil {
-		if out := l.Directive("output"); out != nil && out.Arg(0) == "file" {
+	if l := body.Get("log"); l != nil {
+		if out := l.Get("output"); out != nil && out.Arg(0) == "file" {
 			v.accessLog = out.Arg(1)
 		}
 	}
-	for _, d := range body.Directives("import") {
+	for _, d := range body.GetAll("import") {
 		if !strings.HasPrefix(d.Arg(0), v.configDir+"/") {
 			v.includes = append(v.includes, types.IncludeFile{Path: d.Arg(0)})
 		}
 	}
-	if d := body.Directive("php_fastcgi"); d != nil {
+	if d := body.Get("php_fastcgi"); d != nil {
 		if m := phpSocketPattern.FindStringSubmatch(d.Arg(0)); m != nil {
 			version, _ := strconv.Atoi(m[1])
 			v.php = uint(version)
@@ -162,12 +163,12 @@ func (v *baseVhost) load(cfg *Config) {
 }
 
 // loadListen 由各站点块地址还原监听与域名：无 scheme 时 80 端口为 HTTP，带主机名或块内有 tls 的其它端口为 HTTPS
-func (v *baseVhost) loadListen(sites []*Directive) {
+func (v *baseVhost) loadListen(sites []*conf.Directive) {
 	var hosts, ports, binds []string
 	ssl := map[string]bool{}
 	for _, site := range sites {
-		hasTLS := site.Directive("tls") != nil
-		for _, key := range site.Tokens {
+		hasTLS := site.Get("tls") != nil
+		for _, key := range addresses(site) {
 			scheme, rest, found := strings.Cut(key, "://")
 			if !found {
 				scheme, rest = "", key
@@ -185,8 +186,8 @@ func (v *baseVhost) loadListen(sites []*Directive) {
 			}
 			ssl[port] = ssl[port] || secure
 		}
-		if d := site.Directive("bind"); d != nil {
-			for _, bind := range d.Args() {
+		if d := site.Get("bind"); d != nil {
+			for _, bind := range d.Values() {
 				if !slices.Contains(binds, bind) {
 					binds = append(binds, bind)
 				}
@@ -217,9 +218,9 @@ func (v *baseVhost) loadListen(sites []*Directive) {
 	}
 }
 
-func (v *baseVhost) loadSSL(sites []*Directive) {
+func (v *baseVhost) loadSSL(sites []*conf.Directive) {
 	for _, site := range sites {
-		tls := site.Directive("tls")
+		tls := site.Get("tls")
 		if tls == nil {
 			continue
 		}
@@ -229,11 +230,11 @@ func (v *baseVhost) loadSSL(sites []*Directive) {
 			Protocols: protocolsFromCaddy(nil),
 			OCSP:      true,
 		}
-		if p := tls.Directive("protocols"); p != nil {
-			v.ssl.Protocols = protocolsFromCaddy(p.Args())
+		if p := tls.Get("protocols"); p != nil {
+			v.ssl.Protocols = protocolsFromCaddy(p.Values())
 		}
-		for _, d := range site.Directives("header") {
-			if slices.Contains(d.Args(), hstsHeader) {
+		for _, d := range site.GetAll("header") {
+			if slices.Contains(d.Values(), hstsHeader) {
 				v.ssl.HSTS = true
 			}
 		}
@@ -242,7 +243,7 @@ func (v *baseVhost) loadSSL(sites []*Directive) {
 		return
 	}
 	for _, site := range sites {
-		for _, d := range site.Directives("redir") {
+		for _, d := range site.GetAll("redir") {
 			if d.Arg(0) == httpMatcher {
 				v.ssl.HTTPRedirect = true
 			}
@@ -250,19 +251,19 @@ func (v *baseVhost) loadSSL(sites []*Directive) {
 	}
 }
 
-func (v *baseVhost) loadAuths(body *nodeList) {
-	for _, d := range body.Directives("basic_auth") {
-		m := body.Directive(d.Arg(0))
+func (v *baseVhost) loadAuths(body *conf.Block) {
+	for _, d := range body.GetAll("basic_auth") {
+		m := body.Get(d.Arg(0))
 		if m == nil {
 			continue
 		}
 		pattern := m.Arg(1)
-		if m.Block {
-			if p := m.Directive("path"); p != nil {
+		if m.Block != nil {
+			if p := m.Get("path"); p != nil {
 				pattern = p.Arg(0)
 			}
 		}
-		imp := d.Directive("import")
+		imp := d.Get("import")
 		if imp == nil {
 			continue
 		}
@@ -389,7 +390,7 @@ func (v *baseVhost) Save() error {
 	if err != nil {
 		return err
 	}
-	if err = os.WriteFile(filepath.Join(v.configDir, ConfName), []byte(v.build(users).String()), 0600); err != nil {
+	if err = os.WriteFile(filepath.Join(v.configDir, ConfName), []byte(Export(v.build(users))), 0600); err != nil {
 		return fmt.Errorf("failed to save config file: %w", err)
 	}
 	return nil
@@ -607,9 +608,9 @@ const (
 
 // build 由内存状态生成完整站点文件：主体写成片段，HTTP 与 HTTPS 地址各占一个站点块引用它，
 // 避免同一站点块混用两种 scheme 时被合并进同一个 server；块内指令的执行顺序由 Caddy 按指令类型排定
-func (v *baseVhost) build(users map[string]bool) *Config {
-	cfg := &Config{}
-	cfg.Append(&Comment{Text: " Auto-generated by AcePanel. DO NOT EDIT MANUALLY!"})
+func (v *baseVhost) build(users map[string]bool) *conf.Config {
+	cfg := &conf.Config{}
+	cfg.Append(conf.Cmt("Auto-generated by AcePanel. DO NOT EDIT MANUALLY!"))
 	// 共享片段目录通常为空，空通配会让 Caddy 每次重载都记一条警告，有文件时才引用
 	if matches, _ := filepath.Glob(filepath.Join(v.configDir, "shared", "*.conf")); len(matches) > 0 {
 		cfg.Add("import", filepath.Join(v.configDir, "shared", "*.conf"))
@@ -628,7 +629,7 @@ func (v *baseVhost) build(users map[string]bool) *Config {
 
 	// 验证请求按原始 URI 匹配，不受伪静态改写影响；token 目录以 /.well-known/acme-challenge/ 为子路径，
 	// 根目录只给 file_server 用，不改写请求的 root 变量，错误页仍按站点根目录解析
-	body.Append(&Blank{})
+	body.Append(&conf.Blank{})
 	body.Add(acmeMatcher, "expression", `{http.request.orig_uri.path}.startsWith("`+acmeURI+`")`)
 	acme := body.AddBlock("handle", acmeMatcher)
 	acme.Add("rewrite", "*", "{http.request.orig_uri.path}")
@@ -636,29 +637,29 @@ func (v *baseVhost) build(users map[string]bool) *Config {
 
 	// 停用时恒真匹配器排在片段之前，先于用户的 handle 命中
 	if !v.Enable() {
-		body.Append(&Comment{Text: " ace:stop"})
+		body.Append(&conf.Comment{Text: " ace:stop"})
 		body.Add(stopMatcher, "expression", "true")
 		stop := body.AddBlock("handle", stopMatcher)
 		stop.Add("rewrite", "*", "/stop.html")
 		stop.AddBlock("file_server").Add("root", HTMLDir)
 	}
 
-	body.Append(&Blank{})
+	body.Append(&conf.Blank{})
 	body.Add("import", filepath.Join(v.configDir, "site", "*.conf"))
 	for _, inc := range v.includes {
 		body.Add("import", inc.Path)
 	}
 
-	v.buildRedirects(&body.nodeList)
-	v.buildAuths(&body.nodeList, users)
-	v.buildProxies(&body.nodeList)
+	v.buildRedirects(body.Block)
+	v.buildAuths(body.Block, users)
+	v.buildProxies(body.Block)
 
-	body.Append(&Blank{})
+	body.Append(&conf.Blank{})
 	if v.php > 0 {
 		body.Add("php_fastcgi", phpSocket(v.php))
 	}
 	if len(v.index) > 0 {
-		body.AddBlock("file_server").Add(append([]string{"index"}, v.index...)...)
+		body.AddBlock("file_server").Add("index", v.index...)
 	} else {
 		body.Add("file_server")
 	}
@@ -666,9 +667,9 @@ func (v *baseVhost) build(users map[string]bool) *Config {
 	httpKeys, httpsKeys := v.siteKeys()
 	binds := v.bindHosts()
 	if len(httpKeys) > 0 {
-		site := cfg.AddSite(httpKeys...)
+		site := addSite(cfg, httpKeys...)
 		if len(binds) > 0 {
-			site.Add(append([]string{"bind"}, binds...)...)
+			site.Add("bind", binds...)
 		}
 		if v.ssl != nil && v.ssl.HTTPRedirect && len(httpsKeys) > 0 {
 			site.Add(httpMatcher, "not", "path", acmeURI+"*")
@@ -677,9 +678,9 @@ func (v *baseVhost) build(users map[string]bool) *Config {
 		site.Add("import", v.siteSnippet())
 	}
 	if len(httpsKeys) > 0 {
-		site := cfg.AddSite(httpsKeys...)
+		site := addSite(cfg, httpsKeys...)
 		if len(binds) > 0 {
-			site.Add(append([]string{"bind"}, binds...)...)
+			site.Add("bind", binds...)
 		}
 		v.buildTLS(site)
 		if v.ssl != nil && v.ssl.HSTS {
@@ -730,7 +731,7 @@ func (v *baseVhost) bindHosts() []string {
 	return hosts
 }
 
-func (v *baseVhost) buildTLS(site *Directive) {
+func (v *baseVhost) buildTLS(site *conf.Directive) {
 	if v.ssl == nil {
 		return
 	}
@@ -739,7 +740,7 @@ func (v *baseVhost) buildTLS(site *Directive) {
 		site.Add("tls", v.ssl.Cert, v.ssl.Key)
 		return
 	}
-	site.AddBlock("tls", v.ssl.Cert, v.ssl.Key).Add(append([]string{"protocols"}, protocols...)...)
+	site.AddBlock("tls", v.ssl.Cert, v.ssl.Key).Add("protocols", protocols...)
 }
 
 func (v *baseVhost) authMatcher(i int) string {
@@ -747,7 +748,7 @@ func (v *baseVhost) authMatcher(i int) string {
 }
 
 // buildAuths 每条认证一个路径匹配器，整站认证需放过验证路径；用户文件按 `user hash` 行直接 import 进块内，没有用户的规则不生成
-func (v *baseVhost) buildAuths(body *nodeList, users map[string]bool) {
+func (v *baseVhost) buildAuths(body *conf.Block, users map[string]bool) {
 	for i, auth := range v.auths {
 		if !users[auth.UserFile] {
 			continue

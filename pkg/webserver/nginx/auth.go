@@ -1,11 +1,11 @@
 package nginx
 
 import (
-	"fmt"
 	"regexp"
 	"slices"
 	"strings"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -49,12 +49,11 @@ func authPatternPath(pattern string) string {
 // generateAuthMaps 用 realm/file 两个 map 按 $uri 匹配实现目录级认证，对所有 location 统一生效，值为 off 即不认证
 func generateAuthMaps(siteName string, auths []types.BasicAuth) string {
 	realmVar, fileVar := authVarNames(siteName)
-	realmDefault, fileDefault := "off", `""`
+	realmDefault, fileDefault := conf.Arg{Value: "off"}, quoted("")
 	var dirs []types.BasicAuth
 	for _, auth := range auths {
 		if auth.Path == "/" {
-			realmDefault = `"Restricted"`
-			fileDefault = fmt.Sprintf("%q", auth.UserFile)
+			realmDefault, fileDefault = quoted("Restricted"), quoted(auth.UserFile)
 			continue
 		}
 		dirs = append(dirs, auth)
@@ -64,44 +63,44 @@ func generateAuthMaps(siteName string, auths []types.BasicAuth) string {
 		return len(b.Path) - len(a.Path)
 	})
 
-	var sb strings.Builder
-	_, _ = fmt.Fprintf(&sb, "map $uri %s {\n    default %s;\n", realmVar, realmDefault)
+	cfg := &conf.Config{}
+	realm := cfg.AddBlock("map", "$uri", realmVar)
+	realm.Append(&conf.Directive{Name: "default", Args: []conf.Arg{realmDefault}})
+	file := cfg.AddBlock("map", "$uri", fileVar)
+	file.Append(&conf.Directive{Name: "default", Args: []conf.Arg{fileDefault}})
 	for _, dir := range dirs {
-		_, _ = fmt.Fprintf(&sb, "    %q \"Restricted\";\n", authPathPattern(dir.Path))
+		pattern := quoted(authPathPattern(dir.Path))
+		realm.Append(&conf.Directive{Name: pattern.Value, Args: []conf.Arg{quoted("Restricted")}})
+		file.Append(&conf.Directive{Name: pattern.Value, Args: []conf.Arg{quoted(dir.UserFile)}})
 	}
-	sb.WriteString("}\n")
-	_, _ = fmt.Fprintf(&sb, "map $uri %s {\n    default %s;\n", fileVar, fileDefault)
-	for _, dir := range dirs {
-		_, _ = fmt.Fprintf(&sb, "    %q %q;\n", authPathPattern(dir.Path), dir.UserFile)
-	}
-	sb.WriteString("}\n")
-	return sb.String()
+	return Export(cfg)
 }
 
-// parseAuthMaps 从片段内容中解析 file map 还原认证规则
+// parseAuthMaps 从 file map 还原认证规则
 func parseAuthMaps(content string) []types.BasicAuth {
-	// 截取 file map 块体（片段由本包生成，file map 唯一且以 } 结束）
-	_, rest, ok := strings.Cut(content, "map $uri "+authFileVarPrefix)
-	if !ok {
+	cfg, err := Parse(content)
+	if err != nil {
 		return nil
 	}
-	body, _, _ := strings.Cut(rest, "}")
-
 	var auths []types.BasicAuth
-	for _, line := range strings.Split(body, "\n")[1:] {
-		key, value, ok := strings.Cut(strings.TrimSuffix(strings.TrimSpace(line), ";"), " ")
-		if !ok {
+	for _, m := range cfg.Blocks("map") {
+		if !strings.HasPrefix(m.Arg(1), authFileVarPrefix) {
 			continue
 		}
-		value = strings.Trim(value, `"`)
-		if value == "" {
-			continue
-		}
-		if key == "default" {
-			auths = append(auths, types.BasicAuth{Path: "/", UserFile: value})
-		} else {
-			auths = append(auths, types.BasicAuth{Path: authPatternPath(strings.Trim(key, `"`)), UserFile: value})
+		for _, d := range m.All() {
+			if d.Arg(0) == "" {
+				continue
+			}
+			if d.Name == "default" {
+				auths = append(auths, types.BasicAuth{Path: "/", UserFile: d.Arg(0)})
+			} else {
+				auths = append(auths, types.BasicAuth{Path: authPatternPath(d.Name), UserFile: d.Arg(0)})
+			}
 		}
 	}
 	return auths
+}
+
+func quoted(value string) conf.Arg {
+	return conf.Arg{Value: value, Quote: conf.QuoteDouble}
 }

@@ -2,204 +2,96 @@ package nginx
 
 import (
 	"fmt"
-	"os"
+	"math"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/samber/lo"
-
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// upstreamFilePattern 匹配 upstream 配置文件名 (100-XXX-name.conf)
 var upstreamFilePattern = regexp.MustCompile(`^(\d{3})-(.+)\.conf$`)
 
-// parseUpstreamFiles 从 shared 目录解析所有 upstream 配置
+var upstreamAlgos = []string{"least_conn", "ip_hash", "hash", "random"}
+
 func parseUpstreamFiles(sharedDir string) ([]types.Upstream, error) {
-	entries, err := os.ReadDir(sharedDir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
 	var upstreams []types.Upstream
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		matches := upstreamFilePattern.FindStringSubmatch(entry.Name())
-		if matches == nil {
-			continue
-		}
-
-		num, _ := strconv.Atoi(matches[1])
-		if num < UpstreamStartNum {
-			continue
-		}
-
-		filePath := filepath.Join(sharedDir, entry.Name())
-		upstream, err := parseUpstreamFile(filePath, matches[2])
+	for _, file := range listFiles(sharedDir, upstreamFilePattern, UpstreamStartNum, math.MaxInt) {
+		cfg, err := ParseFile(file)
 		if err != nil {
-			continue // 跳过解析失败的文件
+			continue
 		}
-		if upstream != nil {
-			upstreams = append(upstreams, *upstream)
+		up := cfg.GetBlock("upstream")
+		if up == nil || up.Arg(0) == "" {
+			continue
 		}
+		upstream := types.Upstream{
+			Name:      up.Arg(0),
+			Servers:   make(map[string]string),
+			Resolver:  []string{},
+			Keepalive: atoi(up.Value("keepalive")),
+		}
+		for _, algo := range upstreamAlgos {
+			if up.Has(algo) {
+				upstream.Algo = algo
+				break
+			}
+		}
+		for _, srv := range up.GetAll("server") {
+			if srv.Arg(0) != "" {
+				upstream.Servers[srv.Arg(0)] = strings.Join(srv.Values()[1:], " ")
+			}
+		}
+		if resolver := up.Get("resolver").Values(); resolver != nil {
+			upstream.Resolver = resolver
+		}
+		upstream.ResolverTimeout = parseDuration(up.Value("resolver_timeout"))
+		upstreams = append(upstreams, upstream)
 	}
-
 	return upstreams, nil
 }
 
-// parseUpstreamFile 解析单个 upstream 配置文件
-func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, error) {
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
-
-	p, err := NewParserFromString(string(content))
-	if err != nil {
-		return nil, err
-	}
-	cfg := p.Config()
-
-	upstreams := cfg.FindUpstreams()
-	if len(upstreams) == 0 {
-		return nil, nil
-	}
-	up := upstreams[0]
-
-	name := up.UpstreamName
-	if expectedName != "" && name != expectedName {
-		return nil, nil
-	}
-
-	upstream := &types.Upstream{
-		Name:     name,
-		Servers:  make(map[string]string),
-		Resolver: []string{},
-	}
-
-	for _, algo := range []string{"least_conn", "ip_hash", "hash", "random"} {
-		if len(up.FindDirectives(algo)) > 0 {
-			upstream.Algo = algo
-			break
-		}
-	}
-
-	for _, srv := range up.UpstreamServers {
-		params := p.parameters2Slices(srv.GetDirective().Parameters)
-		upstream.Servers[srv.Address] = strings.Join(params[1:], " ")
-	}
-
-	if d := up.FindDirectives("keepalive"); len(d) > 0 {
-		params := p.parameters2Slices(d[0].GetParameters())
-		if len(params) > 0 {
-			upstream.Keepalive, _ = strconv.Atoi(params[0])
-		}
-	}
-
-	if d := up.FindDirectives("resolver"); len(d) > 0 {
-		upstream.Resolver = p.parameters2Slices(d[0].GetParameters())
-	}
-
-	if d := up.FindDirectives("resolver_timeout"); len(d) > 0 {
-		params := p.parameters2Slices(d[0].GetParameters())
-		if len(params) > 0 {
-			upstream.ResolverTimeout = parseDuration(params[0])
-		}
-	}
-
-	return upstream, nil
-}
-
-// writeUpstreamFiles 将 upstream 配置写入文件
 func writeUpstreamFiles(sharedDir string, upstreams []types.Upstream) error {
-	if err := clearUpstreamFiles(sharedDir); err != nil {
+	if err := clearFiles(sharedDir, upstreamFilePattern, UpstreamStartNum, math.MaxInt); err != nil {
 		return err
 	}
-
 	for i, upstream := range upstreams {
-		num := UpstreamStartNum + i
-		fileName := fmt.Sprintf("%03d-%s.conf", num, upstream.Name)
-		filePath := filepath.Join(sharedDir, fileName)
-
-		content := generateUpstreamConfig(upstream)
-		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
-			return fmt.Errorf("failed to write upstream config: %w", err)
+		path := filepath.Join(sharedDir, fmt.Sprintf("%03d-%s.conf", UpstreamStartNum+i, upstream.Name))
+		if err := writeFragment(path, conf.Cmt("Upstream: "+upstream.Name), upstreamNode(upstream)); err != nil {
+			return err
 		}
 	}
-
 	return nil
 }
 
-// clearUpstreamFiles 清除所有 upstream 配置文件
 func clearUpstreamFiles(sharedDir string) error {
-	entries, err := os.ReadDir(sharedDir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		matches := upstreamFilePattern.FindStringSubmatch(entry.Name())
-		if matches == nil {
-			continue
-		}
-
-		num, _ := strconv.Atoi(matches[1])
-		if num >= UpstreamStartNum {
-			filePath := filepath.Join(sharedDir, entry.Name())
-			if err = os.Remove(filePath); err != nil && !os.IsNotExist(err) {
-				return fmt.Errorf("failed to delete upstream config: %w", err)
-			}
-		}
-	}
-
-	return nil
+	return clearFiles(sharedDir, upstreamFilePattern, UpstreamStartNum, math.MaxInt)
 }
 
-// generateUpstreamConfig 生成 upstream 配置内容
-func generateUpstreamConfig(upstream types.Upstream) string {
-	var sb strings.Builder
-
-	sb.WriteString("# Auto-generated by AcePanel. DO NOT EDIT MANUALLY!\n")
-	_, _ = fmt.Fprintf(&sb, "# Upstream: %s\n", upstream.Name)
-	_, _ = fmt.Fprintf(&sb, "upstream %s {\n", upstream.Name)
-
-	_, _ = fmt.Fprintf(&sb, "    zone %s 512k;\n", upstream.Name)
-
-	if upstream.Algo != "" {
-		_, _ = fmt.Fprintf(&sb, "    %s;\n", upstream.Algo)
+func upstreamNode(u types.Upstream) *conf.Directive {
+	up := conf.Blk("upstream", u.Name)
+	up.Add("zone", u.Name, "512k")
+	if u.Algo != "" {
+		up.Add(u.Algo)
 	}
-
-	if len(upstream.Resolver) > 0 {
-		_, _ = fmt.Fprintf(&sb, "    resolver %s;\n", strings.Join(upstream.Resolver, " "))
-		if upstream.ResolverTimeout > 0 {
-			_, _ = fmt.Fprintf(&sb, "    resolver_timeout %ds;\n", int(upstream.ResolverTimeout.Seconds()))
+	if len(u.Resolver) > 0 {
+		up.Add("resolver", u.Resolver...)
+		if u.ResolverTimeout > 0 {
+			up.Add("resolver_timeout", formatDuration(u.ResolverTimeout))
 		}
 	}
-
-	for addr, options := range upstream.Servers {
-		_, _ = fmt.Fprintf(&sb, "    server %s;\n", lo.If(options != "", addr+" "+options).Else(addr))
+	for _, addr := range sortedKeys(u.Servers) {
+		up.Add("server", append([]string{addr}, strings.Fields(u.Servers[addr])...)...)
 	}
-
-	if upstream.Keepalive > 0 {
-		_, _ = fmt.Fprintf(&sb, "    keepalive %d;\n", upstream.Keepalive)
+	if u.Keepalive > 0 {
+		up.Add("keepalive", strconv.Itoa(u.Keepalive))
 	}
+	return up
+}
 
-	sb.WriteString("}\n")
-
-	return sb.String()
+func atoi(s string) int {
+	n, _ := strconv.Atoi(s)
+	return n
 }

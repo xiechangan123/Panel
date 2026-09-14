@@ -48,7 +48,7 @@ func (s *VhostTestSuite) TearDownTest() {
 
 func (s *VhostTestSuite) TestNewVhost() {
 	s.Equal(s.configDir, s.vhost.configDir)
-	s.NotNil(s.vhost.parser)
+	s.NotNil(s.vhost.cfg)
 }
 
 func (s *VhostTestSuite) TestEnable() {
@@ -133,7 +133,7 @@ func (s *VhostTestSuite) TestListenWithSSLAndQUIC() {
 	s.NoError(s.vhost.Save())
 
 	// 验证生成的配置中 ssl 和 quic 是分开的
-	dump := s.vhost.parser.Dump()
+	dump := Render(s.vhost.cfg)
 	s.Contains(dump, "listen 443 ssl;")
 	s.Contains(dump, "listen 443 quic;")
 	// 确保没有 "listen 443 ssl quic;" 这样的行
@@ -248,7 +248,7 @@ func (s *VhostTestSuite) TestBasicAuth() {
 
 	// map 片段应包含目录正则与整站 default
 	content := s.vhost.Config(AuthConfName, types.ScopeShared)
-	s.Contains(content, `"~^/admin(/.*)?$"`)
+	s.Contains(content, `~^/admin(/.*)?$ "Restricted";`)
 	s.Contains(content, `default "/etc/nginx/htpasswd_0";`)
 
 	s.NoError(s.vhost.ClearBasicAuth())
@@ -316,9 +316,7 @@ func (s *VhostTestSuite) TestReset() {
 }
 
 func (s *VhostTestSuite) TestSave() {
-	// 设置配置文件路径
 	configFile := filepath.Join(s.configDir, "nginx.conf")
-	s.vhost.parser.SetConfigPath(configFile)
 
 	s.NoError(s.vhost.SetServerName([]string{"save-test.com"}))
 	s.NoError(s.vhost.Save())
@@ -333,7 +331,7 @@ func (s *VhostTestSuite) TestDump() {
 	s.NoError(s.vhost.SetServerName([]string{"dump-test.com"}))
 	s.NoError(s.vhost.SetRoot("/var/www/dump-test"))
 
-	content := s.vhost.parser.Dump()
+	content := Render(s.vhost.cfg)
 	s.NotEmpty(content)
 	s.Contains(content, "dump-test.com")
 	s.Contains(content, "/var/www/dump-test")
@@ -348,7 +346,7 @@ func (s *VhostTestSuite) TestDumpWithSSL() {
 	}
 	s.NoError(s.vhost.SetSSLConfig(sslConfig))
 
-	content := s.vhost.parser.Dump()
+	content := Render(s.vhost.cfg)
 	s.Contains(content, "ssl_certificate")
 	s.Contains(content, "ssl_certificate_key")
 }

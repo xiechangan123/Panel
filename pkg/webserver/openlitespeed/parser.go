@@ -4,50 +4,19 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 )
 
 // OpenLiteSpeed 纯文本配置：`key value` 行、以 `{` 结尾的块、`}` 结束块、`key <<<SIGN` 多行值、`#` 注释
-
-// Node 配置节点
-type Node interface {
-	render(b *strings.Builder, depth int)
-}
-
-// Comment 注释，不含 # 前缀
-type Comment struct {
-	Text string
-}
-
-// Directive 键值指令，Multiline 为 true 时 Value 为多行文本并以 heredoc 形式输出
-type Directive struct {
-	Name      string
-	Value     string
-	Multiline bool
-}
-
-// Block 块，Arg 为块名后的参数，如 context 的 uri、extprocessor 的名称
-type Block struct {
-	nodeList
-	Name string
-	Arg  string
-}
-
-// Config 配置文件根
-type Config struct {
-	nodeList
-}
-
-// nodeList 节点列表，Config 与 Block 共享查询与修改方法
-type nodeList struct {
-	Nodes []Node
-}
+// 指令只有一个参数，即键之后的整行；多行值以 QuoteHeredoc 标记
 
 const indentUnit = "  "
 
 // Parse 解析配置文本
-func Parse(content string) (*Config, error) {
-	cfg := &Config{}
-	stack := []*nodeList{&cfg.nodeList}
+func Parse(content string) (*conf.Config, error) {
+	cfg := &conf.Config{}
+	stack := []*conf.Block{&cfg.Block}
 	lines := strings.Split(strings.ReplaceAll(content, "\r\n", "\n"), "\n")
 
 	for i := 0; i < len(lines); i++ {
@@ -63,7 +32,7 @@ func Parse(content string) (*Config, error) {
 		cur := stack[len(stack)-1]
 
 		if strings.HasPrefix(line, "#") {
-			cur.Nodes = append(cur.Nodes, &Comment{Text: strings.TrimPrefix(line, "#")})
+			cur.Append(&conf.Comment{Text: strings.TrimPrefix(line, "#")})
 			continue
 		}
 		if strings.HasPrefix(line, "}") {
@@ -83,9 +52,11 @@ func Parse(content string) (*Config, error) {
 			if name == "" {
 				return nil, fmt.Errorf("line %d: block without name", i+1)
 			}
-			block := &Block{Name: name, Arg: value}
-			cur.Nodes = append(cur.Nodes, block)
-			stack = append(stack, &block.nodeList)
+			block := cur.AddBlock(name)
+			if value != "" {
+				block.Args = []conf.Arg{{Value: value, Quote: conf.QuoteNone}}
+			}
+			stack = append(stack, block.Block)
 			continue
 		}
 
@@ -105,10 +76,13 @@ func Parse(content string) (*Config, error) {
 			if !closed {
 				return nil, fmt.Errorf("unterminated multiline value for %s", name)
 			}
-			cur.Nodes = append(cur.Nodes, &Directive{Name: name, Value: strings.Join(body, "\n"), Multiline: true})
+			cur.Append(&conf.Directive{Name: name, Args: []conf.Arg{{Value: strings.Join(body, "\n"), Quote: conf.QuoteHeredoc}}})
 			continue
 		}
-		cur.Nodes = append(cur.Nodes, &Directive{Name: name, Value: value})
+		d := cur.Add(name)
+		if value != "" {
+			d.Args = []conf.Arg{{Value: value, Quote: conf.QuoteNone}}
+		}
 	}
 
 	if len(stack) != 1 {
@@ -119,7 +93,7 @@ func Parse(content string) (*Config, error) {
 }
 
 // ParseFile 解析配置文件
-func ParseFile(path string) (*Config, error) {
+func ParseFile(path string) (*conf.Config, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -136,179 +110,56 @@ func splitKeyValue(line string) (string, string) {
 	return line[:idx], strings.TrimSpace(line[idx+1:])
 }
 
-// String 渲染为配置文本
-func (c *Config) String() string {
+// Export 渲染为配置文本，顶层块之间空一行
+func Export(c *conf.Config) string {
 	var b strings.Builder
 	for i, n := range c.Nodes {
-		// 顶层块之间空一行
-		if _, ok := n.(*Block); ok && i > 0 {
+		if d, ok := n.(*conf.Directive); ok && d.Block != nil && i > 0 {
 			b.WriteByte('\n')
 		}
-		n.render(&b, 0)
+		render(&b, n, 0)
 	}
 	return b.String()
 }
 
-func (c *Comment) render(b *strings.Builder, depth int) {
-	b.WriteString(strings.Repeat(indentUnit, depth))
-	b.WriteByte('#')
-	b.WriteString(c.Text)
-	b.WriteByte('\n')
-}
-
-func (d *Directive) render(b *strings.Builder, depth int) {
+func render(b *strings.Builder, n conf.Node, depth int) {
 	indent := strings.Repeat(indentUnit, depth)
-	if d.Multiline {
-		sign := "END_" + d.Name
-		_, _ = fmt.Fprintf(b, "%s%s <<<%s\n%s\n%s\n", indent, d.Name, sign, d.Value, sign)
-		return
-	}
-	if d.Value == "" {
-		_, _ = fmt.Fprintf(b, "%s%s\n", indent, d.Name)
-		return
-	}
-	_, _ = fmt.Fprintf(b, "%s%-24s %s\n", indent, d.Name, d.Value)
-}
-
-func (blk *Block) render(b *strings.Builder, depth int) {
-	indent := strings.Repeat(indentUnit, depth)
-	b.WriteString(indent)
-	b.WriteString(blk.Name)
-	if blk.Arg != "" {
-		b.WriteByte(' ')
-		b.WriteString(blk.Arg)
-	}
-	b.WriteString(" {\n")
-	for _, n := range blk.Nodes {
-		n.render(b, depth+1)
-	}
-	b.WriteString(indent)
-	b.WriteString("}\n")
-}
-
-// ========== 查询与修改，名称比较大小写不敏感 ==========
-
-// Append 追加节点
-func (l *nodeList) Append(nodes ...Node) {
-	l.Nodes = append(l.Nodes, nodes...)
-}
-
-// Directive 返回首个匹配名称的指令
-func (l *nodeList) Directive(name string) *Directive {
-	for _, n := range l.Nodes {
-		if d, ok := n.(*Directive); ok && strings.EqualFold(d.Name, name) {
-			return d
-		}
-	}
-	return nil
-}
-
-// Directives 返回所有匹配名称的指令
-func (l *nodeList) Directives(name string) []*Directive {
-	var out []*Directive
-	for _, n := range l.Nodes {
-		if d, ok := n.(*Directive); ok && strings.EqualFold(d.Name, name) {
-			out = append(out, d)
-		}
-	}
-	return out
-}
-
-// Value 返回指令值，不存在返回空串
-func (l *nodeList) Value(name string) string {
-	if d := l.Directive(name); d != nil {
-		return d.Value
-	}
-	return ""
-}
-
-// Add 追加一条指令
-func (l *nodeList) Add(name, value string) *Directive {
-	d := &Directive{Name: name, Value: value}
-	l.Nodes = append(l.Nodes, d)
-	return d
-}
-
-// Set 设置指令：存在则更新，否则追加
-func (l *nodeList) Set(name, value string) *Directive {
-	if d := l.Directive(name); d != nil {
-		d.Value = value
-		return d
-	}
-	return l.Add(name, value)
-}
-
-// Remove 删除所有匹配名称的指令
-func (l *nodeList) Remove(name string) {
-	l.RemoveFunc(func(n Node) bool {
-		d, ok := n.(*Directive)
-		return ok && strings.EqualFold(d.Name, name)
-	})
-}
-
-// RemoveFunc 删除满足谓词的节点
-func (l *nodeList) RemoveFunc(pred func(Node) bool) {
-	kept := l.Nodes[:0]
-	for _, n := range l.Nodes {
-		if !pred(n) {
-			kept = append(kept, n)
-		}
-	}
-	l.Nodes = kept
-}
-
-// Block 返回首个匹配名称（及可选参数）的块
-func (l *nodeList) Block(name string, arg ...string) *Block {
-	for _, n := range l.Nodes {
-		if b, ok := n.(*Block); ok && strings.EqualFold(b.Name, name) {
-			if len(arg) == 0 || b.Arg == arg[0] {
-				return b
+	switch v := n.(type) {
+	case *conf.Comment:
+		b.WriteString(indent + "#" + v.Text + "\n")
+	case *conf.Blank:
+		b.WriteByte('\n')
+	case *conf.Directive:
+		value := directiveValue(v)
+		switch {
+		case v.Block != nil:
+			b.WriteString(indent + v.Name)
+			if value != "" {
+				b.WriteString(" " + value)
 			}
+			b.WriteString(" {\n")
+			for _, child := range v.Nodes {
+				render(b, child, depth+1)
+			}
+			b.WriteString(indent + "}\n")
+		case len(v.Args) > 0 && v.Args[0].Quote == conf.QuoteHeredoc:
+			sign := "END_" + v.Name
+			_, _ = fmt.Fprintf(b, "%s%s <<<%s\n%s\n%s\n", indent, v.Name, sign, v.Args[0].Value, sign)
+		case value == "":
+			b.WriteString(indent + v.Name + "\n")
+		default:
+			_, _ = fmt.Fprintf(b, "%s%-24s %s\n", indent, v.Name, value)
 		}
 	}
-	return nil
 }
 
-// Blocks 返回所有匹配名称的块
-func (l *nodeList) Blocks(name string) []*Block {
-	var out []*Block
-	for _, n := range l.Nodes {
-		if b, ok := n.(*Block); ok && strings.EqualFold(b.Name, name) {
-			out = append(out, b)
+// directiveValue 参数按空格拼成一行，跳过空参数
+func directiveValue(d *conf.Directive) string {
+	var parts []string
+	for _, a := range d.Args {
+		if a.Value != "" {
+			parts = append(parts, a.Value)
 		}
 	}
-	return out
-}
-
-// AddBlock 追加一个块
-func (l *nodeList) AddBlock(name, arg string) *Block {
-	b := &Block{Name: name, Arg: arg}
-	l.Nodes = append(l.Nodes, b)
-	return b
-}
-
-// Comments 返回所有注释文本
-func (l *nodeList) Comments() []string {
-	var out []string
-	for _, n := range l.Nodes {
-		if c, ok := n.(*Comment); ok {
-			out = append(out, strings.TrimSpace(c.Text))
-		}
-	}
-	return out
-}
-
-// Meta 读取形如 `# ace:key value` 的元数据注释
-func (l *nodeList) Meta(key string) string {
-	for _, c := range l.Comments() {
-		if rest, ok := strings.CutPrefix(c, "ace:"+key+" "); ok {
-			return strings.TrimSpace(rest)
-		}
-	}
-	return ""
-}
-
-// AddMeta 写入元数据注释
-func (l *nodeList) AddMeta(key, value string) {
-	l.Nodes = append(l.Nodes, &Comment{Text: " ace:" + key + " " + value})
+	return strings.Join(parts, " ")
 }

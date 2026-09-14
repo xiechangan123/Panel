@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -75,11 +76,11 @@ func (Dialect) SPAConf() string {
 
 // LSCacheConf 缓存目录按站点隔离，由 OLS 自行创建
 func (Dialect) LSCacheConf(name string) string {
-	cfg := &Config{}
+	cfg := &conf.Config{}
 	m := cfg.AddBlock("module", "cache")
 	m.Add("ls_enabled", "1")
 	m.Add("storagePath", ServerRoot+"/cachedata/"+name)
-	return cfg.String()
+	return Export(cfg)
 }
 
 func (Dialect) HTPasswdLine(username, password string) string {
@@ -167,12 +168,12 @@ func acquireThumbprint(path, keyAuth string) (string, error) {
 		l.Lock()
 	}
 
-	cfg := &Config{}
+	cfg := &conf.Config{}
 	m := cfg.AddBlock("module", "mod_acme")
 	m.Add("ls_enabled", "1")
 	m.Add("acmeEnable", "1")
 	m.Add("acmeThumbPrint", thumb)
-	if err := os.WriteFile(acmeConf, []byte(cfg.String()), 0600); err != nil {
+	if err := os.WriteFile(acmeConf, []byte(Export(cfg)), 0600); err != nil {
 		return "", fmt.Errorf("failed to write acme config: %w", err)
 	}
 	if l.thumb != thumb {

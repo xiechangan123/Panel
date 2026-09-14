@@ -5,43 +5,13 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 )
 
 // Caddyfile 文本模型：每行一条指令，首个 token 为名称、其余为参数；行尾单独的 `{` 开块，`}` 独占一行收块；
-// 顶层带块的行是站点块（token 为逗号分隔的地址）、片段 `(name)` 或无 token 的全局选项块；
+// 顶层带块的行是站点块（Name 与 Args 为地址列表）、片段 `(name)` 或无名的全局选项块；
 // `#` 开头的 token 至行尾为注释；参数支持双引号、反引号与 heredoc，行尾反斜杠续行
-
-// Node 配置节点
-type Node interface {
-	render(b *strings.Builder, depth int)
-}
-
-// Comment 注释，不含 # 前缀
-type Comment struct {
-	Text string
-}
-
-// Blank 空行，仅用于生成时分组
-type Blank struct{}
-
-// Directive 指令行，Block 为 true 时带子块；Site 为 true 时是站点块，Tokens 为地址列表
-type Directive struct {
-	nodeList
-	Tokens   []string
-	Block    bool
-	Site     bool
-	Trailing string // 行尾注释
-}
-
-// Config 配置文件根
-type Config struct {
-	nodeList
-}
-
-// nodeList 节点列表，Config 与 Directive 共享查询与修改方法
-type nodeList struct {
-	Nodes []Node
-}
 
 type token struct {
 	text    string
@@ -53,14 +23,14 @@ type token struct {
 var heredocMarker = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 // Parse 解析配置文本
-func Parse(content string) (*Config, error) {
+func Parse(content string) (*conf.Config, error) {
 	tokens, err := lex(content)
 	if err != nil {
 		return nil, err
 	}
 
-	cfg := &Config{}
-	stack := []*nodeList{&cfg.nodeList}
+	cfg := &conf.Config{}
+	stack := []*conf.Block{&cfg.Block}
 	for i := 0; i < len(tokens); {
 		var toks []token
 		trailing := ""
@@ -83,7 +53,7 @@ func Parse(content string) (*Config, error) {
 
 		// 没有指令 token 的行只可能是纯注释行
 		if len(toks) == 0 {
-			cur.Nodes = append(cur.Nodes, &Comment{Text: trailing})
+			cur.Append(&conf.Comment{Text: trailing})
 			continue
 		}
 		if !toks[0].quoted && toks[0].text == "}" {
@@ -95,28 +65,29 @@ func Parse(content string) (*Config, error) {
 			}
 			stack = stack[:len(stack)-1]
 			if trailing != "" {
-				stack[len(stack)-1].Nodes = append(stack[len(stack)-1].Nodes, &Comment{Text: trailing})
+				stack[len(stack)-1].Append(&conf.Comment{Text: trailing})
 			}
 			continue
 		}
 
-		block := false
+		d := &conf.Directive{Trailing: trailing}
 		if last := toks[len(toks)-1]; !last.quoted && last.text == "{" {
-			block = true
+			d.Block = &conf.Block{}
 			toks = toks[:len(toks)-1]
 		}
-		d := &Directive{Block: block, Trailing: trailing}
-		for _, t := range toks {
-			d.Tokens = append(d.Tokens, t.text)
-		}
 		// 顶层带块且不是片段定义的行是站点块，地址以逗号分隔
-		if len(stack) == 1 && block && len(d.Tokens) > 0 && !strings.HasPrefix(d.Tokens[0], "(") {
-			d.Site = true
-			d.Tokens = splitAddresses(d.Tokens)
+		if len(stack) == 1 && d.Block != nil && len(toks) > 0 && !strings.HasPrefix(toks[0].text, "(") {
+			addrs := splitAddresses(toks)
+			d.Name, d.Args = addrs[0], conf.Args(addrs[1:]...)
+		} else if len(toks) > 0 {
+			d.Name = toks[0].text
+			for _, t := range toks[1:] {
+				d.Args = append(d.Args, conf.Arg{Value: t.text, Quote: quoteOf(t)})
+			}
 		}
-		cur.Nodes = append(cur.Nodes, d)
-		if block {
-			stack = append(stack, &d.nodeList)
+		cur.Append(d)
+		if d.Block != nil {
+			stack = append(stack, d.Block)
 		}
 	}
 
@@ -128,12 +99,19 @@ func Parse(content string) (*Config, error) {
 }
 
 // ParseFile 解析配置文件
-func ParseFile(path string) (*Config, error) {
+func ParseFile(path string) (*conf.Config, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 	return Parse(string(content))
+}
+
+func quoteOf(t token) conf.Quote {
+	if t.quoted {
+		return conf.QuoteDouble
+	}
+	return conf.QuoteNone
 }
 
 // lex 切分 token，逻辑行号用于分组，续行、引号与 heredoc 内的换行不增加行号
@@ -241,10 +219,10 @@ func readHeredoc(s, marker string) (string, int, error) {
 }
 
 // splitAddresses 去掉站点地址间的逗号
-func splitAddresses(tokens []string) []string {
-	out := make([]string, 0, len(tokens))
+func splitAddresses(tokens []token) []string {
+	var out []string
 	for _, t := range tokens {
-		for part := range strings.SplitSeq(t, ",") {
+		for part := range strings.SplitSeq(t.text, ",") {
 			if part = strings.TrimSpace(part); part != "" {
 				out = append(out, part)
 			}
@@ -255,67 +233,53 @@ func splitAddresses(tokens []string) []string {
 
 // ========== 渲染 ==========
 
-// String 渲染为配置文本，顶层块之间空一行
-func (c *Config) String() string {
+// Export 渲染为配置文本，顶层块之间空一行
+func Export(c *conf.Config) string {
 	var b strings.Builder
 	for i, n := range c.Nodes {
-		if d, ok := n.(*Directive); ok && d.Block && i > 0 {
-			if _, blank := c.Nodes[i-1].(*Blank); !blank {
+		if d, ok := n.(*conf.Directive); ok && d.Block != nil && i > 0 {
+			if _, blank := c.Nodes[i-1].(*conf.Blank); !blank {
 				b.WriteByte('\n')
 			}
 		}
-		n.render(&b, 0)
+		render(&b, n, 0)
 	}
 	return b.String()
 }
 
-func (c *Comment) render(b *strings.Builder, depth int) {
-	b.WriteString(strings.Repeat("\t", depth))
-	b.WriteByte('#')
-	b.WriteString(c.Text)
-	b.WriteByte('\n')
-}
-
-func (*Blank) render(b *strings.Builder, _ int) {
-	b.WriteByte('\n')
-}
-
-func (d *Directive) render(b *strings.Builder, depth int) {
+func render(b *strings.Builder, n conf.Node, depth int) {
 	indent := strings.Repeat("\t", depth)
-	b.WriteString(indent)
-	if d.Site {
-		for i, addr := range d.Tokens {
-			if i > 0 {
-				b.WriteString(",\n")
-				b.WriteString(indent)
+	switch v := n.(type) {
+	case *conf.Comment:
+		b.WriteString(indent + "#" + v.Text + "\n")
+	case *conf.Blank:
+		b.WriteByte('\n')
+	case *conf.Directive:
+		b.WriteString(indent)
+		if depth == 0 && isSite(v) {
+			b.WriteString(strings.Join(addresses(v), ",\n"+indent))
+		} else if v.Name != "" {
+			b.WriteString(v.Name)
+			for _, t := range v.Values() {
+				b.WriteString(" " + quote(t, indent))
 			}
-			b.WriteString(addr)
 		}
-	} else {
-		for i, t := range d.Tokens {
-			if i > 0 {
+		if v.Block != nil {
+			if v.Name != "" {
 				b.WriteByte(' ')
 			}
-			b.WriteString(quote(t, indent))
+			b.WriteByte('{')
 		}
-	}
-	if d.Block {
-		if len(d.Tokens) > 0 {
-			b.WriteByte(' ')
+		if v.Trailing != "" {
+			b.WriteString(" #" + v.Trailing)
 		}
-		b.WriteByte('{')
-	}
-	if d.Trailing != "" {
-		b.WriteString(" #")
-		b.WriteString(d.Trailing)
-	}
-	b.WriteByte('\n')
-	if d.Block {
-		for _, n := range d.Nodes {
-			n.render(b, depth+1)
+		b.WriteByte('\n')
+		if v.Block != nil {
+			for _, child := range v.Nodes {
+				render(b, child, depth+1)
+			}
+			b.WriteString(indent + "}\n")
 		}
-		b.WriteString(indent)
-		b.WriteString("}\n")
 	}
 }
 
@@ -338,143 +302,30 @@ func quote(t, indent string) string {
 	return t
 }
 
-// ========== 查询与修改 ==========
+// ========== 站点块 ==========
 
-// Name 指令名，nil 安全
-func (d *Directive) Name() string {
-	if d == nil || len(d.Tokens) == 0 {
-		return ""
-	}
-	return d.Tokens[0]
+// isSite 带块且不是片段定义或全局选项的顶层指令是站点块，Name 与 Args 为地址列表
+func isSite(d *conf.Directive) bool {
+	return d.Block != nil && d.Name != "" && !strings.HasPrefix(d.Name, "(")
 }
 
-// Args 指令参数
-func (d *Directive) Args() []string {
-	if len(d.Tokens) <= 1 {
-		return []string{}
-	}
-	return d.Tokens[1:]
-}
-
-// Arg 第 i 个参数，nil 或越界返回空串，便于链式取值
-func (d *Directive) Arg(i int) string {
-	if d == nil || i+1 >= len(d.Tokens) {
-		return ""
-	}
-	return d.Tokens[i+1]
-}
-
-// Append 追加节点
-func (l *nodeList) Append(nodes ...Node) {
-	l.Nodes = append(l.Nodes, nodes...)
-}
-
-// Directive 返回首个匹配名称的指令
-func (l *nodeList) Directive(name string) *Directive {
-	for _, n := range l.Nodes {
-		if d, ok := n.(*Directive); ok && d.Name() == name {
-			return d
-		}
-	}
-	return nil
-}
-
-// Directives 返回所有匹配名称的指令
-func (l *nodeList) Directives(name string) []*Directive {
-	var out []*Directive
-	for _, n := range l.Nodes {
-		if d, ok := n.(*Directive); ok && d.Name() == name {
+// sites 全部顶层站点块
+func sites(cfg *conf.Config) []*conf.Directive {
+	var out []*conf.Directive
+	for _, d := range cfg.All() {
+		if isSite(d) {
 			out = append(out, d)
 		}
 	}
 	return out
 }
 
-// All 返回全部指令
-func (l *nodeList) All() []*Directive {
-	var out []*Directive
-	for _, n := range l.Nodes {
-		if d, ok := n.(*Directive); ok {
-			out = append(out, d)
-		}
-	}
-	return out
+// addresses 站点块的地址列表
+func addresses(d *conf.Directive) []string {
+	return append([]string{d.Name}, d.Values()...)
 }
 
-// Add 追加一条指令
-func (l *nodeList) Add(tokens ...string) *Directive {
-	d := &Directive{Tokens: tokens}
-	l.Nodes = append(l.Nodes, d)
-	return d
-}
-
-// AddBlock 追加一个带块的指令
-func (l *nodeList) AddBlock(tokens ...string) *Directive {
-	d := &Directive{Tokens: tokens, Block: true}
-	l.Nodes = append(l.Nodes, d)
-	return d
-}
-
-// AddSite 追加一个站点块
-func (l *nodeList) AddSite(addresses ...string) *Directive {
-	d := &Directive{Tokens: addresses, Block: true, Site: true}
-	l.Nodes = append(l.Nodes, d)
-	return d
-}
-
-// Remove 删除所有匹配名称的指令
-func (l *nodeList) Remove(name string) {
-	kept := l.Nodes[:0]
-	for _, n := range l.Nodes {
-		if d, ok := n.(*Directive); ok && d.Name() == name {
-			continue
-		}
-		kept = append(kept, n)
-	}
-	l.Nodes = kept
-}
-
-// Site 返回首个站点块
-func (l *nodeList) Site() *Directive {
-	if sites := l.Sites(); len(sites) > 0 {
-		return sites[0]
-	}
-	return nil
-}
-
-// Sites 返回全部站点块
-func (l *nodeList) Sites() []*Directive {
-	var out []*Directive
-	for _, n := range l.Nodes {
-		if d, ok := n.(*Directive); ok && d.Site {
-			out = append(out, d)
-		}
-	}
-	return out
-}
-
-// Comments 返回所有注释文本
-func (l *nodeList) Comments() []string {
-	var out []string
-	for _, n := range l.Nodes {
-		if c, ok := n.(*Comment); ok {
-			out = append(out, strings.TrimSpace(c.Text))
-		}
-	}
-	return out
-}
-
-// Meta 读取形如 `# ace:key value` 的元数据注释
-func (l *nodeList) Meta(key string) string {
-	for _, c := range l.Comments() {
-		if rest, ok := strings.CutPrefix(c, "ace:"+key+" "); ok {
-			return strings.TrimSpace(rest)
-		}
-	}
-	return ""
-}
-
-// AddMeta 写入元数据注释
-func (l *nodeList) AddMeta(key, value string) {
-	l.Nodes = append(l.Nodes, &Comment{Text: " ace:" + key + " " + value})
+// addSite 追加一个站点块
+func addSite(cfg *conf.Config, addrs ...string) *conf.Directive {
+	return cfg.AddBlock(addrs[0], addrs[1:]...)
 }

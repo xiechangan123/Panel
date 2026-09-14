@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -21,7 +22,7 @@ func (v *baseVhost) upstreamName(name string) string {
 	return fmt.Sprintf("%s_up_%s", v.safeName, safeName(name))
 }
 
-func (v *baseVhost) buildUpstreams(cfg *Config) {
+func (v *baseVhost) buildUpstreams(cfg *conf.Config) {
 	for _, up := range v.upstreams {
 		lbName := v.upstreamName(up.Name)
 		servers := make([]string, 0, len(up.Servers))
@@ -53,14 +54,14 @@ func (v *baseVhost) buildUpstreams(cfg *Config) {
 	}
 }
 
-func (v *baseVhost) loadUpstreams(cfg *Config) {
+func (v *baseVhost) loadUpstreams(cfg *conf.Config) {
 	prefix := v.safeName + "_up_"
 	for _, lb := range cfg.Blocks("extprocessor") {
 		if !strings.EqualFold(lb.Value("type"), "loadbalancer") {
 			continue
 		}
 		up := types.Upstream{
-			Name:     strings.TrimPrefix(lb.Arg, prefix),
+			Name:     strings.TrimPrefix(lb.Arg(0), prefix),
 			Servers:  make(map[string]string),
 			Algo:     lb.Meta("algo"),
 			Resolver: []string{},
@@ -68,7 +69,7 @@ func (v *baseVhost) loadUpstreams(cfg *Config) {
 		up.Keepalive, _ = strconv.Atoi(lb.Meta("keepalive"))
 		for worker := range strings.SplitSeq(lb.Value("workers"), ",") {
 			_, name, _ := strings.Cut(strings.TrimSpace(worker), "::")
-			if member := cfg.Block("extprocessor", name); member != nil {
+			if member := cfg.GetBlock("extprocessor", name); member != nil {
 				up.Servers[addrFromOLS(member.Value("address"))] = member.Meta("options")
 			}
 		}
@@ -77,7 +78,7 @@ func (v *baseVhost) loadUpstreams(cfg *Config) {
 }
 
 // buildProxies 认证路径与代理路径相同时合并进代理上下文，返回已合并的认证序号
-func (v *baseVhost) buildProxies(cfg *Config) map[int]bool {
+func (v *baseVhost) buildProxies(cfg *conf.Config) map[int]bool {
 	consumed := make(map[int]bool)
 	for i, p := range v.proxies {
 		handler, address := v.proxyHandler(p, i)
@@ -147,7 +148,7 @@ func (v *baseVhost) buildProxies(cfg *Config) map[int]bool {
 }
 
 // addProxyApp 与后端保持长连接
-func addProxyApp(ext *Block, address string, timeout int, buffering bool) {
+func addProxyApp(ext *conf.Directive, address string, timeout int, buffering bool) {
 	ext.Add("type", "proxy")
 	ext.Add("address", address)
 	ext.Add("maxConns", "100")
@@ -186,7 +187,7 @@ func (v *baseVhost) proxyHandler(p types.Proxy, i int) (string, string) {
 
 var headerOpPattern = regexp.MustCompile(`^(RequestHeader|Header)\s+(set|unset)\s+(\S+)\s*(.*)$`)
 
-func (v *baseVhost) loadProxies(cfg *Config) {
+func (v *baseVhost) loadProxies(cfg *conf.Config) {
 	for _, ctx := range cfg.Blocks("context") {
 		if !strings.EqualFold(ctx.Value("type"), "proxy") {
 			continue
@@ -200,9 +201,9 @@ func (v *baseVhost) loadProxies(cfg *Config) {
 			Replaces: make(map[string]string),
 		}
 		if p.Location == "" {
-			p.Location = uriToLocation(ctx.Arg)
+			p.Location = uriToLocation(ctx.Arg(0))
 		}
-		if ext := cfg.Block("extprocessor", ctx.Value("handler")); ext != nil {
+		if ext := cfg.GetBlock("extprocessor", ctx.Value("handler")); ext != nil {
 			p.Buffering = ext.Value("respBuffer") == "1"
 			if p.Pass == "" {
 				p.Pass = addrFromOLS(ext.Value("address"))
@@ -213,8 +214,8 @@ func (v *baseVhost) loadProxies(cfg *Config) {
 			}
 		}
 
-		if d := ctx.Directive("extraHeaders"); d != nil {
-			for line := range strings.SplitSeq(d.Value, "\n") {
+		if d := ctx.Get("extraHeaders"); d != nil {
+			for line := range strings.SplitSeq(d.Arg(0), "\n") {
 				m := headerOpPattern.FindStringSubmatch(strings.TrimSpace(line))
 				if m == nil || m[3] == hstsHeader {
 					continue
@@ -238,7 +239,7 @@ func (v *baseVhost) loadProxies(cfg *Config) {
 			}
 		}
 
-		if ac := ctx.Block("accessControl"); ac != nil {
+		if ac := ctx.GetBlock("accessControl"); ac != nil {
 			p.AccessControl = &types.AccessControlConfig{
 				Allow: splitList(ac.Value("allow")),
 				Deny:  splitList(ac.Value("deny")),

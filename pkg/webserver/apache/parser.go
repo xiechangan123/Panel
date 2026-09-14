@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 )
 
 // ParseOptions 控制解析行为
@@ -13,12 +15,12 @@ type ParseOptions struct {
 }
 
 // ParseString 从字符串解析配置（容错模式）
-func ParseString(content string) (*Config, error) {
+func ParseString(content string) (*conf.Config, error) {
 	return parse(content, ParseOptions{Tolerant: true})
 }
 
 // ParseFile 从文件解析配置（容错模式）
-func ParseFile(filename string) (*Config, error) {
+func ParseFile(filename string) (*conf.Config, error) {
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
@@ -27,18 +29,18 @@ func ParseFile(filename string) (*Config, error) {
 }
 
 // ParseFragment 解析片段文件内容（裸指令/块列表，容错模式）
-func ParseFragment(content string) (*Config, error) {
+func ParseFragment(content string) (*conf.Config, error) {
 	return parse(content, ParseOptions{Tolerant: true})
 }
 
 // parse 将配置文本解析为 AST
-func parse(content string, opts ParseOptions) (*Config, error) {
+func parse(content string, opts ParseOptions) (*conf.Config, error) {
 	p := &parser{lines: scanLogicalLines(content), opts: opts}
 	nodes, err := p.parseNodes("")
 	if err != nil {
 		return nil, err
 	}
-	return &Config{nodeList: nodeList{Nodes: nodes}}, nil
+	return &conf.Config{Block: conf.Block{Nodes: nodes}}, nil
 }
 
 type parser struct {
@@ -49,15 +51,15 @@ type parser struct {
 
 // parseNodes 解析一段节点，直到遇到 closeName 的闭合标签或输入耗尽
 // closeName 为空表示顶层；返回时不消费闭合标签，交由调用者消费
-func (p *parser) parseNodes(closeName string) ([]Node, error) {
-	var out []Node
+func (p *parser) parseNodes(closeName string) ([]conf.Node, error) {
+	var out []conf.Node
 
 	for p.pos < len(p.lines) {
 		t := p.lines[p.pos]
 
 		switch {
 		case strings.HasPrefix(t, "#"):
-			out = append(out, &Comment{Text: t[1:]})
+			out = append(out, &conf.Comment{Text: t[1:]})
 			p.pos++
 
 		case strings.HasPrefix(t, "</"):
@@ -86,11 +88,7 @@ func (p *parser) parseNodes(closeName string) ([]Node, error) {
 			} else if !p.opts.Tolerant {
 				return nil, fmt.Errorf("unclosed <%s>", name)
 			}
-			out = append(out, &Block{
-				Name:     name,
-				Args:     tokenizeLine(argStr),
-				nodeList: nodeList{Nodes: children},
-			})
+			out = append(out, &conf.Directive{Name: name, Args: tokenizeLine(argStr), Block: &conf.Block{Nodes: children}})
 
 		default:
 			toks := tokenizeLine(t)
@@ -98,7 +96,7 @@ func (p *parser) parseNodes(closeName string) ([]Node, error) {
 				p.pos++
 				continue
 			}
-			out = append(out, &Directive{
+			out = append(out, &conf.Directive{
 				Name: toks[0].Value,
 				Args: toks[1:],
 			})

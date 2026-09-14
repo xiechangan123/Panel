@@ -1,11 +1,15 @@
 package apache
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
+)
 
 // tokenizeLine 把单行文本按 shell 风格分词为参数序列
 // 空白分隔，支持双引号/单引号，双引号内处理转义
-func tokenizeLine(s string) []Argument {
-	var args []Argument
+func tokenizeLine(s string) []conf.Arg {
+	var args []conf.Arg
 	i, n := 0, len(s)
 
 	for i < n {
@@ -20,15 +24,15 @@ func tokenizeLine(s string) []Argument {
 		switch s[i] {
 		case '"':
 			val, ni := readQuoted(s, i+1, '"', true)
-			args = append(args, Argument{Value: val, Quote: QuoteDouble})
+			args = append(args, conf.Arg{Value: val, Quote: conf.QuoteDouble})
 			i = ni
 		case '\'':
 			val, ni := readQuoted(s, i+1, '\'', false)
-			args = append(args, Argument{Value: val, Quote: QuoteSingle})
+			args = append(args, conf.Arg{Value: val, Quote: conf.QuoteSingle})
 			i = ni
 		default:
 			val, ni := readBareWord(s, i)
-			args = append(args, Argument{Value: val, Quote: QuoteNone})
+			args = append(args, conf.Arg{Value: val, Quote: conf.QuoteNone})
 			i = ni
 		}
 	}

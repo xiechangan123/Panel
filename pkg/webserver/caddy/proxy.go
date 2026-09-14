@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -24,7 +25,7 @@ func (v *baseVhost) upstreamSnippet(name string) string {
 
 var weightPattern = regexp.MustCompile(`\bweight=(\d+)`)
 
-func (v *baseVhost) buildUpstreams(cfg *Config) {
+func (v *baseVhost) buildUpstreams(cfg *conf.Config) {
 	for _, up := range v.upstreams {
 		s := cfg.AddBlock("(" + v.upstreamSnippet(up.Name) + ")")
 		s.AddMeta("upstream", up.Name)
@@ -41,21 +42,21 @@ func (v *baseVhost) buildUpstreams(cfg *Config) {
 			}
 			weights = append(weights, weight)
 		}
-		s.Add(append([]string{"to"}, to...)...)
+		s.Add("to", to...)
 		switch {
 		case up.Algo != "":
 			s.Add("lb_policy", up.Algo)
 		case weighted:
-			s.Add(append([]string{"lb_policy", "weighted_round_robin"}, weights...)...)
+			s.Add("lb_policy", append([]string{"weighted_round_robin"}, weights...)...)
 		default:
 			s.Add("lb_policy", "round_robin")
 		}
 	}
 }
 
-func (v *baseVhost) loadUpstreams(cfg *Config) {
+func (v *baseVhost) loadUpstreams(cfg *conf.Config) {
 	for _, s := range cfg.All() {
-		if !s.Block || !strings.HasPrefix(s.Name(), "(ace_upstream_"+v.safeName+"_") {
+		if s.Block == nil || !strings.HasPrefix(s.Name, "(ace_upstream_"+v.safeName+"_") {
 			continue
 		}
 		up := types.Upstream{
@@ -64,17 +65,17 @@ func (v *baseVhost) loadUpstreams(cfg *Config) {
 			Resolver: []string{},
 		}
 		var servers []string
-		if to := s.Directive("to"); to != nil {
-			for _, addr := range to.Args() {
+		if to := s.Get("to"); to != nil {
+			for _, addr := range to.Values() {
 				servers = append(servers, nginxAddress(addr))
 				up.Servers[nginxAddress(addr)] = ""
 			}
 		}
-		if lb := s.Directive("lb_policy"); lb != nil {
+		if lb := s.Get("lb_policy"); lb != nil {
 			switch lb.Arg(0) {
 			case "round_robin":
 			case "weighted_round_robin":
-				for i, weight := range lb.Args()[1:] {
+				for i, weight := range lb.Values()[1:] {
 					if i < len(servers) && weight != "1" {
 						up.Servers[servers[i]] = "weight=" + weight
 					}
@@ -116,16 +117,16 @@ func proxyOrder(proxies []types.Proxy) []int {
 	return order
 }
 
-func (v *baseVhost) buildProxies(body *nodeList) {
+func (v *baseVhost) buildProxies(body *conf.Block) {
 	if len(v.proxies) == 0 {
 		return
 	}
-	body.Append(&Blank{})
+	body.Append(&conf.Blank{})
 	route := body.AddBlock("route")
 	for _, i := range proxyOrder(v.proxies) {
 		p := v.proxies[i]
 		name := fmt.Sprintf("@ace_proxy_%d", i)
-		route.Add(append([]string{name}, locationMatcher(p.Location)...)...)
+		route.Add(name, locationMatcher(p.Location)...)
 		h := route.AddBlock("handle", name)
 		h.AddMeta("location", p.Location)
 		h.AddMeta("pass", p.Pass)
@@ -137,12 +138,12 @@ func (v *baseVhost) buildProxies(body *nodeList) {
 			allow, deny := accessLists(p.AccessControl)
 			if len(deny) > 0 {
 				name := fmt.Sprintf("@ace_deny_%d", i)
-				h.Add(append([]string{name, "remote_ip"}, deny...)...)
+				h.Add(name, append([]string{"remote_ip"}, deny...)...)
 				h.Add("respond", name, "403")
 			}
 			if len(allow) > 0 {
 				name := fmt.Sprintf("@ace_allow_%d", i)
-				h.Add(append([]string{name, "not", "remote_ip"}, allow...)...)
+				h.Add(name, append([]string{"not", "remote_ip"}, allow...)...)
 				h.Add("respond", name, "403")
 			}
 		}
@@ -159,7 +160,7 @@ func (v *baseVhost) buildProxies(body *nodeList) {
 		if snippet != "" {
 			rp.Add("import", snippet)
 		} else {
-			rp.Tokens = append(rp.Tokens, address)
+			rp.AppendArg(address)
 		}
 		switch host := strings.TrimSpace(p.Host); host {
 		case "", "$host":
@@ -199,15 +200,15 @@ func (v *baseVhost) buildProxies(body *nodeList) {
 			}
 		}
 		v.buildTransport(rp, p, strings.HasPrefix(strings.ToLower(p.Pass), "https://"))
-		if len(rp.Nodes) == 0 {
-			rp.Block = false
+		if rp.Len() == 0 {
+			rp.Block = nil
 		}
 	}
 }
 
 // buildTransport 后端 TLS、SNI、协议版本与超时都在 transport 块，nginx 默认不校验后端证书，这里保持一致
-func (v *baseVhost) buildTransport(rp *Directive, p types.Proxy, https bool) {
-	t := &Directive{Tokens: []string{"transport", "http"}, Block: true}
+func (v *baseVhost) buildTransport(rp *conf.Directive, p types.Proxy, https bool) {
+	t := conf.Blk("transport", "http")
 	if https || p.SNI != "" {
 		t.Add("tls")
 		if p.SNI != "" {
@@ -231,7 +232,7 @@ func (v *baseVhost) buildTransport(rp *Directive, p types.Proxy, https bool) {
 			t.Add("response_header_timeout", p.Timeout.Read.String())
 		}
 	}
-	if len(t.Nodes) > 0 {
+	if t.Len() > 0 {
 		rp.Append(t)
 	}
 }
@@ -272,14 +273,14 @@ func passPrefixRewrite(p types.Proxy) (string, string) {
 	return prefix, u.Path
 }
 
-func (v *baseVhost) loadProxies(body *nodeList) {
+func (v *baseVhost) loadProxies(body *conf.Block) {
 	type indexed struct {
 		index int
 		proxy types.Proxy
 	}
 	var found []indexed
-	for _, route := range body.Directives("route") {
-		for _, h := range route.Directives("handle") {
+	for _, route := range body.GetAll("route") {
+		for _, h := range route.GetAll("handle") {
 			index, ok := strings.CutPrefix(h.Arg(0), "@ace_proxy_")
 			if !ok {
 				continue
@@ -295,7 +296,7 @@ func (v *baseVhost) loadProxies(body *nodeList) {
 }
 
 // loadProxy 由 handle 块还原一条代理
-func (v *baseVhost) loadProxy(h *Directive) types.Proxy {
+func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 	p := types.Proxy{
 		Location:  h.Meta("location"),
 		Pass:      h.Meta("pass"),
@@ -304,11 +305,11 @@ func (v *baseVhost) loadProxy(h *Directive) types.Proxy {
 		Headers:   make(map[string]string),
 		Replaces:  make(map[string]string),
 	}
-	if body := h.Directive("request_body"); body != nil {
-		p.ClientMaxBodySize, _ = strconv.ParseInt(body.Directive("max_size").Arg(0), 10, 64)
+	if body := h.Get("request_body"); body != nil {
+		p.ClientMaxBodySize, _ = strconv.ParseInt(body.Get("max_size").Arg(0), 10, 64)
 	}
-	for _, d := range h.Directives("respond") {
-		m := h.Directive(d.Arg(0))
+	for _, d := range h.GetAll("respond") {
+		m := h.Get(d.Arg(0))
 		if m == nil {
 			continue
 		}
@@ -316,22 +317,22 @@ func (v *baseVhost) loadProxy(h *Directive) types.Proxy {
 			p.AccessControl = &types.AccessControlConfig{}
 		}
 		if m.Arg(0) == "not" {
-			p.AccessControl.Allow = append(p.AccessControl.Allow, m.Args()[2:]...)
-		} else if deny := m.Args()[1:]; slices.Equal(deny, denyAll) {
+			p.AccessControl.Allow = append(p.AccessControl.Allow, m.Values()[2:]...)
+		} else if deny := m.Values()[1:]; slices.Equal(deny, denyAll) {
 			p.AccessControl.Deny = append(p.AccessControl.Deny, "all")
 		} else {
 			p.AccessControl.Deny = append(p.AccessControl.Deny, deny...)
 		}
 	}
-	for _, d := range h.Directives("replace") {
+	for _, d := range h.GetAll("replace") {
 		p.Replaces[d.Arg(0)] = d.Arg(1)
 	}
 
-	rp := h.Directive("reverse_proxy")
+	rp := h.Get("reverse_proxy")
 	if rp == nil {
 		return p
 	}
-	for _, d := range rp.Directives("header_up") {
+	for _, d := range rp.GetAll("header_up") {
 		switch {
 		case d.Arg(0) == "Host":
 			p.Host = d.Arg(1)
@@ -340,7 +341,7 @@ func (v *baseVhost) loadProxy(h *Directive) types.Proxy {
 			p.Headers[d.Arg(0)] = d.Arg(1)
 		}
 	}
-	for _, d := range rp.Directives("header_down") {
+	for _, d := range rp.GetAll("header_down") {
 		if p.ResponseHeaders == nil {
 			p.ResponseHeaders = &types.ResponseHeaderConfig{Add: make(map[string]string)}
 		}
@@ -350,32 +351,32 @@ func (v *baseVhost) loadProxy(h *Directive) types.Proxy {
 			p.ResponseHeaders.Add[d.Arg(0)] = d.Arg(1)
 		}
 	}
-	if d := rp.Directive("flush_interval"); d != nil && d.Arg(0) == "-1" {
+	if d := rp.Get("flush_interval"); d != nil && d.Arg(0) == "-1" {
 		p.Buffering = false
 	}
-	retries, _ := strconv.Atoi(rp.Directive("lb_retries").Arg(0))
-	tryDuration, _ := time.ParseDuration(rp.Directive("lb_try_duration").Arg(0))
+	retries, _ := strconv.Atoi(rp.Get("lb_retries").Arg(0))
+	tryDuration, _ := time.ParseDuration(rp.Get("lb_try_duration").Arg(0))
 	if retries > 0 || tryDuration > 0 {
 		p.Retry = &types.RetryConfig{Tries: retries, Timeout: tryDuration}
 	}
 
-	t := rp.Directive("transport")
+	t := rp.Get("transport")
 	if t == nil {
 		return p
 	}
-	p.SNI = t.Directive("tls_server_name").Arg(0)
-	if t.Directive("tls") != nil {
-		skip := t.Directive("tls_insecure_skip_verify") != nil
-		ca := t.Directive("tls_trust_pool").Arg(1)
+	p.SNI = t.Get("tls_server_name").Arg(0)
+	if t.Get("tls") != nil {
+		skip := t.Get("tls_insecure_skip_verify") != nil
+		ca := t.Get("tls_trust_pool").Arg(1)
 		if !skip || ca != "" {
 			p.SSLBackend = &types.SSLBackendConfig{Verify: !skip, TrustedCertificate: ca}
 		}
 	}
-	if versions := t.Directive("versions"); versions != nil && slices.Contains(versions.Args(), "h2c") {
+	if versions := t.Get("versions"); versions != nil && slices.Contains(versions.Values(), "h2c") {
 		p.HTTPVersion = "2"
 	}
-	connect, _ := time.ParseDuration(t.Directive("dial_timeout").Arg(0))
-	read, _ := time.ParseDuration(t.Directive("response_header_timeout").Arg(0))
+	connect, _ := time.ParseDuration(t.Get("dial_timeout").Arg(0))
+	read, _ := time.ParseDuration(t.Get("response_header_timeout").Arg(0))
 	if connect > 0 || read > 0 {
 		p.Timeout = &types.TimeoutConfig{Connect: connect, Read: read}
 	}

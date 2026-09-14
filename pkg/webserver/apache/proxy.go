@@ -8,8 +8,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
+
+var durationPattern = regexp.MustCompile(`^(\d+)([smhd]?)$`)
 
 // parseDurationToSeconds 将时长字符串转换为秒数，支持 "10s" "5m" "1h" "1d"
 func parseDurationToSeconds(duration string) int {
@@ -18,7 +21,7 @@ func parseDurationToSeconds(duration string) int {
 		return 600 // 默认 10 分钟
 	}
 
-	matches := regexp.MustCompile(`^(\d+)([smhd]?)$`).FindStringSubmatch(duration)
+	matches := durationPattern.FindStringSubmatch(duration)
 	if matches == nil {
 		return 600
 	}
@@ -105,7 +108,7 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 
 	// RequestHeader set Host "host"（mod_proxy 直接子级）
 	for _, d := range cfg.Find("IfModule.RequestHeader") {
-		vals := argValues(d.Args)
+		vals := d.Values()
 		if len(vals) >= 3 && strings.EqualFold(vals[0], "set") && vals[1] == "Host" {
 			proxy.Host = vals[2]
 		}
@@ -127,7 +130,7 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 
 	// 自定义请求头（mod_headers 子块，排除 Host）
 	for _, d := range cfg.Find("IfModule.IfModule.RequestHeader") {
-		vals := argValues(d.Args)
+		vals := d.Values()
 		if len(vals) >= 3 && strings.EqualFold(vals[0], "set") && vals[1] != "Host" {
 			proxy.Headers[vals[1]] = vals[2]
 		}
@@ -145,7 +148,7 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 }
 
 // findSNIComment 从片段所有注释中提取 SNI 值
-func findSNIComment(c *Config) string {
+func findSNIComment(c *conf.Config) string {
 	for _, cmt := range collectComments(c.Nodes) {
 		if rest, ok := strings.CutPrefix(strings.TrimSpace(cmt.Text), "SNI:"); ok {
 			return strings.TrimSpace(rest)
@@ -155,21 +158,23 @@ func findSNIComment(c *Config) string {
 }
 
 // collectComments 递归收集节点树中的所有注释
-func collectComments(nodes []Node) []*Comment {
-	var out []*Comment
+func collectComments(nodes []conf.Node) []*conf.Comment {
+	var out []*conf.Comment
 	for _, n := range nodes {
 		switch v := n.(type) {
-		case *Comment:
+		case *conf.Comment:
 			out = append(out, v)
-		case *Block:
-			out = append(out, collectComments(v.Nodes)...)
+		case *conf.Directive:
+			if v.Block != nil {
+				out = append(out, collectComments(v.Nodes)...)
+			}
 		}
 	}
 	return out
 }
 
 // parseCacheBlock 从 mod_cache 块提取缓存配置
-func parseCacheBlock(blk *Block) *types.CacheConfig {
+func parseCacheBlock(blk *conf.Directive) *types.CacheConfig {
 	cache := &types.CacheConfig{
 		Valid:             make(map[string]string),
 		NoCacheConditions: []string{},
@@ -274,32 +279,32 @@ func generateProxyConfig(proxy types.Proxy) string {
 		pass += "/"
 	}
 
-	inner := Blk("IfModule", "mod_proxy.c").Append(
-		Dir("ProxyPass", location, pass),
-		Dir("ProxyPassReverse", location, pass),
+	inner := conf.Blk("IfModule", "mod_proxy.c").Append(
+		conf.Dir("ProxyPass", location, pass),
+		conf.Dir("ProxyPassReverse", location, pass),
 	)
 
 	if proxy.Host != "" {
-		inner.Append(Dir("RequestHeader", "set", "Host", proxy.Host))
+		inner.Append(conf.Dir("RequestHeader", "set", "Host", proxy.Host))
 	} else {
-		inner.Append(Dir("ProxyPreserveHost", "On"))
+		inner.Append(conf.Dir("ProxyPreserveHost", "On"))
 	}
 
 	if proxy.SNI != "" || strings.HasPrefix(pass, "https://") {
 		inner.Append(
-			Dir("SSLProxyEngine", "On"),
-			Dir("SSLProxyVerify", "none"),
-			Dir("SSLProxyCheckPeerCN", "off"),
-			Dir("SSLProxyCheckPeerName", "off"),
+			conf.Dir("SSLProxyEngine", "On"),
+			conf.Dir("SSLProxyVerify", "none"),
+			conf.Dir("SSLProxyCheckPeerCN", "off"),
+			conf.Dir("SSLProxyCheckPeerName", "off"),
 		)
 		if proxy.SNI != "" {
 			// 垃圾 Apache 不支持自定义 SNI，写注释备注
-			inner.Append(Cmt("SNI: " + proxy.SNI))
+			inner.Append(conf.Cmt("SNI: " + proxy.SNI))
 		}
 	}
 
 	if proxy.Buffering {
-		inner.Append(Dir("ProxyIOBufferSize", "65536"))
+		inner.Append(conf.Dir("ProxyIOBufferSize", "65536"))
 	}
 
 	if proxy.Cache != nil {
@@ -308,38 +313,38 @@ func generateProxyConfig(proxy types.Proxy) string {
 			expireSeconds = parseDurationToSeconds(duration)
 			break
 		}
-		inner.Append(Blk("IfModule", "mod_cache.c").Append(
-			Dir("CacheEnable", "disk", location),
-			Dir("CacheDefaultExpire", strconv.Itoa(expireSeconds)),
+		inner.Append(conf.Blk("IfModule", "mod_cache.c").Append(
+			conf.Dir("CacheEnable", "disk", location),
+			conf.Dir("CacheDefaultExpire", strconv.Itoa(expireSeconds)),
 		))
 	}
 
 	if len(proxy.Headers) > 0 {
-		headers := Blk("IfModule", "mod_headers.c")
+		headers := conf.Blk("IfModule", "mod_headers.c")
 		for name, value := range proxy.Headers {
-			headers.Append(Dir("RequestHeader", "set", name, value))
+			headers.Append(conf.Dir("RequestHeader", "set", name, value))
 		}
 		inner.Append(headers)
 	}
 
 	if len(proxy.Replaces) > 0 {
-		sub := Blk("IfModule", "mod_substitute.c").Append(
-			Dir("AddOutputFilterByType", "SUBSTITUTE", "text/html", "text/plain", "text/xml"),
+		sub := conf.Blk("IfModule", "mod_substitute.c").Append(
+			conf.Dir("AddOutputFilterByType", "SUBSTITUTE", "text/html", "text/plain", "text/xml"),
 		)
 		for from, to := range proxy.Replaces {
 			// 用 | 作为分隔符以支持含 / 的内容，强制双引号
-			sub.Append(&Directive{Name: "Substitute", Args: []Argument{dquote(fmt.Sprintf("s|%s|%s|n", from, to))}})
+			sub.Append(&conf.Directive{Name: "Substitute", Args: []conf.Arg{dquote(fmt.Sprintf("s|%s|%s|n", from, to))}})
 		}
 		inner.Append(sub)
 	}
 
-	cfg := &Config{}
+	cfg := &conf.Config{}
 	cfg.Append(
-		Cmt("Auto-generated by AcePanel. DO NOT EDIT MANUALLY!"),
-		Cmt(fmt.Sprintf("Reverse proxy: %s -> %s", location, pass)),
+		conf.Cmt("Auto-generated by AcePanel. DO NOT EDIT MANUALLY!"),
+		conf.Cmt(fmt.Sprintf("Reverse proxy: %s -> %s", location, pass)),
 		inner,
 	)
-	return cfg.Export() + "\n"
+	return Export(cfg) + "\n"
 }
 
 // parseBalancerFiles 从 shared 目录解析所有负载均衡配置（Apache 的 upstream 等价物）
@@ -394,7 +399,7 @@ func parseBalancerFile(filePath string, name string) (*types.Upstream, error) {
 	}
 
 	for _, d := range cfg.Find("IfModule.Proxy.BalancerMember") {
-		vals := argValues(d.Args)
+		vals := d.Values()
 		if len(vals) == 0 {
 			continue
 		}
@@ -466,29 +471,29 @@ func clearBalancerFiles(sharedDir string) error {
 
 // generateBalancerConfig 构建负载均衡配置 AST 并序列化
 func generateBalancerConfig(upstream types.Upstream) string {
-	proxy := Blk("Proxy", "balancer://"+upstream.Name)
+	proxy := conf.Blk("Proxy", "balancer://"+upstream.Name)
 	for addr, options := range upstream.Servers {
 		args := []string{addr}
 		if options != "" {
 			args = append(args, strings.Fields(options)...)
 		}
-		proxy.Append(Dir("BalancerMember", args...))
+		proxy.Append(conf.Dir("BalancerMember", args...))
 	}
 
 	algo := upstream.Algo
 	if algo == "" {
 		algo = "byrequests"
 	}
-	proxy.Append(Dir("ProxySet", "lbmethod="+algo))
+	proxy.Append(conf.Dir("ProxySet", "lbmethod="+algo))
 	if upstream.Keepalive > 0 {
-		proxy.Append(Dir("ProxySet", "max="+strconv.Itoa(upstream.Keepalive)))
+		proxy.Append(conf.Dir("ProxySet", "max="+strconv.Itoa(upstream.Keepalive)))
 	}
 
-	cfg := &Config{}
+	cfg := &conf.Config{}
 	cfg.Append(
-		Cmt("Auto-generated by AcePanel. DO NOT EDIT MANUALLY!"),
-		Cmt("Load balancer: "+upstream.Name),
-		Blk("IfModule", "mod_proxy_balancer.c").Append(proxy),
+		conf.Cmt("Auto-generated by AcePanel. DO NOT EDIT MANUALLY!"),
+		conf.Cmt("Load balancer: "+upstream.Name),
+		conf.Blk("IfModule", "mod_proxy_balancer.c").Append(proxy),
 	)
-	return cfg.Export() + "\n"
+	return Export(cfg) + "\n"
 }

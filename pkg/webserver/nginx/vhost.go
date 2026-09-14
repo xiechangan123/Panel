@@ -1,7 +1,6 @@
 package nginx
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -10,9 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/samber/lo"
-	"github.com/tufanbarisyildirim/gonginx/config"
-
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -32,10 +29,12 @@ type ProxyVhost struct {
 }
 
 // baseVhost Nginx 虚拟主机基础实现
+// 主文件解析成语法树后就地修改，用户手写的指令得以保留；保存时按 order 表排序输出
 type baseVhost struct {
-	parser    *Parser
-	configDir string // 配置目录
-	siteName  string // 网站名
+	cfg       *conf.Config
+	server    *conf.Block // 主 server 块
+	configDir string
+	siteName  string
 }
 
 // newBaseVhost 创建基础虚拟主机实例
@@ -49,26 +48,19 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 		siteName:  filepath.Base(filepath.Dir(configDir)),
 	}
 
-	var parser *Parser
-	var err error
-
-	configFile := filepath.Join(v.configDir, "nginx.conf")
-	if _, statErr := os.Stat(configFile); statErr == nil {
-		parser, err = NewParserFromFile(configFile)
+	configFile := filepath.Join(configDir, "nginx.conf")
+	if _, err := os.Stat(configFile); err == nil {
+		cfg, err := ParseFile(configFile)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load nginx config: %w", err)
 		}
+		v.use(cfg)
+		return v, nil
 	}
 
-	if parser == nil {
-		parser, err = NewParser(v.siteName)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load default config: %w", err)
-		}
-		parser.SetConfigPath(filepath.Join(v.configDir, "nginx.conf"))
+	if err := v.Reset(); err != nil {
+		return nil, err
 	}
-
-	v.parser = parser
 	return v, nil
 }
 
@@ -102,6 +94,16 @@ func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 	return &ProxyVhost{baseVhost: base}, nil
 }
 
+// use 切换到新的语法树，没有 server 块时补一个
+func (v *baseVhost) use(cfg *conf.Config) {
+	v.cfg = cfg
+	server := cfg.GetBlock("server")
+	if server == nil {
+		server = cfg.AddBlock("server")
+	}
+	v.server = server.Block
+}
+
 func (v *baseVhost) Enable() bool {
 	disableConf := filepath.Join(v.configDir, "site", "00-disable.conf")
 	_, err := os.Stat(disableConf)
@@ -131,256 +133,169 @@ location = /stop.html {
 	return nil
 }
 
+// Listen 同一地址的多条 listen 合并为一条，参数去重
 func (v *baseVhost) Listen() []types.Listen {
-	directives, err := v.parser.Find("server.listen")
-	if err != nil {
-		return nil
-	}
-
-	listenMap := make(map[string]*types.Listen)
-	var order []string // 保持顺序
-
-	for _, dir := range directives {
-		l := v.parser.parameters2Slices(dir.GetParameters())
-		if len(l) == 0 {
+	var result []types.Listen
+	index := make(map[string]int)
+	for _, d := range v.server.GetAll("listen") {
+		args := d.Values()
+		if len(args) == 0 {
 			continue
 		}
-		address := l[0]
-
-		if existing, ok := listenMap[address]; ok {
-			for i := 1; i < len(l); i++ {
-				if !slices.Contains(existing.Args, l[i]) {
-					existing.Args = append(existing.Args, l[i])
+		address := args[0]
+		if i, ok := index[address]; ok {
+			for _, arg := range args[1:] {
+				if !slices.Contains(result[i].Args, arg) {
+					result[i].Args = append(result[i].Args, arg)
 				}
 			}
-		} else {
-			listen := &types.Listen{Address: address, Args: []string{}}
-			for i := 1; i < len(l); i++ {
-				listen.Args = append(listen.Args, l[i])
-			}
-			listenMap[address] = listen
-			order = append(order, address)
+			continue
 		}
-	}
-
-	var result []types.Listen
-	for _, addr := range order {
-		result = append(result, *listenMap[addr])
+		index[address] = len(result)
+		result = append(result, types.Listen{Address: address, Args: append([]string{}, args[1:]...)})
 	}
 
 	return result
 }
 
 func (v *baseVhost) SetListen(listens []types.Listen) error {
-	var directives []*config.Directive
+	v.server.Remove("listen")
 	for _, l := range listens {
 		hasSSL := slices.Contains(l.Args, "ssl")
 		hasQUIC := slices.Contains(l.Args, "quic")
 
 		// nginx 不允许 ssl 与 quic 同在一条 listen，拆成两行
 		if hasSSL && hasQUIC {
-			sslArgs := append([]string{l.Address}, lo.Filter(l.Args, func(arg string, _ int) bool {
-				return arg != "quic"
-			})...)
-			directives = append(directives, &config.Directive{
-				Name:       "listen",
-				Parameters: v.parser.slices2Parameters(sslArgs),
-			})
-
-			quicArgs := []string{l.Address, "quic"}
-			directives = append(directives, &config.Directive{
-				Name:       "listen",
-				Parameters: v.parser.slices2Parameters(quicArgs),
-			})
-		} else {
-			listen := []string{l.Address}
-			listen = append(listen, l.Args...)
-			directives = append(directives, &config.Directive{
-				Name:       "listen",
-				Parameters: v.parser.slices2Parameters(listen),
-			})
+			sslArgs := slices.DeleteFunc(slices.Clone(l.Args), func(arg string) bool { return arg == "quic" })
+			v.server.Add("listen", append([]string{l.Address}, sslArgs...)...)
+			v.server.Add("listen", l.Address, "quic")
+			continue
 		}
+		v.server.Add("listen", append([]string{l.Address}, l.Args...)...)
 	}
 
-	_ = v.parser.Clear("server.listen")
-
-	return v.parser.Set("server", directives)
+	return nil
 }
 
 func (v *baseVhost) ServerName() []string {
-	directive, err := v.parser.FindOne("server.server_name")
-	if err != nil {
-		return nil
-	}
-
-	return v.parser.parameters2Slices(directive.GetParameters())
+	return v.server.Get("server_name").Values()
 }
 
 func (v *baseVhost) SetServerName(serverName []string) error {
-	_ = v.parser.Clear("server.server_name")
-
-	return v.parser.Set("server", []*config.Directive{
-		{
-			Name:       "server_name",
-			Parameters: v.parser.slices2Parameters(serverName),
-		},
-	})
+	v.server.Set("server_name", serverName...)
+	return nil
 }
 
 func (v *baseVhost) Index() []string {
-	directive, err := v.parser.FindOne("server.index")
-	if err != nil {
-		return nil
-	}
-
-	return v.parser.parameters2Slices(directive.GetParameters())
+	return v.server.Get("index").Values()
 }
 
 func (v *baseVhost) SetIndex(index []string) error {
-	_ = v.parser.Clear("server.index")
-
-	return v.parser.Set("server", []*config.Directive{
-		{
-			Name:       "index",
-			Parameters: v.parser.slices2Parameters(index),
-		},
-	})
+	v.server.Set("index", index...)
+	return nil
 }
 
 func (v *baseVhost) Root() string {
-	directive, err := v.parser.FindOne("server.root")
-	if err != nil {
-		return ""
-	}
-	if len(v.parser.parameters2Slices(directive.GetParameters())) == 0 {
-		return ""
-	}
-
-	return directive.GetParameters()[0].GetValue()
+	return v.server.Value("root")
 }
 
 func (v *baseVhost) SetRoot(root string) error {
-	_ = v.parser.Clear("server.root")
-
-	return v.parser.Set("server", []*config.Directive{
-		{
-			Name:       "root",
-			Parameters: []config.Parameter{{Value: root}},
-		},
-	})
+	v.server.Set("root", root)
+	return nil
 }
 
+// Includes 紧挨在 include 之前的注释作为其说明一并返回
 func (v *baseVhost) Includes() []types.IncludeFile {
-	directives, err := v.parser.Find("server.include")
-	if err != nil {
-		return nil
-	}
-
 	var result []types.IncludeFile
-
-	for _, dir := range directives {
-		if len(dir.GetParameters()) != 1 {
-			return nil
+	var comments []string
+	for _, n := range v.server.Nodes {
+		switch node := n.(type) {
+		case *conf.Comment:
+			comments = append(comments, strings.TrimSpace(node.Text))
+			continue
+		case *conf.Directive:
+			if strings.EqualFold(node.Name, "include") && node.Block == nil {
+				result = append(result, types.IncludeFile{Path: node.Arg(0), Comment: comments})
+			}
 		}
-		result = append(result, types.IncludeFile{
-			Path:    dir.GetParameters()[0].GetValue(),
-			Comment: dir.GetComment(),
-		})
+		comments = nil
 	}
 
 	return result
 }
 
 func (v *baseVhost) SetIncludes(includes []types.IncludeFile) error {
-	_ = v.parser.Clear("server.include")
+	// 连同 include 前的说明注释一起删除
+	var kept []conf.Node
+	var pending []conf.Node
+	for _, n := range v.server.Nodes {
+		if _, ok := n.(*conf.Comment); ok {
+			pending = append(pending, n)
+			continue
+		}
+		if d, ok := n.(*conf.Directive); ok && strings.EqualFold(d.Name, "include") && d.Block == nil {
+			pending = nil
+			continue
+		}
+		kept = append(append(kept, pending...), n)
+		pending = nil
+	}
+	v.server.Nodes = append(kept, pending...)
 
-	var directives []*config.Directive
 	for _, inc := range includes {
-		directives = append(directives, &config.Directive{
-			Name:       "include",
-			Parameters: []config.Parameter{{Value: inc.Path}},
-			Comment:    inc.Comment,
-		})
+		for _, comment := range inc.Comment {
+			v.server.Append(conf.Cmt(comment))
+		}
+		v.server.Add("include", inc.Path)
 	}
 
-	return v.parser.Set("server", directives)
+	return nil
 }
 
 func (v *baseVhost) AccessLog() string {
-	content := v.Config("020-access-log.conf", types.ScopeSite)
-	if content == "" {
-		return ""
-	}
-
-	scanner := bufio.NewScanner(strings.NewReader(content))
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		var result string
-		_, err := fmt.Sscanf(line, "access_log %s", &result)
-		if err == nil {
-			return strings.TrimSuffix(result, ";")
-		}
-	}
-
-	return ""
+	return v.fragmentValue("020-access-log.conf", "access_log")
 }
 
 func (v *baseVhost) SetAccessLog(accessLog string) error {
 	if accessLog == "" {
 		return v.RemoveConfig("020-access-log.conf", types.ScopeSite)
 	}
-	return v.SetConfig("020-access-log.conf", "site", fmt.Sprintf("access_log %s;\n", accessLog))
+	return v.SetConfig("020-access-log.conf", types.ScopeSite, "access_log "+accessLog+";\n")
 }
 
 func (v *baseVhost) ErrorLog() string {
-	content := v.Config("020-error-log.conf", types.ScopeSite)
-	if content == "" {
-		return ""
-	}
-
-	scanner := bufio.NewScanner(strings.NewReader(content))
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		var result string
-		_, err := fmt.Sscanf(line, "error_log %s", &result)
-		if err == nil {
-			return strings.TrimSuffix(result, ";")
-		}
-	}
-
-	return ""
+	return v.fragmentValue("020-error-log.conf", "error_log")
 }
 
 func (v *baseVhost) SetErrorLog(errorLog string) error {
 	if errorLog == "" {
 		return v.RemoveConfig("020-error-log.conf", types.ScopeSite)
 	}
-	return v.SetConfig("020-error-log.conf", "site", fmt.Sprintf("error_log %s;\n", errorLog))
+	return v.SetConfig("020-error-log.conf", types.ScopeSite, "error_log "+errorLog+";\n")
+}
+
+// fragmentValue 取站点级片段中某条指令的首个参数
+func (v *baseVhost) fragmentValue(name, directive string) string {
+	cfg, err := Parse(v.Config(name, types.ScopeSite))
+	if err != nil {
+		return ""
+	}
+	return cfg.Value(directive)
 }
 
 func (v *baseVhost) Save() error {
-	return v.parser.Save()
+	if err := os.WriteFile(filepath.Join(v.configDir, "nginx.conf"), []byte(Render(v.cfg)), 0600); err != nil {
+		return fmt.Errorf("failed to save config file: %w", err)
+	}
+	return nil
 }
 
 func (v *baseVhost) Reset() error {
-	parser, err := NewParser(v.siteName)
+	cfg, err := Parse(strings.ReplaceAll(DefaultConf, "/opt/ace/sites/default", "/opt/ace/sites/"+v.siteName))
 	if err != nil {
-		return fmt.Errorf("failed to reset config: %w", err)
+		return fmt.Errorf("failed to load default config: %w", err)
 	}
-
-	if v.configDir != "" {
-		parser.SetConfigPath(filepath.Join(v.configDir, "nginx.conf"))
-	}
-
-	v.parser = parser
+	v.use(cfg)
 	return nil
 }
 
@@ -414,9 +329,16 @@ func (v *baseVhost) RemoveConfig(name string, scope types.ConfigScope) error {
 	return nil
 }
 
+// ========== SSL ==========
+
+const (
+	hstsHeader     = "Strict-Transport-Security"
+	httpsRedirect  = "https://$host$request_uri"
+	https497Target = "https://$host:$server_port$request_uri"
+)
+
 func (v *baseVhost) SSL() bool {
-	directive, err := v.parser.FindOne("server.ssl_certificate")
-	return err == nil && len(v.parser.parameters2Slices(directive.GetParameters())) != 0
+	return v.server.Value("ssl_certificate") != ""
 }
 
 func (v *baseVhost) SSLConfig() *types.SSLConfig {
@@ -424,51 +346,23 @@ func (v *baseVhost) SSLConfig() *types.SSLConfig {
 		return nil
 	}
 
-	protocols, _ := v.parser.FindOne("server.ssl_protocols")
-	hsts := false
-	ocsp := false
-	httpRedirect := false
-	altSvc := ""
-
-	directives, _ := v.parser.Find("server.add_header")
-	for _, dir := range directives {
-		if slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "Strict-Transport-Security") {
-			hsts = true
-			break
+	cfg := &types.SSLConfig{
+		Protocols: v.server.Get("ssl_protocols").Values(),
+		OCSP:      v.server.Value("ssl_stapling") == "on",
+	}
+	for _, d := range v.server.GetAll("add_header") {
+		switch d.Arg(0) {
+		case hstsHeader:
+			cfg.HSTS = true
+		case "Alt-Svc":
+			cfg.AltSvc = d.Arg(1)
 		}
 	}
-	directive, err := v.parser.FindOne("server.ssl_stapling")
-	if err == nil {
-		if len(v.parser.parameters2Slices(directive.GetParameters())) != 0 {
-			ocsp = directive.GetParameters()[0].GetValue() == "on"
-		}
-	}
-	directives, _ = v.parser.Find("server.if")
-	for _, dir := range directives {
-		for _, dir2 := range dir.GetBlock().GetDirectives() {
-			if dir2.GetName() == "return" && slices.Contains(v.parser.parameters2Slices(dir2.GetParameters()), "https://$host$request_uri") {
-				httpRedirect = true
-				break
-			}
-		}
-	}
-	directive, err = v.parser.FindOne("server.add_header")
-	if err == nil {
-		for i, param := range v.parser.parameters2Slices(directive.GetParameters()) {
-			if strings.HasPrefix(param, "Alt-Svc") && i+1 < len(v.parser.parameters2Slices(directive.GetParameters())) {
-				altSvc = v.parser.parameters2Slices(directive.GetParameters())[i+1]
-				break
-			}
-		}
+	for _, d := range v.server.GetAll("if") {
+		cfg.HTTPRedirect = cfg.HTTPRedirect || hasReturnTo(d, httpsRedirect)
 	}
 
-	return &types.SSLConfig{
-		Protocols:    v.parser.parameters2Slices(protocols.GetParameters()),
-		HSTS:         hsts,
-		OCSP:         ocsp,
-		HTTPRedirect: httpRedirect,
-		AltSvc:       altSvc,
-	}
+	return cfg
 }
 
 func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
@@ -483,152 +377,115 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 		cfg.Protocols = []string{"TLSv1.2", "TLSv1.3"}
 	}
 
-	err := v.parser.Set("server", []*config.Directive{
-		{
-			Name:       "ssl_certificate",
-			Parameters: []config.Parameter{{Value: cfg.Cert}},
-		},
-		{
-			Name:       "ssl_certificate_key",
-			Parameters: []config.Parameter{{Value: cfg.Key}},
-		},
-		{
-			Name:       "ssl_protocols",
-			Parameters: v.parser.slices2Parameters(cfg.Protocols),
-		},
-	}, "root")
-	if err != nil {
-		return err
+	v.server.Add("ssl_certificate", cfg.Cert)
+	v.server.Add("ssl_certificate_key", cfg.Key)
+	v.server.Add("ssl_protocols", cfg.Protocols...)
+	if cfg.HSTS {
+		v.server.Add("add_header", hstsHeader, "max-age=31536000")
 	}
-
-	if err = v.setHSTS(cfg.HSTS); err != nil {
-		return err
-	}
-
 	if cfg.OCSP {
-		if err = v.parser.Set("server", []*config.Directive{
-			{
-				Name:       "ssl_stapling",
-				Parameters: []config.Parameter{{Value: "on"}},
-			},
-			{
-				Name:       "ssl_stapling_verify",
-				Parameters: []config.Parameter{{Value: "on"}},
-			},
-		}); err != nil {
-			return err
-		}
+		v.server.Add("ssl_stapling", "on")
+		v.server.Add("ssl_stapling_verify", "on")
 	}
-
-	if err = v.setHTTPSRedirect(cfg.HTTPRedirect); err != nil {
-		return err
+	if cfg.AltSvc != "" {
+		v.server.Add("add_header", "Alt-Svc", cfg.AltSvc)
 	}
-
-	if err = v.setAltSvc(cfg.AltSvc); err != nil {
-		return err
-	}
+	v.setHTTPSRedirect(cfg.HTTPRedirect)
 
 	return nil
 }
 
 func (v *baseVhost) ClearSSL() error {
-	_ = v.parser.Clear("server.ssl_certificate")
-	_ = v.parser.Clear("server.ssl_certificate_key")
-	_ = v.parser.Clear("server.ssl_session_timeout")
-	_ = v.parser.Clear("server.ssl_session_cache")
-	_ = v.parser.Clear("server.ssl_protocols")
-	_ = v.parser.Clear("server.ssl_ciphers")
-	_ = v.parser.Clear("server.ssl_prefer_server_ciphers")
-	_ = v.parser.Clear("server.ssl_early_data")
-	_ = v.parser.Clear("server.ssl_stapling")
-	_ = v.parser.Clear("server.ssl_stapling_verify")
-	_ = v.setHSTS(false)
-	_ = v.setHTTPSRedirect(false)
-	_ = v.setAltSvc("")
+	for _, name := range []string{
+		"ssl_certificate", "ssl_certificate_key", "ssl_session_timeout", "ssl_session_cache", "ssl_protocols",
+		"ssl_ciphers", "ssl_prefer_server_ciphers", "ssl_early_data", "ssl_stapling", "ssl_stapling_verify",
+	} {
+		v.server.Remove(name)
+	}
+	v.server.RemoveFunc("add_header", func(d *conf.Directive) bool {
+		return d.Arg(0) == hstsHeader || d.Arg(0) == "Alt-Svc"
+	})
+	v.setHTTPSRedirect(false)
 
 	return nil
 }
 
-func (v *baseVhost) RateLimit() *types.RateLimit {
-	var perServer, perIP, rate int
-
-	directive, err := v.parser.FindOne("server.limit_rate")
-	if err == nil {
-		params := v.parser.parameters2Slices(directive.GetParameters())
-		if len(params) > 0 {
-			// 解析 limit_rate 值，如 "512k" -> 512
-			rateStr := params[0]
-			rateStr = strings.TrimSuffix(rateStr, "k")
-			rateStr = strings.TrimSuffix(rateStr, "K")
-			_, _ = fmt.Sscanf(rateStr, "%d", &rate)
-		}
-	}
-
-	directives, _ := v.parser.Find("server.limit_conn")
-	for _, dir := range directives {
-		params := v.parser.parameters2Slices(dir.GetParameters())
-		if len(params) >= 2 {
-			var val int
-			_, _ = fmt.Sscanf(params[1], "%d", &val)
-			switch params[0] {
-			case "perserver":
-				perServer = val
-			case "perip":
-				perIP = val
+// setHTTPSRedirect 用 if ($scheme = http) 跳转普通 HTTP，用 error_page 497 跳转发到 HTTPS 端口的明文请求
+func (v *baseVhost) setHTTPSRedirect(enable bool) {
+	found := false
+	v.server.RemoveFunc("if", func(d *conf.Directive) bool {
+		if !enable {
+			if slices.Equal(d.Values(), []string{"($scheme", "=", "http)"}) {
+				return true
 			}
+			d.RemoveFunc("return", func(r *conf.Directive) bool { return slices.Contains(r.Values(), httpsRedirect) })
+			return false
 		}
+		found = found || hasReturnTo(d, httpsRedirect)
+		return false
+	})
+	if enable && !found {
+		v.server.AddBlock("if", "($scheme", "=", "http)").Add("return", "308", httpsRedirect)
 	}
 
-	if perServer == 0 && perIP == 0 && rate == 0 {
-		return nil
-	}
-
-	return &types.RateLimit{
-		PerServer: perServer,
-		PerIP:     perIP,
-		Rate:      rate,
+	found = false
+	v.server.RemoveFunc("error_page", func(d *conf.Directive) bool {
+		is497 := slices.Contains(d.Values(), "497") && slices.Contains(d.Values(), https497Target)
+		found = found || is497
+		return is497 && !enable
+	})
+	if enable && !found {
+		v.server.Add("error_page", "497", "=308", https497Target)
 	}
 }
 
-func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
-	_ = v.parser.Clear("server.limit_rate")
-	if limit.Rate > 0 {
-		if err := v.parser.Set("server", []*config.Directive{
-			{
-				Name:       "limit_rate",
-				Parameters: []config.Parameter{{Value: fmt.Sprintf("%dk", limit.Rate)}},
-			},
-		}); err != nil {
-			return err
+// hasReturnTo 块内是否有跳转到指定目标的 return
+func hasReturnTo(d *conf.Directive, target string) bool {
+	return slices.ContainsFunc(d.GetAll("return"), func(r *conf.Directive) bool {
+		return slices.Contains(r.Values(), target)
+	})
+}
+
+// ========== 高级功能 ==========
+
+func (v *baseVhost) RateLimit() *types.RateLimit {
+	limit := &types.RateLimit{}
+	if rate := v.server.Value("limit_rate"); rate != "" {
+		limit.Rate, _ = strconv.Atoi(strings.TrimRight(rate, "kK"))
+	}
+	for _, d := range v.server.GetAll("limit_conn") {
+		val, _ := strconv.Atoi(d.Arg(1))
+		switch d.Arg(0) {
+		case "perserver":
+			limit.PerServer = val
+		case "perip":
+			limit.PerIP = val
 		}
 	}
 
-	_ = v.parser.Clear("server.limit_conn")
-	var directives []*config.Directive
+	if limit.PerServer == 0 && limit.PerIP == 0 && limit.Rate == 0 {
+		return nil
+	}
+	return limit
+}
+
+func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
+	_ = v.ClearRateLimit()
+	if limit.Rate > 0 {
+		v.server.Add("limit_rate", strconv.Itoa(limit.Rate)+"k")
+	}
 	if limit.PerServer > 0 {
-		directives = append(directives, &config.Directive{
-			Name:       "limit_conn",
-			Parameters: []config.Parameter{{Value: "perserver"}, {Value: strconv.Itoa(limit.PerServer)}},
-		})
+		v.server.Add("limit_conn", "perserver", strconv.Itoa(limit.PerServer))
 	}
 	if limit.PerIP > 0 {
-		directives = append(directives, &config.Directive{
-			Name:       "limit_conn",
-			Parameters: []config.Parameter{{Value: "perip"}, {Value: strconv.Itoa(limit.PerIP)}},
-		})
+		v.server.Add("limit_conn", "perip", strconv.Itoa(limit.PerIP))
 	}
-	if len(directives) > 0 {
-		if err := v.parser.Set("server", directives); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
 func (v *baseVhost) ClearRateLimit() error {
-	_ = v.parser.Clear("server.limit_rate")
-	_ = v.parser.Clear("server.limit_conn")
+	v.server.Remove("limit_rate")
+	v.server.Remove("limit_conn")
 	return nil
 }
 
@@ -639,11 +496,7 @@ func (v *baseVhost) BasicAuth() []types.BasicAuth {
 	}
 
 	// 兼容旧版 server 级整站配置
-	fileDir, err := v.parser.FindOne("server.auth_basic_user_file")
-	if err != nil || len(fileDir.GetParameters()) == 0 {
-		return nil
-	}
-	file := fileDir.GetParameters()[0].GetValue()
+	file := v.server.Value("auth_basic_user_file")
 	if file == "" || strings.HasPrefix(file, "$") {
 		return nil
 	}
@@ -664,142 +517,84 @@ func (v *baseVhost) SetBasicAuth(auths []types.BasicAuth) error {
 	}
 
 	realmVar, fileVar := authVarNames(v.siteName)
-	return v.parser.Set("server", []*config.Directive{
-		{
-			Name:       "auth_basic",
-			Parameters: []config.Parameter{{Value: realmVar}},
-		},
-		{
-			Name:       "auth_basic_user_file",
-			Parameters: []config.Parameter{{Value: fileVar}},
-		},
-	})
+	v.server.Add("auth_basic", realmVar)
+	v.server.Add("auth_basic_user_file", fileVar)
+	return nil
 }
 
 func (v *baseVhost) ClearBasicAuth() error {
-	_ = v.parser.Clear("server.auth_basic")
-	_ = v.parser.Clear("server.auth_basic_user_file")
+	v.server.Remove("auth_basic")
+	v.server.Remove("auth_basic_user_file")
 	return v.RemoveConfig(AuthConfName, types.ScopeShared)
 }
 
 func (v *baseVhost) RealIP() *types.RealIP {
-	var from []string
-	directives, _ := v.parser.Find("server.set_real_ip_from")
-	for _, dir := range directives {
-		params := v.parser.parameters2Slices(dir.GetParameters())
-		if len(params) > 0 {
-			from = append(from, params[0])
+	realIP := &types.RealIP{
+		Header:    v.server.Value("real_ip_header"),
+		Recursive: v.server.Value("real_ip_recursive") == "on",
+	}
+	for _, d := range v.server.GetAll("set_real_ip_from") {
+		if ip := d.Arg(0); ip != "" {
+			realIP.From = append(realIP.From, ip)
 		}
 	}
 
-	header := ""
-	directive, err := v.parser.FindOne("server.real_ip_header")
-	if err == nil {
-		params := v.parser.parameters2Slices(directive.GetParameters())
-		if len(params) > 0 {
-			header = params[0]
-		}
-	}
-
-	recursive := false
-	recursiveDir, err := v.parser.FindOne("server.real_ip_recursive")
-	if err == nil {
-		params := v.parser.parameters2Slices(recursiveDir.GetParameters())
-		if len(params) > 0 && params[0] == "on" {
-			recursive = true
-		}
-	}
-
-	if len(from) == 0 && header == "" {
+	if len(realIP.From) == 0 && realIP.Header == "" {
 		return nil
 	}
-
-	return &types.RealIP{
-		From:      from,
-		Header:    header,
-		Recursive: recursive,
-	}
+	return realIP
 }
 
 func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
-	_ = v.parser.Clear("server.set_real_ip_from")
-	_ = v.parser.Clear("server.real_ip_header")
-	_ = v.parser.Clear("server.real_ip_recursive")
-
-	if realIP == nil || (len(realIP.From) == 0 && realIP.Header == "") {
+	_ = v.ClearRealIP()
+	if realIP == nil {
 		return nil
 	}
 
-	var directives []*config.Directive
-
 	for _, ip := range realIP.From {
 		if ip != "" {
-			directives = append(directives, &config.Directive{
-				Name:       "set_real_ip_from",
-				Parameters: []config.Parameter{{Value: ip}},
-			})
+			v.server.Add("set_real_ip_from", ip)
 		}
 	}
-
 	if realIP.Header != "" {
-		directives = append(directives, &config.Directive{
-			Name:       "real_ip_header",
-			Parameters: []config.Parameter{{Value: realIP.Header}},
-		})
+		v.server.Add("real_ip_header", realIP.Header)
 	}
-
 	if realIP.Recursive {
-		directives = append(directives, &config.Directive{
-			Name:       "real_ip_recursive",
-			Parameters: []config.Parameter{{Value: "on"}},
-		})
+		v.server.Add("real_ip_recursive", "on")
 	}
-
-	if len(directives) > 0 {
-		return v.parser.Set("server", directives)
-	}
-
 	return nil
 }
 
 func (v *baseVhost) ClearRealIP() error {
-	_ = v.parser.Clear("server.set_real_ip_from")
-	_ = v.parser.Clear("server.real_ip_header")
-	_ = v.parser.Clear("server.real_ip_recursive")
+	v.server.Remove("set_real_ip_from")
+	v.server.Remove("real_ip_header")
+	v.server.Remove("real_ip_recursive")
 	return nil
 }
 
 func (v *baseVhost) Redirects() []types.Redirect {
-	siteDir := filepath.Join(v.configDir, "site")
-	redirects, _ := parseRedirectFiles(siteDir)
+	redirects, _ := parseRedirectFiles(filepath.Join(v.configDir, "site"))
 	return redirects
 }
 
 func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
-	siteDir := filepath.Join(v.configDir, "site")
-	return writeRedirectFiles(siteDir, redirects)
+	return writeRedirectFiles(filepath.Join(v.configDir, "site"), redirects)
 }
 
 // ========== PHPVhost ==========
 
 func (v *PHPVhost) PHP() uint {
 	content := v.Config("010-php.conf", types.ScopeSite)
-	if content == "" {
-		return 0
-	}
-
-	// 从 fastcgi_pass unix:/tmp/php-cgi-84.sock 取版本号
 	idx := strings.Index(content, "php-cgi-")
 	if idx == -1 {
 		return 0
 	}
 
-	var result uint
-	_, err := fmt.Sscanf(content[idx:], "php-cgi-%d.sock", &result)
-	if err != nil {
+	var version uint
+	if _, err := fmt.Sscanf(content[idx:], "php-cgi-%d.sock", &version); err != nil {
 		return 0
 	}
-	return result
+	return version
 }
 
 func (v *PHPVhost) SetPHP(version uint) error {
@@ -817,231 +612,33 @@ func (v *PHPVhost) SetPHP(version uint) error {
 }
 `, version)
 
-	return v.SetConfig("010-php.conf", "site", content)
+	return v.SetConfig("010-php.conf", types.ScopeSite, content)
 }
 
 // ========== ProxyVhost ==========
 
 func (v *ProxyVhost) Proxies() []types.Proxy {
-	siteDir := filepath.Join(v.configDir, "site")
-	proxies, _ := parseProxyFiles(siteDir)
+	proxies, _ := parseProxyFiles(filepath.Join(v.configDir, "site"))
 	return proxies
 }
 
 func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
-	siteDir := filepath.Join(v.configDir, "site")
-	return writeProxyFiles(siteDir, proxies)
+	return writeProxyFiles(filepath.Join(v.configDir, "site"), proxies)
 }
 
 func (v *ProxyVhost) ClearProxies() error {
-	siteDir := filepath.Join(v.configDir, "site")
-	return clearProxyFiles(siteDir)
+	return clearProxyFiles(filepath.Join(v.configDir, "site"))
 }
 
 func (v *ProxyVhost) Upstreams() []types.Upstream {
-	sharedDir := filepath.Join(v.configDir, "shared")
-	upstreams, _ := parseUpstreamFiles(sharedDir)
+	upstreams, _ := parseUpstreamFiles(filepath.Join(v.configDir, "shared"))
 	return upstreams
 }
 
 func (v *ProxyVhost) SetUpstreams(upstreams []types.Upstream) error {
-	sharedDir := filepath.Join(v.configDir, "shared")
-	return writeUpstreamFiles(sharedDir, upstreams)
+	return writeUpstreamFiles(filepath.Join(v.configDir, "shared"), upstreams)
 }
 
 func (v *ProxyVhost) ClearUpstreams() error {
-	sharedDir := filepath.Join(v.configDir, "shared")
-	return clearUpstreamFiles(sharedDir)
-}
-
-func (v *baseVhost) setHSTS(hsts bool) error {
-	old, err := v.parser.Find("server.add_header")
-	if err != nil {
-		return err
-	}
-	if err = v.parser.Clear("server.add_header"); err != nil {
-		return err
-	}
-	var directives []*config.Directive
-	var foundFlag bool
-	for _, dir := range old {
-		if slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "Strict-Transport-Security") {
-			foundFlag = true
-			if hsts {
-				directives = append(directives, &config.Directive{
-					Name:       dir.GetName(),
-					Parameters: []config.Parameter{{Value: "Strict-Transport-Security"}, {Value: "max-age=31536000"}},
-					Comment:    dir.GetComment(),
-				})
-			}
-		} else {
-			directives = append(directives, &config.Directive{
-				Name:       dir.GetName(),
-				Parameters: dir.GetParameters(),
-				Comment:    dir.GetComment(),
-			})
-		}
-	}
-
-	if !foundFlag && hsts {
-		directives = append(directives, &config.Directive{
-			Name:       "add_header",
-			Parameters: []config.Parameter{{Value: "Strict-Transport-Security"}, {Value: "max-age=31536000"}},
-		})
-	}
-
-	if err = v.parser.Set("server", directives); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (v *baseVhost) setHTTPSRedirect(httpRedirect bool) error {
-	// if 重定向
-	ifs, err := v.parser.Find("server.if")
-	if err != nil {
-		return err
-	}
-	if err = v.parser.Clear("server.if"); err != nil {
-		return err
-	}
-
-	var directives []*config.Directive
-	var foundFlag bool
-	for _, dir := range ifs { // 所有 if
-		if !httpRedirect {
-			if len(dir.GetParameters()) == 3 && dir.GetParameters()[0].GetValue() == "($scheme" && dir.GetParameters()[1].GetValue() == "=" && dir.GetParameters()[2].GetValue() == "http)" {
-				continue
-			}
-		}
-		var ifDirectives []config.IDirective
-		for _, dir2 := range dir.GetBlock().GetDirectives() { // 每个 if 中所有指令
-			if !httpRedirect {
-				if dir2.GetName() != "return" && !slices.Contains(v.parser.parameters2Slices(dir2.GetParameters()), "https://$host$request_uri") {
-					ifDirectives = append(ifDirectives, dir2)
-				}
-			} else {
-				if dir2.GetName() == "return" && slices.Contains(v.parser.parameters2Slices(dir2.GetParameters()), "https://$host$request_uri") {
-					foundFlag = true
-				}
-				ifDirectives = append(ifDirectives, dir2)
-			}
-		}
-		if block, ok := dir.GetBlock().(*config.Block); ok {
-			block.Directives = ifDirectives
-		}
-		directives = append(directives, &config.Directive{
-			Block:      dir.GetBlock(),
-			Name:       dir.GetName(),
-			Parameters: dir.GetParameters(),
-			Comment:    dir.GetComment(),
-		})
-	}
-
-	if !foundFlag && httpRedirect {
-		ifDir := &config.Directive{
-			Name:       "if",
-			Block:      &config.Block{},
-			Parameters: []config.Parameter{{Value: "($scheme"}, {Value: "="}, {Value: "http)"}},
-		}
-		redirectDir := &config.Directive{
-			Name:       "return",
-			Parameters: []config.Parameter{{Value: "308"}, {Value: "https://$host$request_uri"}},
-		}
-		redirectDir.SetParent(ifDir.GetParent())
-		ifBlock := ifDir.GetBlock().(*config.Block)
-		ifBlock.Directives = append(ifBlock.Directives, redirectDir)
-		directives = append(directives, ifDir)
-	}
-
-	if err = v.parser.Set("server", directives); err != nil {
-		return err
-	}
-
-	// error_page 497 重定向
-	directives = nil
-	errorPages, err := v.parser.Find("server.error_page")
-	if err != nil {
-		return err
-	}
-	if err = v.parser.Clear("server.error_page"); err != nil {
-		return err
-	}
-	var found497 bool
-	for _, dir := range errorPages {
-		if !httpRedirect {
-			if !slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "497") && !slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "https://$host:$server_port$request_uri") {
-				directives = append(directives, &config.Directive{
-					Block:      dir.GetBlock(),
-					Name:       dir.GetName(),
-					Parameters: dir.GetParameters(),
-					Comment:    dir.GetComment(),
-				})
-			}
-		} else {
-			if slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "497") && slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "https://$host:$server_port$request_uri") {
-				found497 = true
-			}
-			directives = append(directives, &config.Directive{
-				Block:      dir.GetBlock(),
-				Name:       dir.GetName(),
-				Parameters: dir.GetParameters(),
-				Comment:    dir.GetComment(),
-			})
-		}
-	}
-
-	if !found497 && httpRedirect {
-		directives = append(directives, &config.Directive{
-			Name:       "error_page",
-			Parameters: []config.Parameter{{Value: "497"}, {Value: "=308"}, {Value: "https://$host:$server_port$request_uri"}},
-		})
-	}
-
-	return v.parser.Set("server", directives)
-}
-
-func (v *baseVhost) setAltSvc(altSvc string) error {
-	old, err := v.parser.Find("server.add_header")
-	if err != nil {
-		return err
-	}
-	if err = v.parser.Clear("server.add_header"); err != nil {
-		return err
-	}
-
-	var directives []*config.Directive
-	var foundFlag bool
-	for _, dir := range old {
-		if slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "Alt-Svc") {
-			foundFlag = true
-			if altSvc != "" { // 为空表示要删除
-				directives = append(directives, &config.Directive{
-					Name:       dir.GetName(),
-					Parameters: []config.Parameter{{Value: "Alt-Svc"}, {Value: altSvc}},
-					Comment:    dir.GetComment(),
-				})
-			}
-		} else {
-			directives = append(directives, &config.Directive{
-				Name:       dir.GetName(),
-				Parameters: dir.GetParameters(),
-				Comment:    dir.GetComment(),
-			})
-		}
-	}
-
-	if !foundFlag && altSvc != "" {
-		directives = append(directives, &config.Directive{
-			Name:       "add_header",
-			Parameters: []config.Parameter{{Value: "Alt-Svc"}, {Value: altSvc}},
-		})
-	}
-
-	if err = v.parser.Set("server", directives); err != nil {
-		return err
-	}
-
-	return nil
+	return clearUpstreamFiles(filepath.Join(v.configDir, "shared"))
 }

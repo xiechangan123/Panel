@@ -3,6 +3,8 @@ package openlitespeed
 import (
 	"os"
 	"strings"
+
+	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 )
 
 // realIPConf OLS 只能在服务器级信任代理头，对所有站点生效
@@ -27,7 +29,7 @@ func GetRealIP() (RealIP, error) {
 
 	mode := cfg.Value("useIpInProxyHeader")
 	r.Enabled = mode != "" && mode != "0"
-	if b := cfg.Block("accessControl"); b != nil {
+	if b := cfg.GetBlock("accessControl"); b != nil {
 		for item := range strings.SplitSeq(b.Value("allow"), ",") {
 			item = strings.TrimSpace(item)
 			if item == "" || strings.EqualFold(item, "ALL") {
@@ -41,7 +43,7 @@ func GetRealIP() (RealIP, error) {
 
 // SetRealIP 有可信列表时只信任带 T 后缀的来源，否则信任所有来源
 func SetRealIP(r RealIP) error {
-	cfg := &Config{}
+	cfg := &conf.Config{}
 	switch {
 	case !r.Enabled:
 		cfg.Add("useIpInProxyHeader", "0")
@@ -55,5 +57,5 @@ func SetRealIP(r RealIP) error {
 		}
 		cfg.AddBlock("accessControl", "").Add("allow", strings.Join(allow, ", "))
 	}
-	return os.WriteFile(realIPConf, []byte(cfg.String()), 0600)
+	return os.WriteFile(realIPConf, []byte(Export(cfg)), 0600)
 }
