@@ -1395,6 +1395,7 @@ const removeCustomConfig = (index: number) => {
 
                       <!-- 响应内容替换 -->
                       <n-collapse-item
+                        v-if="features.proxyReplaces"
                         :title="$gettext('Response Content Replacement')"
                         name="replaces"
                       >

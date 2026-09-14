@@ -7,6 +7,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/webserver/apache"
+	"github.com/acepanel/panel/v3/pkg/webserver/caddy"
 	"github.com/acepanel/panel/v3/pkg/webserver/nginx"
 	"github.com/acepanel/panel/v3/pkg/webserver/openlitespeed"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
@@ -17,6 +18,7 @@ var dialects = map[Type]types.Dialect{
 	TypeNginx:         nginx.Dialect{},
 	TypeApache:        apache.Dialect{},
 	TypeOpenLiteSpeed: openlitespeed.Dialect{},
+	TypeCaddy:         caddy.Dialect{},
 }
 
 // Dialect 在具体方言之上补充与服务器无关的通用逻辑

@@ -4,6 +4,7 @@ import (
 	"github.com/google/wire"
 
 	"github.com/acepanel/panel/v3/internal/apps/apache"
+	"github.com/acepanel/panel/v3/internal/apps/caddy"
 	"github.com/acepanel/panel/v3/internal/apps/clickhouse"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
 	"github.com/acepanel/panel/v3/internal/apps/docker"
@@ -38,7 +39,7 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	apache.NewApp, clickhouse.NewApp, codeserver.NewApp,
+	apache.NewApp, caddy.NewApp, clickhouse.NewApp, codeserver.NewApp,
 	docker.NewApp, elasticsearch.NewApp, fail2ban.NewApp,
 	frp.NewApp, gitea.NewApp, grafana.NewApp,
 	kafka.NewApp, mariadb.NewApp, memcached.NewApp,

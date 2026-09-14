@@ -1,0 +1,47 @@
+package caddy
+
+// ServerRoot 安装根目录
+const ServerRoot = "/opt/ace/server/caddy"
+
+// MainConf 主配置文件，全局选项、站点通配 import 与兜底站点
+const MainConf = ServerRoot + "/Caddyfile"
+
+// HTMLDir 默认页目录
+const HTMLDir = ServerRoot + "/html"
+
+// ACMEDir HTTP-01 验证目录，token 落在其下的 /.well-known/acme-challenge/，站点与兜底站点直接以此为根提供文件
+const ACMEDir = ServerRoot + "/acme"
+
+// ErrorLogPath 全局错误日志，Caddy 没有站点级错误日志
+const ErrorLogPath = ServerRoot + "/logs/error.log"
+
+// panelACMEConf 面板验证写入的 token 文件名记录，用于清理
+const panelACMEConf = ServerRoot + "/conf/acme-tokens"
+
+// ConfName 站点配置文件名
+const ConfName = "caddy.conf"
+
+// acmeURI HTTP-01 验证路径
+const acmeURI = "/.well-known/acme-challenge/"
+
+const phpCacheConf = `# browser cache
+@ace_static path *.bmp *.jpg *.jpeg *.png *.gif *.svg *.ico *.tiff *.webp *.avif *.heif *.heic *.jxl
+header @ace_static Cache-Control max-age=2592000
+log_skip @ace_static
+@ace_assets path *.js *.css *.ttf *.otf *.woff *.woff2 *.eot
+header @ace_assets Cache-Control max-age=21600
+log_skip @ace_assets
+# deny sensitive files
+@ace_sensitive path_regexp ^/(\.user\.ini|\.htaccess|\.git|\.svn|\.env)
+respond @ace_sensitive 404
+`
+
+const spaConf = `# single-page application route fallback, remove if not needed
+try_files {path} {path}/ /index.html
+`
+
+const errorPageConf = `handle_errors 404 {
+	rewrite * /404.html
+	file_server
+}
+`

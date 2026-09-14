@@ -8,6 +8,7 @@ export interface WebServerFeatures {
   resolver: boolean // 上游与代理的 DNS 解析器
   matchType: boolean // 代理匹配类型
   proxyCache: boolean // 代理缓存
+  proxyReplaces: boolean // 代理响应内容替换
   proxyAdvanced: boolean // 代理高级配置
   rewritePresets: boolean // 伪静态预设
   stat: boolean // 访问统计
@@ -26,6 +27,7 @@ const features: Record<string, WebServerFeatures> = {
     resolver: true,
     matchType: true,
     proxyCache: true,
+    proxyReplaces: true,
     proxyAdvanced: true,
     rewritePresets: true,
     stat: true,
@@ -42,6 +44,7 @@ const features: Record<string, WebServerFeatures> = {
     resolver: false,
     matchType: false,
     proxyCache: false,
+    proxyReplaces: true,
     proxyAdvanced: false,
     rewritePresets: false,
     stat: false,
@@ -58,6 +61,7 @@ const features: Record<string, WebServerFeatures> = {
     resolver: false,
     matchType: true,
     proxyCache: false,
+    proxyReplaces: false,
     proxyAdvanced: false,
     rewritePresets: true,
     stat: false,
@@ -68,6 +72,23 @@ const features: Record<string, WebServerFeatures> = {
     upstreamAlgos: [''],
     lang: 'plaintext',
   },
+  caddy: {
+    quic: false,
+    ipv6Listen: false,
+    resolver: false,
+    matchType: true,
+    proxyCache: false,
+    proxyReplaces: true,
+    proxyAdvanced: true,
+    rewritePresets: true,
+    stat: false,
+    defaultSite: false,
+    rateLimit: false,
+    realIP: false,
+    lsCache: false,
+    upstreamAlgos: ['', 'least_conn', 'ip_hash', 'client_ip_hash', 'uri_hash', 'random', 'first'],
+    lang: 'plaintext',
+  },
 }
 
 const unknown: WebServerFeatures = {
@@ -76,6 +97,7 @@ const unknown: WebServerFeatures = {
   resolver: false,
   matchType: false,
   proxyCache: false,
+  proxyReplaces: false,
   proxyAdvanced: false,
   rewritePresets: false,
   stat: false,

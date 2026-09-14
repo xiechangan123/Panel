@@ -15,6 +15,7 @@ var apps sync.Map
 
 var supportedSlugs = []string{
 	"apache",
+	"caddy",
 	"clickhouse",
 	"codeserver",
 	"docker",

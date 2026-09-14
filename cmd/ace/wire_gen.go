@@ -9,6 +9,7 @@ package main
 import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/apache"
+	"github.com/acepanel/panel/v3/internal/apps/caddy"
 	"github.com/acepanel/panel/v3/internal/apps/clickhouse"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
 	"github.com/acepanel/panel/v3/internal/apps/docker"
@@ -63,6 +64,7 @@ func initAce() (*app.Ace, func(), error) {
 	}
 	locale := bootstrap.NewT(config)
 	apacheApp := apache.NewApp(locale)
+	caddyApp := caddy.NewApp(locale)
 	db, err := bootstrap.NewDB(config)
 	if err != nil {
 		return nil, nil, err
@@ -110,7 +112,7 @@ func initAce() (*app.Ace, func(), error) {
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	valkeyApp := valkey.NewApp(locale, databaseServerRepo, taskRepo)
-	loader := bootstrap.NewLoader(apacheApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openlitespeedApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
+	loader := bootstrap.NewLoader(apacheApp, caddyApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openlitespeedApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
 	manager, err := bootstrap.NewSession(config, db, slogLogger)
 	if err != nil {
 		cleanup()

@@ -7,4 +7,5 @@ const (
 	TypeNginx         Type = "nginx"
 	TypeApache        Type = "apache"
 	TypeOpenLiteSpeed Type = "openlitespeed"
+	TypeCaddy         Type = "caddy"
 )
