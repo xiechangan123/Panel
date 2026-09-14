@@ -68,8 +68,8 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 		index:     []string{"index.html"},
 		accessLog: filepath.Join(siteDir, "log", "access.log"),
 		errorLog:  filepath.Join(siteDir, "log", "error.log"),
-		listens:   []types.Listen{},
-		domains:   []string{},
+		listens:   []types.Listen{{Address: "80", Args: []string{}}},
+		domains:   []string{"localhost"},
 	}
 
 	cfg, err := parseIfExists(filepath.Join(configDir, VhostConfName))
@@ -148,6 +148,7 @@ func (v *baseVhost) load(cfg *Config) {
 }
 
 func (v *baseVhost) loadListen(cfg *Config) {
+	v.listens = []types.Listen{}
 	for _, d := range cfg.Directives("listen") {
 		fields := strings.Fields(d.Value)
 		if len(fields) == 0 {
@@ -342,8 +343,8 @@ func (v *baseVhost) Reset() error {
 		index:     []string{"index.html"},
 		accessLog: filepath.Join(v.siteDir, "log", "access.log"),
 		errorLog:  filepath.Join(v.siteDir, "log", "error.log"),
-		listens:   []types.Listen{},
-		domains:   []string{},
+		listens:   []types.Listen{{Address: "80", Args: []string{}}},
+		domains:   []string{"localhost"},
 	}
 	return nil
 }

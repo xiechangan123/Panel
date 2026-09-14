@@ -143,9 +143,8 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 			setting.OpenBasedir = true
 		}
 	}
-	// SSL
-	if setting.SSL {
-		sslConfig := vhost.SSLConfig()
+	// SSL，切换 Web 服务器后配置可能尚未生成
+	if sslConfig := vhost.SSLConfig(); setting.SSL && sslConfig != nil {
 		setting.HTTPRedirect = sslConfig.HTTPRedirect
 		setting.HSTS = sslConfig.HSTS
 		setting.OCSP = sslConfig.OCSP
