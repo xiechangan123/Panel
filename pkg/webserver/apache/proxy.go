@@ -98,7 +98,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		Replaces: make(map[string]string),
 	}
 
-	// ProxyPass location pass
 	if d := cfg.FindOne("IfModule.ProxyPass"); d != nil && len(d.Args) >= 2 {
 		proxy.Location = d.Args[0].Value
 		proxy.Pass = d.Args[1].Value
@@ -112,10 +111,8 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		}
 	}
 
-	// SNI 注释
 	proxy.SNI = findSNIComment(cfg)
 
-	// buffering
 	if cfg.FindOne("IfModule.ProxyIOBufferSize") != nil {
 		proxy.Buffering = true
 	}
@@ -136,7 +133,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		}
 	}
 
-	// 响应内容替换（Substitute）
 	for _, d := range cfg.Find("IfModule.IfModule.Substitute") {
 		if len(d.Args) >= 1 {
 			if from, to, ok := parseSubstitute(d.Args[0].Value); ok {
@@ -283,14 +279,12 @@ func generateProxyConfig(proxy types.Proxy) string {
 		Dir("ProxyPassReverse", location, pass),
 	)
 
-	// Host 配置
 	if proxy.Host != "" {
 		inner.Append(Dir("RequestHeader", "set", "Host", proxy.Host))
 	} else {
 		inner.Append(Dir("ProxyPreserveHost", "On"))
 	}
 
-	// SSL/SNI 配置
 	if proxy.SNI != "" || strings.HasPrefix(pass, "https://") {
 		inner.Append(
 			Dir("SSLProxyEngine", "On"),
@@ -304,12 +298,10 @@ func generateProxyConfig(proxy types.Proxy) string {
 		}
 	}
 
-	// Buffering 配置
 	if proxy.Buffering {
 		inner.Append(Dir("ProxyIOBufferSize", "65536"))
 	}
 
-	// Cache 配置
 	if proxy.Cache != nil {
 		expireSeconds := 600
 		for _, duration := range proxy.Cache.Valid {
@@ -322,7 +314,6 @@ func generateProxyConfig(proxy types.Proxy) string {
 		))
 	}
 
-	// 自定义请求头
 	if len(proxy.Headers) > 0 {
 		headers := Blk("IfModule", "mod_headers.c")
 		for name, value := range proxy.Headers {
@@ -331,7 +322,6 @@ func generateProxyConfig(proxy types.Proxy) string {
 		inner.Append(headers)
 	}
 
-	// 响应内容替换
 	if len(proxy.Replaces) > 0 {
 		sub := Blk("IfModule", "mod_substitute.c").Append(
 			Dir("AddOutputFilterByType", "SUBSTITUTE", "text/html", "text/plain", "text/xml"),
@@ -403,7 +393,6 @@ func parseBalancerFile(filePath string, name string) (*types.Upstream, error) {
 		Resolver: []string{},
 	}
 
-	// BalancerMember addr options...
 	for _, d := range cfg.Find("IfModule.Proxy.BalancerMember") {
 		vals := argValues(d.Args)
 		if len(vals) == 0 {

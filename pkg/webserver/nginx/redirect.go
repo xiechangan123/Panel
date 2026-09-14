@@ -142,12 +142,10 @@ func parseReturn(p *Parser, dirs []config.IDirective) (statusCode int, to string
 
 // writeRedirectFiles 将重定向配置写入文件
 func writeRedirectFiles(siteDir string, redirects []types.Redirect) error {
-	// 删除现有的重定向配置文件 (100-199)
 	if err := clearRedirectFiles(siteDir); err != nil {
 		return err
 	}
 
-	// 写入新的配置文件
 	for i, redirect := range redirects {
 		num := RedirectStartNum + i
 		if num > RedirectEndNum {
@@ -208,21 +206,18 @@ func generateRedirectConfig(redirect types.Redirect) string {
 
 	switch redirect.Type {
 	case types.RedirectTypeURL:
-		// URL 重定向
 		_, _ = fmt.Fprintf(&sb, "# URL redirect: %s -> %s\n", redirect.From, redirect.To)
 		_, _ = fmt.Fprintf(&sb, "location = %s {\n", redirect.From)
 		_, _ = fmt.Fprintf(&sb, "    return %d %s%s;\n", statusCode, redirect.To, uriSuffix)
 		sb.WriteString("}\n")
 
 	case types.RedirectTypeHost:
-		// Host 重定向
 		_, _ = fmt.Fprintf(&sb, "# Host redirect: %s -> %s\n", redirect.From, redirect.To)
 		_, _ = fmt.Fprintf(&sb, "if ($host = \"%s\") {\n", redirect.From)
 		_, _ = fmt.Fprintf(&sb, "    return %d %s%s;\n", statusCode, redirect.To, uriSuffix)
 		sb.WriteString("}\n")
 
 	case types.RedirectType404:
-		// 404 重定向
 		_, _ = fmt.Fprintf(&sb, "# 404 redirect -> %s\n", redirect.To)
 		sb.WriteString("error_page 404 = @redirect_404;\n")
 		sb.WriteString("location @redirect_404 {\n")

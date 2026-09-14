@@ -46,8 +46,7 @@ func authPatternPath(pattern string) string {
 	return strings.ReplaceAll(path, `\`, "")
 }
 
-// generateAuthMaps 生成 realm/file 两个 map 块，通过 $uri 匹配实现目录级认证，
-// 从而对静态、PHP、反向代理的所有 location 统一生效（auth_basic 变量值为 off 时禁用认证）
+// generateAuthMaps 用 realm/file 两个 map 按 $uri 匹配实现目录级认证，对所有 location 统一生效，值为 off 即不认证
 func generateAuthMaps(siteName string, auths []types.BasicAuth) string {
 	realmVar, fileVar := authVarNames(siteName)
 	realmDefault, fileDefault := "off", `""`

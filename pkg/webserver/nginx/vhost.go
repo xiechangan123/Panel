@@ -49,11 +49,9 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 		siteName:  filepath.Base(filepath.Dir(configDir)),
 	}
 
-	// 加载配置
 	var parser *Parser
 	var err error
 
-	// 从配置目录加载主配置文件
 	configFile := filepath.Join(v.configDir, "nginx.conf")
 	if _, statErr := os.Stat(configFile); statErr == nil {
 		parser, err = NewParserFromFile(configFile)
@@ -62,7 +60,6 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 		}
 	}
 
-	// 如果没有配置文件，使用默认配置
 	if parser == nil {
 		parser, err = NewParser(v.siteName)
 		if err != nil {
@@ -106,7 +103,6 @@ func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 }
 
 func (v *baseVhost) Enable() bool {
-	// 检查是否存在禁用配置文件
 	disableConf := filepath.Join(v.configDir, "site", "00-disable.conf")
 	_, err := os.Stat(disableConf)
 	return os.IsNotExist(err)
@@ -116,7 +112,6 @@ func (v *baseVhost) SetEnable(enable bool) error {
 	disableConf := filepath.Join(v.configDir, "site", "00-disable.conf")
 
 	if enable {
-		// 启用：删除禁用配置文件
 		if err := os.Remove(disableConf); err != nil && !os.IsNotExist(err) {
 			return fmt.Errorf("failed to remove disable config: %w", err)
 		}
@@ -142,8 +137,6 @@ func (v *baseVhost) Listen() []types.Listen {
 		return nil
 	}
 
-	// 使用 map 合并相同地址的 listen 指令
-	// nginx 中 ssl 和 quic 需要分开写
 	listenMap := make(map[string]*types.Listen)
 	var order []string // 保持顺序
 
@@ -155,7 +148,6 @@ func (v *baseVhost) Listen() []types.Listen {
 		address := l[0]
 
 		if existing, ok := listenMap[address]; ok {
-			// 合并 args
 			for i := 1; i < len(l); i++ {
 				if !slices.Contains(existing.Args, l[i]) {
 					existing.Args = append(existing.Args, l[i])
@@ -185,10 +177,8 @@ func (v *baseVhost) SetListen(listens []types.Listen) error {
 		hasSSL := slices.Contains(l.Args, "ssl")
 		hasQUIC := slices.Contains(l.Args, "quic")
 
-		// nginx 中 ssl 和 quic 不能在同一个 listen 指令中
-		// 需要分成两行：listen 443 ssl; 和 listen 443 quic;
+		// nginx 不允许 ssl 与 quic 同在一条 listen，拆成两行
 		if hasSSL && hasQUIC {
-			// 生成 ssl 行（包含除 quic 外的所有参数）
 			sslArgs := append([]string{l.Address}, lo.Filter(l.Args, func(arg string, _ int) bool {
 				return arg != "quic"
 			})...)
@@ -197,14 +187,12 @@ func (v *baseVhost) SetListen(listens []types.Listen) error {
 				Parameters: v.parser.slices2Parameters(sslArgs),
 			})
 
-			// 生成 quic 行
 			quicArgs := []string{l.Address, "quic"}
 			directives = append(directives, &config.Directive{
 				Name:       "listen",
 				Parameters: v.parser.slices2Parameters(quicArgs),
 			})
 		} else {
-			// 普通情况，直接生成一行
 			listen := []string{l.Address}
 			listen = append(listen, l.Args...)
 			directives = append(directives, &config.Directive{
@@ -383,13 +371,11 @@ func (v *baseVhost) Save() error {
 }
 
 func (v *baseVhost) Reset() error {
-	// 重置配置为默认值
 	parser, err := NewParser(v.siteName)
 	if err != nil {
 		return fmt.Errorf("failed to reset config: %w", err)
 	}
 
-	// 如果有 configDir，设置配置文件路径
 	if v.configDir != "" {
 		parser.SetConfigPath(filepath.Join(v.configDir, "nginx.conf"))
 	}
@@ -515,12 +501,10 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 		return err
 	}
 
-	// 设置 HSTS
 	if err = v.setHSTS(cfg.HSTS); err != nil {
 		return err
 	}
 
-	// 设置 OCSP
 	if cfg.OCSP {
 		if err = v.parser.Set("server", []*config.Directive{
 			{
@@ -536,12 +520,10 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 		}
 	}
 
-	// 设置 HTTP 跳转
 	if err = v.setHTTPSRedirect(cfg.HTTPRedirect); err != nil {
 		return err
 	}
 
-	// 设置 Alt-Svc
 	if err = v.setAltSvc(cfg.AltSvc); err != nil {
 		return err
 	}
@@ -570,7 +552,6 @@ func (v *baseVhost) ClearSSL() error {
 func (v *baseVhost) RateLimit() *types.RateLimit {
 	var perServer, perIP, rate int
 
-	// 解析 limit_rate 配置
 	directive, err := v.parser.FindOne("server.limit_rate")
 	if err == nil {
 		params := v.parser.parameters2Slices(directive.GetParameters())
@@ -583,7 +564,6 @@ func (v *baseVhost) RateLimit() *types.RateLimit {
 		}
 	}
 
-	// 解析 limit_conn 配置
 	directives, _ := v.parser.Find("server.limit_conn")
 	for _, dir := range directives {
 		params := v.parser.parameters2Slices(dir.GetParameters())
@@ -611,7 +591,6 @@ func (v *baseVhost) RateLimit() *types.RateLimit {
 }
 
 func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
-	// 设置限速 limit_rate
 	_ = v.parser.Clear("server.limit_rate")
 	if limit.Rate > 0 {
 		if err := v.parser.Set("server", []*config.Directive{
@@ -624,7 +603,6 @@ func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
 		}
 	}
 
-	// 设置并发连接数限制 limit_conn
 	_ = v.parser.Clear("server.limit_conn")
 	var directives []*config.Directive
 	if limit.PerServer > 0 {
@@ -705,7 +683,6 @@ func (v *baseVhost) ClearBasicAuth() error {
 }
 
 func (v *baseVhost) RealIP() *types.RealIP {
-	// 解析 set_real_ip_from 配置
 	var from []string
 	directives, _ := v.parser.Find("server.set_real_ip_from")
 	for _, dir := range directives {
@@ -715,7 +692,6 @@ func (v *baseVhost) RealIP() *types.RealIP {
 		}
 	}
 
-	// 解析 real_ip_header 配置
 	header := ""
 	directive, err := v.parser.FindOne("server.real_ip_header")
 	if err == nil {
@@ -725,7 +701,6 @@ func (v *baseVhost) RealIP() *types.RealIP {
 		}
 	}
 
-	// 解析 real_ip_recursive 配置
 	recursive := false
 	recursiveDir, err := v.parser.FindOne("server.real_ip_recursive")
 	if err == nil {
@@ -747,7 +722,6 @@ func (v *baseVhost) RealIP() *types.RealIP {
 }
 
 func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
-	// 清除现有配置
 	_ = v.parser.Clear("server.set_real_ip_from")
 	_ = v.parser.Clear("server.real_ip_header")
 	_ = v.parser.Clear("server.real_ip_recursive")
@@ -758,7 +732,6 @@ func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
 
 	var directives []*config.Directive
 
-	// 添加 set_real_ip_from 配置
 	for _, ip := range realIP.From {
 		if ip != "" {
 			directives = append(directives, &config.Directive{
@@ -768,7 +741,6 @@ func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
 		}
 	}
 
-	// 添加 real_ip_header 配置
 	if realIP.Header != "" {
 		directives = append(directives, &config.Directive{
 			Name:       "real_ip_header",
@@ -776,7 +748,6 @@ func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
 		})
 	}
 
-	// 添加 real_ip_recursive 配置
 	if realIP.Recursive {
 		directives = append(directives, &config.Directive{
 			Name:       "real_ip_recursive",
@@ -817,8 +788,7 @@ func (v *PHPVhost) PHP() uint {
 		return 0
 	}
 
-	// 从配置内容中提取版本号
-	// 格式: fastcgi_pass unix:/tmp/php-cgi-84.sock;
+	// 从 fastcgi_pass unix:/tmp/php-cgi-84.sock 取版本号
 	idx := strings.Index(content, "php-cgi-")
 	if idx == -1 {
 		return 0
@@ -837,8 +807,6 @@ func (v *PHPVhost) SetPHP(version uint) error {
 		return v.RemoveConfig("010-php.conf", types.ScopeSite)
 	}
 
-	// 生成 PHP-FPM 配置
-	// sock 路径格式: unix:/tmp/php-cgi-84.sock
 	content := fmt.Sprintf(`location ~ \.php$ {
     try_files $uri =404;
     fastcgi_pass unix:/tmp/php-cgi-%d.sock;
@@ -950,19 +918,16 @@ func (v *baseVhost) setHTTPSRedirect(httpRedirect bool) error {
 		var ifDirectives []config.IDirective
 		for _, dir2 := range dir.GetBlock().GetDirectives() { // 每个 if 中所有指令
 			if !httpRedirect {
-				// 不启用http重定向，则判断并移除特定的return指令
 				if dir2.GetName() != "return" && !slices.Contains(v.parser.parameters2Slices(dir2.GetParameters()), "https://$host$request_uri") {
 					ifDirectives = append(ifDirectives, dir2)
 				}
 			} else {
-				// 启用http重定向，需要检查防止重复添加
 				if dir2.GetName() == "return" && slices.Contains(v.parser.parameters2Slices(dir2.GetParameters()), "https://$host$request_uri") {
 					foundFlag = true
 				}
 				ifDirectives = append(ifDirectives, dir2)
 			}
 		}
-		// 写回 if 指令
 		if block, ok := dir.GetBlock().(*config.Block); ok {
 			block.Directives = ifDirectives
 		}
@@ -1006,7 +971,6 @@ func (v *baseVhost) setHTTPSRedirect(httpRedirect bool) error {
 	var found497 bool
 	for _, dir := range errorPages {
 		if !httpRedirect {
-			// 不启用https重定向，则判断并移除特定的return指令
 			if !slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "497") && !slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "https://$host:$server_port$request_uri") {
 				directives = append(directives, &config.Directive{
 					Block:      dir.GetBlock(),
@@ -1016,7 +980,6 @@ func (v *baseVhost) setHTTPSRedirect(httpRedirect bool) error {
 				})
 			}
 		} else {
-			// 启用https重定向，需要检查防止重复添加
 			if slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "497") && slices.Contains(v.parser.parameters2Slices(dir.GetParameters()), "https://$host:$server_port$request_uri") {
 				found497 = true
 			}

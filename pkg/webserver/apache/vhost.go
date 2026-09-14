@@ -46,7 +46,6 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 		siteName:  filepath.Base(filepath.Dir(configDir)),
 	}
 
-	// 从配置目录加载主配置文件
 	var config *Config
 	configFile := filepath.Join(configDir, "apache.conf")
 	if _, err := os.Stat(configFile); err == nil {
@@ -56,7 +55,6 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 		}
 	}
 
-	// 没有配置文件则使用默认配置
 	if config == nil {
 		var err error
 		config, err = ParseString(v.defaultConf())
@@ -387,14 +385,12 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 		v.vhost.Set("SSLUseStapling", "on")
 	}
 
-	// HTTP 强制跳转 HTTPS
 	if cfg.HTTPRedirect {
 		v.vhost.Set("RewriteEngine", "on")
 		v.vhost.Add("RewriteCond", "%{HTTPS}", "off")
 		v.vhost.Add("RewriteRule", "^(.*)$", "https://%{HTTP_HOST}%{REQUEST_URI}", "[R=301,L]")
 	}
 
-	// 确保监听 443 端口
 	if !v.hasPort("443") {
 		v.vhost.AppendArg("*:443")
 	}
@@ -411,7 +407,6 @@ func (v *baseVhost) ClearSSL() error {
 	v.vhost.RemoveAll("RewriteCond")
 	v.vhost.RemoveAll("RewriteRule")
 
-	// 移除 443 监听端口
 	var newArgs []string
 	for _, addr := range v.vhost.ArgValues() {
 		if portOf(addr) != "443" {
@@ -516,7 +511,6 @@ func (v *baseVhost) ClearBasicAuth() error {
 }
 
 func (v *baseVhost) RealIP() *types.RealIP {
-	// Apache 使用 mod_remoteip
 	header := v.vhost.Value("RemoteIPHeader")
 	if header == "" {
 		return nil
@@ -585,7 +579,6 @@ func (v *PHPVhost) SetPHP(version uint) error {
 		return v.RemoveConfig("010-php.conf", types.ScopeSite)
 	}
 
-	// sock 路径格式: proxy:unix:/tmp/php-cgi-84.sock|fcgi://localhost/
 	handler := fmt.Sprintf("proxy:unix:/tmp/php-cgi-%d.sock|fcgi://localhost/", version)
 	cfg := &Config{}
 	cfg.Append(Blk("FilesMatch", `\.php$`).Append(

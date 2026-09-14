@@ -163,11 +163,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	}
 	cfg := p.Config()
 
-	// 解析 location 块
-	// location / {
-	//     proxy_pass http://backend;
-	//     ...
-	// }
 	locations := cfg.FindDirectives("location")
 	if len(locations) == 0 {
 		return nil, nil
@@ -180,7 +175,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		Replaces: make(map[string]string),
 	}
 
-	// 解析 proxy_pass
 	if d := cfg.FindDirectives("proxy_pass"); len(d) > 0 {
 		proxy.Pass = firstParam(p, d)
 	}
@@ -204,32 +198,26 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		}
 	}
 
-	// 解析 proxy_ssl_name (SNI)
 	if d := cfg.FindDirectives("proxy_ssl_name"); len(d) > 0 {
 		proxy.SNI = firstParam(p, d)
 	}
 
-	// 解析 proxy_buffering
 	if d := cfg.FindDirectives("proxy_buffering"); len(d) > 0 {
 		proxy.Buffering = firstParam(p, d) == "on"
 	}
 
-	// 解析 proxy_cache 及其子指令
 	if d := cfg.FindDirectives("proxy_cache"); len(d) > 0 && firstParam(p, d) != "off" {
 		proxy.Cache = parseProxyCache(p, cfg)
 	}
 
-	// 解析 resolver
 	if d := cfg.FindDirectives("resolver"); len(d) > 0 {
 		proxy.Resolver = p.parameters2Slices(d[0].GetParameters())
 	}
 
-	// 解析 resolver_timeout
 	if d := cfg.FindDirectives("resolver_timeout"); len(d) > 0 {
 		proxy.ResolverTimeout = parseDuration(firstParam(p, d))
 	}
 
-	// 解析 sub_filter (响应内容替换)
 	for _, d := range cfg.FindDirectives("sub_filter") {
 		vals := p.parameters2Slices(d.GetParameters())
 		if len(vals) >= 2 {
@@ -237,12 +225,10 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		}
 	}
 
-	// 解析 proxy_http_version
 	if d := cfg.FindDirectives("proxy_http_version"); len(d) > 0 {
 		proxy.HTTPVersion = firstParam(p, d)
 	}
 
-	// 解析超时配置
 	var timeout types.TimeoutConfig
 	hasTimeout := false
 	if d := cfg.FindDirectives("proxy_connect_timeout"); len(d) > 0 {
@@ -261,7 +247,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		proxy.Timeout = &timeout
 	}
 
-	// 解析重试配置
 	var retry types.RetryConfig
 	hasRetry := false
 	if d := cfg.FindDirectives("proxy_next_upstream"); len(d) > 0 {
@@ -280,12 +265,10 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		proxy.Retry = &retry
 	}
 
-	// 解析 client_max_body_size
 	if d := cfg.FindDirectives("client_max_body_size"); len(d) > 0 {
 		proxy.ClientMaxBodySize = parseSize(firstParam(p, d))
 	}
 
-	// 解析 SSL 后端验证配置
 	var sslBackend types.SSLBackendConfig
 	hasSSLBackend := false
 	if d := cfg.FindDirectives("proxy_ssl_verify"); len(d) > 0 {
@@ -304,7 +287,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		proxy.SSLBackend = &sslBackend
 	}
 
-	// 解析响应头配置
 	var responseHeaders types.ResponseHeaderConfig
 	hasResponseHeaders := false
 	if hide := cfg.FindDirectives("proxy_hide_header"); len(hide) > 0 {
@@ -327,7 +309,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		proxy.ResponseHeaders = &responseHeaders
 	}
 
-	// 解析 IP 访问控制
 	var accessControl types.AccessControlConfig
 	hasAccessControl := false
 	if allow := cfg.FindDirectives("allow"); len(allow) > 0 {
@@ -373,27 +354,22 @@ func parseProxyCache(p *Parser, cfg *config.Config) *types.CacheConfig {
 		cache.NoCacheConditions = p.parameters2Slices(d[0].GetParameters())
 	}
 
-	// proxy_cache_use_stale
 	if d := cfg.FindDirectives("proxy_cache_use_stale"); len(d) > 0 {
 		cache.UseStale = p.parameters2Slices(d[0].GetParameters())
 	}
 
-	// proxy_cache_background_update
 	if d := cfg.FindDirectives("proxy_cache_background_update"); len(d) > 0 {
 		cache.BackgroundUpdate = firstParam(p, d) == "on"
 	}
 
-	// proxy_cache_lock
 	if d := cfg.FindDirectives("proxy_cache_lock"); len(d) > 0 {
 		cache.Lock = firstParam(p, d) == "on"
 	}
 
-	// proxy_cache_min_uses
 	if d := cfg.FindDirectives("proxy_cache_min_uses"); len(d) > 0 {
 		cache.MinUses, _ = strconv.Atoi(firstParam(p, d))
 	}
 
-	// proxy_cache_methods
 	if d := cfg.FindDirectives("proxy_cache_methods"); len(d) > 0 {
 		cache.Methods = p.parameters2Slices(d[0].GetParameters())
 	}
@@ -408,12 +384,10 @@ func parseProxyCache(p *Parser, cfg *config.Config) *types.CacheConfig {
 
 // writeProxyFiles 将代理配置写入文件
 func writeProxyFiles(siteDir string, proxies []types.Proxy) error {
-	// 删除现有的代理配置文件 (200-299)
 	if err := clearProxyFiles(siteDir); err != nil {
 		return err
 	}
 
-	// 写入新的配置文件
 	for i, proxy := range proxies {
 		num := ProxyStartNum + i
 		if num > ProxyEndNum {
@@ -474,7 +448,6 @@ func generateProxyConfig(proxy types.Proxy) string {
 	_, _ = fmt.Fprintf(&sb, "# Reverse proxy: %s -> %s\n", location, proxy.Pass)
 	_, _ = fmt.Fprintf(&sb, "location %s {\n", location)
 
-	// IP 访问控制
 	if proxy.AccessControl != nil {
 		for _, ip := range proxy.AccessControl.Allow {
 			_, _ = fmt.Fprintf(&sb, "    allow %s;\n", ip)
@@ -484,12 +457,10 @@ func generateProxyConfig(proxy types.Proxy) string {
 		}
 	}
 
-	// 请求体大小限制
 	if proxy.ClientMaxBodySize > 0 {
 		_, _ = fmt.Fprintf(&sb, "    client_max_body_size %s;\n", formatBytesToNginx(proxy.ClientMaxBodySize))
 	}
 
-	// resolver 配置
 	if len(proxy.Resolver) > 0 {
 		_, _ = fmt.Fprintf(&sb, "    resolver %s;\n", strings.Join(proxy.Resolver, " "))
 		if proxy.ResolverTimeout > 0 {
@@ -499,17 +470,14 @@ func generateProxyConfig(proxy types.Proxy) string {
 
 	_, _ = fmt.Fprintf(&sb, "    proxy_pass %s;\n", proxy.Pass)
 
-	// HTTP 协议版本
 	httpVersion := lo.If(proxy.HTTPVersion != "", proxy.HTTPVersion).Else("1.1")
 	_, _ = fmt.Fprintf(&sb, "    proxy_http_version %s;\n", httpVersion)
 
-	// Host 头
 	host := lo.If(proxy.Host == "" || proxy.Host == "$proxy_host", "$proxy_host").ElseF(func() string {
 		return lo.If(strings.HasPrefix(proxy.Host, "$"), proxy.Host).Else("\"" + proxy.Host + "\"")
 	})
 	_, _ = fmt.Fprintf(&sb, "    proxy_set_header Host %s;\n", host)
 
-	// 标准代理头
 	sb.WriteString("    proxy_set_header X-Real-IP $remote_addr;\n")
 	sb.WriteString("    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n")
 	sb.WriteString("    proxy_set_header X-Forwarded-Proto $scheme;\n")
@@ -517,14 +485,12 @@ func generateProxyConfig(proxy types.Proxy) string {
 	sb.WriteString("    proxy_set_header Connection $connection_upgrade;\n")
 	sb.WriteString("    proxy_set_header Early-Data $ssl_early_data;\n")
 
-	// SNI 配置
 	if strings.HasPrefix(proxy.Pass, "https") {
 		sb.WriteString("    proxy_ssl_protocols TLSv1.2 TLSv1.3;\n")
 		sb.WriteString("    proxy_ssl_session_reuse off;\n")
 		sb.WriteString("    proxy_ssl_server_name on;\n")
 		_, _ = fmt.Fprintf(&sb, "    proxy_ssl_name %s;\n", lo.If(proxy.SNI != "", proxy.SNI).Else("$proxy_host"))
 
-		// SSL 后端验证
 		if proxy.SSLBackend != nil && proxy.SSLBackend.Verify {
 			sb.WriteString("    proxy_ssl_verify on;\n")
 			if proxy.SSLBackend.VerifyDepth > 0 {
@@ -536,7 +502,6 @@ func generateProxyConfig(proxy types.Proxy) string {
 		}
 	}
 
-	// 超时配置
 	if proxy.Timeout != nil {
 		if proxy.Timeout.Connect > 0 {
 			_, _ = fmt.Fprintf(&sb, "    proxy_connect_timeout %s;\n", formatDurationToNginx(proxy.Timeout.Connect))
@@ -549,7 +514,6 @@ func generateProxyConfig(proxy types.Proxy) string {
 		}
 	}
 
-	// 重试配置
 	if proxy.Retry != nil {
 		if len(proxy.Retry.Conditions) > 0 {
 			_, _ = fmt.Fprintf(&sb, "    proxy_next_upstream %s;\n", strings.Join(proxy.Retry.Conditions, " "))
@@ -562,14 +526,11 @@ func generateProxyConfig(proxy types.Proxy) string {
 		}
 	}
 
-	// Buffering 配置
 	_, _ = fmt.Fprintf(&sb, "    proxy_buffering %s;\n", lo.If(proxy.Buffering, "on").Else("off"))
 
-	// Cache 配置
 	if proxy.Cache != nil {
 		sb.WriteString("    proxy_cache cache_one;\n")
 
-		// 缓存时长
 		if len(proxy.Cache.Valid) > 0 {
 			for codes, duration := range proxy.Cache.Valid {
 				if codes == "any" {
@@ -579,55 +540,45 @@ func generateProxyConfig(proxy types.Proxy) string {
 				}
 			}
 		} else {
-			// 默认缓存时长
 			sb.WriteString("    proxy_cache_valid 200 302 10m;\n")
 			sb.WriteString("    proxy_cache_valid 404 10s;\n")
 		}
 
-		// 不缓存条件
 		if len(proxy.Cache.NoCacheConditions) > 0 {
 			conditions := strings.Join(proxy.Cache.NoCacheConditions, " ")
 			_, _ = fmt.Fprintf(&sb, "    proxy_cache_bypass %s;\n", conditions)
 			_, _ = fmt.Fprintf(&sb, "    proxy_no_cache %s;\n", conditions)
 		}
 
-		// 过期缓存使用策略
 		if len(proxy.Cache.UseStale) > 0 {
 			_, _ = fmt.Fprintf(&sb, "    proxy_cache_use_stale %s;\n", strings.Join(proxy.Cache.UseStale, " "))
 		}
 
-		// 后台更新
 		if proxy.Cache.BackgroundUpdate {
 			sb.WriteString("    proxy_cache_background_update on;\n")
 		}
 
-		// 缓存锁
 		if proxy.Cache.Lock {
 			sb.WriteString("    proxy_cache_lock on;\n")
 		}
 
-		// 最小请求次数
 		if proxy.Cache.MinUses > 0 {
 			_, _ = fmt.Fprintf(&sb, "    proxy_cache_min_uses %d;\n", proxy.Cache.MinUses)
 		}
 
-		// 缓存方法
 		if len(proxy.Cache.Methods) > 0 {
 			_, _ = fmt.Fprintf(&sb, "    proxy_cache_methods %s;\n", strings.Join(proxy.Cache.Methods, " "))
 		}
 
-		// 自定义缓存键
 		if proxy.Cache.Key != "" {
 			_, _ = fmt.Fprintf(&sb, "    proxy_cache_key \"%s\";\n", proxy.Cache.Key)
 		}
 	}
 
-	// 自定义请求头
 	for name, value := range proxy.Headers {
 		_, _ = fmt.Fprintf(&sb, "    proxy_set_header %s %s;\n", name, lo.If(strings.HasPrefix(value, "$"), value).Else("\""+value+"\""))
 	}
 
-	// 响应内容替换
 	if len(proxy.Replaces) > 0 {
 		sb.WriteString("    proxy_set_header Accept-Encoding \"\";\n")
 		sb.WriteString("    sub_filter_once off;\n")
@@ -636,13 +587,10 @@ func generateProxyConfig(proxy types.Proxy) string {
 		}
 	}
 
-	// 响应头修改
 	if proxy.ResponseHeaders != nil {
-		// 隐藏响应头
 		for _, header := range proxy.ResponseHeaders.Hide {
 			_, _ = fmt.Fprintf(&sb, "    proxy_hide_header %s;\n", header)
 		}
-		// 添加响应头
 		for name, value := range proxy.ResponseHeaders.Add {
 			formattedValue := lo.If(strings.HasPrefix(value, "$"), value).Else("\"" + value + "\"")
 			_, _ = fmt.Fprintf(&sb, "    add_header %s %s always;\n", name, formattedValue)

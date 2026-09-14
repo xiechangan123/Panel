@@ -68,12 +68,6 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 	}
 	cfg := p.Config()
 
-	// 解析 upstream 块
-	// upstream backend {
-	//     least_conn;
-	//     server 127.0.0.1:8080 weight=5;
-	//     keepalive 32;
-	// }
 	upstreams := cfg.FindUpstreams()
 	if len(upstreams) == 0 {
 		return nil, nil
@@ -91,7 +85,6 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 		Resolver: []string{},
 	}
 
-	// 解析负载均衡算法
 	for _, algo := range []string{"least_conn", "ip_hash", "hash", "random"} {
 		if len(up.FindDirectives(algo)) > 0 {
 			upstream.Algo = algo
@@ -99,13 +92,11 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 		}
 	}
 
-	// 解析 server 指令
 	for _, srv := range up.UpstreamServers {
 		params := p.parameters2Slices(srv.GetDirective().Parameters)
 		upstream.Servers[srv.Address] = strings.Join(params[1:], " ")
 	}
 
-	// 解析 keepalive 指令
 	if d := up.FindDirectives("keepalive"); len(d) > 0 {
 		params := p.parameters2Slices(d[0].GetParameters())
 		if len(params) > 0 {
@@ -113,12 +104,10 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 		}
 	}
 
-	// 解析 resolver
 	if d := up.FindDirectives("resolver"); len(d) > 0 {
 		upstream.Resolver = p.parameters2Slices(d[0].GetParameters())
 	}
 
-	// 解析 resolver_timeout
 	if d := up.FindDirectives("resolver_timeout"); len(d) > 0 {
 		params := p.parameters2Slices(d[0].GetParameters())
 		if len(params) > 0 {
@@ -131,12 +120,10 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 
 // writeUpstreamFiles 将 upstream 配置写入文件
 func writeUpstreamFiles(sharedDir string, upstreams []types.Upstream) error {
-	// 删除现有的 upstream 配置文件
 	if err := clearUpstreamFiles(sharedDir); err != nil {
 		return err
 	}
 
-	// 写入新的配置文件，保持顺序
 	for i, upstream := range upstreams {
 		num := UpstreamStartNum + i
 		fileName := fmt.Sprintf("%03d-%s.conf", num, upstream.Name)
@@ -191,15 +178,12 @@ func generateUpstreamConfig(upstream types.Upstream) string {
 	_, _ = fmt.Fprintf(&sb, "# Upstream: %s\n", upstream.Name)
 	_, _ = fmt.Fprintf(&sb, "upstream %s {\n", upstream.Name)
 
-	// zone 512k
 	_, _ = fmt.Fprintf(&sb, "    zone %s 512k;\n", upstream.Name)
 
-	// 负载均衡算法
 	if upstream.Algo != "" {
 		_, _ = fmt.Fprintf(&sb, "    %s;\n", upstream.Algo)
 	}
 
-	// resolver 配置
 	if len(upstream.Resolver) > 0 {
 		_, _ = fmt.Fprintf(&sb, "    resolver %s;\n", strings.Join(upstream.Resolver, " "))
 		if upstream.ResolverTimeout > 0 {
@@ -207,12 +191,10 @@ func generateUpstreamConfig(upstream types.Upstream) string {
 		}
 	}
 
-	// 服务器列表
 	for addr, options := range upstream.Servers {
 		_, _ = fmt.Fprintf(&sb, "    server %s;\n", lo.If(options != "", addr+" "+options).Else(addr))
 	}
 
-	// keepalive 连接数
 	if upstream.Keepalive > 0 {
 		_, _ = fmt.Fprintf(&sb, "    keepalive %d;\n", upstream.Keepalive)
 	}
