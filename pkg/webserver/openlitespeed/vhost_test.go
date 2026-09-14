@@ -68,8 +68,7 @@ func (s *VhostTestSuite) TestBasicRoundTrip() {
 	s.Contains(conf, "indexFiles               index.php, index.html")
 	s.Contains(conf, "accesslog /var/log/access.log {")
 	s.Contains(conf, "errorlog /var/log/error.log {")
-	s.Contains(conf, "uds://tmp/php-cgi-84.sock")
-	s.Contains(conf, "add                      fcgi:")
+	s.Contains(conf, "include                  "+phpHandlerFile(84))
 	s.Contains(conf, "include                  /etc/custom.conf")
 
 	reloaded, err := NewPHPVhost(s.configDir)
@@ -258,8 +257,9 @@ func (s *VhostTestSuite) TestBasicAuth() {
 	s.Contains(conf, "realm "+vhost.realmName(0)+" {")
 	s.Contains(conf, "location                 /opt/ace/sites/x/htpasswd_1")
 	s.Contains(conf, "context /admin/ {")
-	// 整站认证合并进代理上下文，不再生成静态上下文
+	// 整站认证合并进代理上下文，不再生成静态根上下文
 	s.Equal(1, strings.Count(conf, "context / {"))
+	s.Contains(conf, "realm                    "+vhost.realmName(0)+"\n")
 
 	reloaded, err := NewProxyVhost(s.configDir)
 	s.Require().NoError(err)
@@ -268,6 +268,26 @@ func (s *VhostTestSuite) TestBasicAuth() {
 	s.NoError(reloaded.ClearBasicAuth())
 	s.NoError(reloaded.Save())
 	s.NotContains(s.conf(), "realm")
+}
+
+func (s *VhostTestSuite) TestRootContext() {
+	vhost, err := NewPHPVhost(s.configDir)
+	s.Require().NoError(err)
+	s.NoError(vhost.SetSSLConfig(&types.SSLConfig{Cert: "/c", Key: "/k", HSTS: true}))
+	s.NoError(vhost.SetBasicAuth([]types.BasicAuth{{Path: "/", UserFile: "/opt/ace/sites/x/htpasswd_0"}}))
+	s.NoError(vhost.Save())
+
+	conf := s.conf()
+	s.Equal(1, strings.Count(conf, "context / {"))
+	s.Contains(conf, "location                 $DOC_ROOT/")
+	s.Contains(conf, "autoLoadHtaccess         1")
+	s.Contains(conf, "Header set Strict-Transport-Security max-age=31536000")
+	s.NotContains(conf, "\nextraHeaders")
+
+	reloaded, err := NewPHPVhost(s.configDir)
+	s.Require().NoError(err)
+	s.True(reloaded.SSLConfig().HSTS)
+	s.Equal([]types.BasicAuth{{Path: "/", UserFile: "/opt/ace/sites/x/htpasswd_0"}}, reloaded.BasicAuth())
 }
 
 func (s *VhostTestSuite) TestFragments() {

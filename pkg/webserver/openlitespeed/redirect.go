@@ -35,6 +35,7 @@ func (v *baseVhost) buildRedirects(cfg *Config) {
 			ctx.Add("externalRedirect", "1")
 			ctx.Add("statusCode", strconv.Itoa(redirectStatus(r)))
 			ctx.Add("location", to)
+			setHeaders(ctx, v.contextHeaders())
 		case types.RedirectType404:
 			cfg.AddBlock("errorpage", "404").Add("url", r.To)
 		}

@@ -34,13 +34,7 @@ func (v *baseVhost) buildUpstreams(cfg *Config) {
 		for i, addr := range servers {
 			name := fmt.Sprintf("%s_%d", lbName, i)
 			ext := cfg.AddBlock("extprocessor", name)
-			ext.Add("type", "proxy")
-			ext.Add("address", olsAddress(addr))
-			ext.Add("maxConns", "100")
-			ext.Add("pcKeepAliveTimeout", "60")
-			ext.Add("initTimeout", strconv.Itoa(defaultInitTimeout))
-			ext.Add("retryTimeout", "0")
-			ext.Add("respBuffer", "0")
+			addProxyApp(ext, olsAddress(addr), defaultInitTimeout, false)
 			if options := strings.TrimSpace(up.Servers[addr]); options != "" {
 				ext.AddMeta("options", options)
 			}
@@ -88,32 +82,24 @@ func (v *baseVhost) buildProxies(cfg *Config) map[int]bool {
 	for i, p := range v.proxies {
 		handler, address := v.proxyHandler(p, i)
 		if address != "" {
-			ext := cfg.AddBlock("extprocessor", handler)
-			ext.Add("type", "proxy")
-			ext.Add("address", address)
-			ext.Add("maxConns", "100")
-			ext.Add("pcKeepAliveTimeout", "60")
 			timeout := defaultInitTimeout
 			if p.Timeout != nil && p.Timeout.Read > 0 {
 				timeout = int(p.Timeout.Read / time.Second)
 			}
-			ext.Add("initTimeout", strconv.Itoa(timeout))
-			ext.Add("retryTimeout", "0")
-			ext.Add("respBuffer", map[bool]string{true: "1", false: "0"}[p.Buffering])
+			addProxyApp(cfg.AddBlock("extprocessor", handler), address, timeout, p.Buffering)
 		}
 
 		uri := locationToURI(p.Location)
 		ctx := cfg.AddBlock("context", uri)
 		ctx.Add("type", "proxy")
 		ctx.Add("handler", handler)
-		ctx.Add("addDefaultCharset", "off")
 		ctx.AddMeta("location", p.Location)
 		ctx.AddMeta("pass", p.Pass)
 		if p.SNI != "" {
 			ctx.AddMeta("sni", p.SNI)
 		}
 
-		var headers []string
+		headers := v.contextHeaders()
 		if p.Host != "" {
 			headers = append(headers, "RequestHeader set Host "+p.Host)
 		}
@@ -128,9 +114,7 @@ func (v *baseVhost) buildProxies(cfg *Config) map[int]bool {
 				headers = append(headers, "Header unset "+name)
 			}
 		}
-		if len(headers) > 0 {
-			ctx.Append(&Directive{Name: "extraHeaders", Value: strings.Join(headers, "\n"), Multiline: true})
-		}
+		setHeaders(ctx, headers)
 
 		if p.AccessControl != nil && (len(p.AccessControl.Allow) > 0 || len(p.AccessControl.Deny) > 0) {
 			ac := ctx.AddBlock("accessControl", "")
@@ -160,6 +144,18 @@ func (v *baseVhost) buildProxies(cfg *Config) map[int]bool {
 	}
 
 	return consumed
+}
+
+// addProxyApp 写入反向代理外部应用，与后端保持长连接
+func addProxyApp(ext *Block, address string, timeout int, buffering bool) {
+	ext.Add("type", "proxy")
+	ext.Add("address", address)
+	ext.Add("maxConns", "100")
+	ext.Add("initTimeout", strconv.Itoa(timeout))
+	ext.Add("retryTimeout", "0")
+	ext.Add("persistConn", "1")
+	ext.Add("pcKeepAliveTimeout", "60")
+	ext.Add("respBuffer", map[bool]string{true: "1", false: "0"}[buffering])
 }
 
 // proxyHandler 解析代理目标：命中上游时返回上游名，否则返回新建外部应用名与后端地址
@@ -220,7 +216,7 @@ func (v *baseVhost) loadProxies(cfg *Config) {
 		if d := ctx.Directive("extraHeaders"); d != nil {
 			for line := range strings.SplitSeq(d.Value, "\n") {
 				m := headerOpPattern.FindStringSubmatch(strings.TrimSpace(line))
-				if m == nil {
+				if m == nil || m[3] == hstsHeader {
 					continue
 				}
 				switch {

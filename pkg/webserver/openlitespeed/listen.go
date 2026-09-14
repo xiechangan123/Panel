@@ -19,9 +19,9 @@ const (
 	defaultKey  = PanelConfDir + "/default.key"
 )
 
-// SyncListeners 汇总所有站点记录的监听地址与域名，重新生成面板托管的监听器配置
-// OpenLiteSpeed 的端口与域名映射位于主配置的 listener 块，无法拆分到站点文件，因此每次保存站点后整体重建
-func SyncListeners() error {
+// Sync 重建面板托管的主配置片段：监听器与 PHP 外部应用
+// 这些内容位于主配置层面，无法拆分到站点文件，因此每次保存站点或重载前整体重建
+func Sync() error {
 	syncMu.Lock()
 	defer syncMu.Unlock()
 
@@ -29,6 +29,15 @@ func SyncListeners() error {
 	if _, err := os.Stat(PanelConfDir); err != nil {
 		return nil
 	}
+	if err := syncListeners(); err != nil {
+		return err
+	}
+
+	return syncPHP()
+}
+
+// syncListeners 汇总所有站点记录的监听地址与域名，生成 listener 块
+func syncListeners() error {
 	if err := ensureDefaultCert(); err != nil {
 		return err
 	}

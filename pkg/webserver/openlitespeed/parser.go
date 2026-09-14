@@ -160,7 +160,7 @@ func (d *Directive) render(b *strings.Builder, depth int) {
 	indent := strings.Repeat(indentUnit, depth)
 	if d.Multiline {
 		sign := "END_" + d.Name
-		_, _ = fmt.Fprintf(b, "%s%s <<<%s\n%s\n%s%s\n", indent, d.Name, sign, d.Value, indent, sign)
+		_, _ = fmt.Fprintf(b, "%s%s <<<%s\n%s\n%s\n", indent, d.Name, sign, d.Value, sign)
 		return
 	}
 	if d.Value == "" {

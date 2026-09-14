@@ -52,19 +52,27 @@ func (d Dialect) Reload() error {
 	if err := d.BeforeReload(); err != nil {
 		return err
 	}
+
+	return d.reload()
+}
+
+// ReloadIfRunning 仅在服务运行时重载，未运行时配置会在下次启动时生效
+func (d Dialect) ReloadIfRunning() error {
+	if err := d.BeforeReload(); err != nil {
+		return err
+	}
+	if running, _ := systemctl.Status(d.Service()); !running {
+		return nil
+	}
+
+	return d.reload()
+}
+
+func (d Dialect) reload() error {
 	if err := systemctl.Reload(d.Service()); err != nil {
 		out, _ := shell.Execf(d.ConfigTest())
 		return fmt.Errorf("failed to reload %s: %w; config test: %s", d.Service(), err, out)
 	}
 
 	return nil
-}
-
-// ReloadIfRunning 仅在服务运行时重载，未运行时配置会在下次启动时生效
-func (d Dialect) ReloadIfRunning() error {
-	if running, _ := systemctl.Status(d.Service()); !running {
-		return nil
-	}
-
-	return d.Reload()
 }

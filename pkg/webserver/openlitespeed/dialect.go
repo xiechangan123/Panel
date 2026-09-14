@@ -1,11 +1,9 @@
 package openlitespeed
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
@@ -13,9 +11,6 @@ import (
 
 // ACMEDir HTTP-01 验证 token 目录，所有站点与面板默认站点的验证上下文均指向此处
 const ACMEDir = ServerRoot + "/acme"
-
-// lsapiDir 记录已切换为 LSAPI 协议的 PHP 版本
-const lsapiDir = PanelConfDir + "/lsapi"
 
 // Dialect OpenLiteSpeed 方言
 type Dialect struct{}
@@ -66,9 +61,9 @@ func (Dialect) RewritesDir() string {
 	return "apache"
 }
 
-// BeforeReload 重载前重建监听器配置，覆盖站点删除等未经 Save 的变更
+// BeforeReload 重载前重建面板托管的主配置片段，覆盖站点删除等未经 Save 的变更
 func (Dialect) BeforeReload() error {
-	return SyncListeners()
+	return Sync()
 }
 
 func (Dialect) NewStaticVhost(configDir string) (types.StaticVhost, error) {
@@ -144,50 +139,6 @@ func removeToken(path string) error {
 	if err := os.Remove(filepath.Join(ACMEDir, filepath.Base(path))); err != nil && !os.IsNotExist(err) {
 		return err
 	}
-	return nil
-}
-
-// ========== PHP 协议 ==========
-
-// LSPHPPath 面板 PHP 附带的 lsphp 二进制路径
-func LSPHPPath(version uint) string {
-	return fmt.Sprintf("/opt/ace/server/php/%d/bin/lsphp", version)
-}
-
-// LSAPIEnabled 该 PHP 版本是否以 LSAPI 协议运行
-func LSAPIEnabled(version uint) bool {
-	_, err := os.Stat(filepath.Join(lsapiDir, strconv.FormatUint(uint64(version), 10)))
-	return err == nil
-}
-
-// SetLSAPI 切换 PHP 版本的运行协议并重写所有使用该版本的站点配置
-func SetLSAPI(version uint, enabled bool) error {
-	marker := filepath.Join(lsapiDir, strconv.FormatUint(uint64(version), 10))
-	if enabled {
-		if _, err := os.Stat(LSPHPPath(version)); err != nil {
-			return errors.New("lsphp binary not found")
-		}
-		if err := os.MkdirAll(lsapiDir, 0755); err != nil {
-			return err
-		}
-		if err := os.WriteFile(marker, []byte(""), 0600); err != nil {
-			return err
-		}
-	} else if err := os.Remove(marker); err != nil && !os.IsNotExist(err) {
-		return err
-	}
-
-	matches, _ := filepath.Glob(filepath.Join(SitesPath, "*", "config", VhostConfName))
-	for _, path := range matches {
-		vhost, err := NewPHPVhost(filepath.Dir(path))
-		if err != nil || vhost.PHP() != version {
-			continue
-		}
-		if err = vhost.Save(); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
