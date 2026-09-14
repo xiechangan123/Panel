@@ -83,6 +83,13 @@ func WebsiteCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 				},
 			},
 			{
+				Name:  "rebuild",
+				Usage: t.Get("Rebuild all website configs for the current web server"),
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return cliService.WebsiteRebuild(ctx, cmd)
+				},
+			},
+			{
 				Name:  "remove",
 				Usage: t.Get("Remove website (keep website directory and database)"),
 				Flags: []cli.Flag{

@@ -15,6 +15,8 @@ type Dialect interface {
 	ConfigTest() string
 	// HTMLDir 默认页目录，存放 index.html、stop.html 与 404.html
 	HTMLDir() string
+	// ConfigFile 站点配置目录中的主配置文件名
+	ConfigFile() string
 	// PanelACMEConf 面板证书 HTTP 验证使用的独立配置文件
 	PanelACMEConf() string
 	// Features 能力集

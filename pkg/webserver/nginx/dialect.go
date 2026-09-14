@@ -49,6 +49,10 @@ func (Dialect) HTMLDir() string {
 	return HTMLDir
 }
 
+func (Dialect) ConfigFile() string {
+	return "nginx.conf"
+}
+
 func (Dialect) PanelACMEConf() string {
 	return "/opt/ace/server/nginx/conf/acme.conf"
 }

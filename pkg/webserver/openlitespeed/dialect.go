@@ -28,6 +28,10 @@ func (Dialect) HTMLDir() string {
 }
 
 // PanelACMEConf 面板验证的 token 文件名记录，用于清理
+func (Dialect) ConfigFile() string {
+	return VhostConfName
+}
+
 func (Dialect) PanelACMEConf() string {
 	return PanelConfDir + "/acme-tokens"
 }

@@ -116,6 +116,12 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		return nil, err
 	}
 
+	return r.loadSetting(website, vhost)
+}
+
+// loadSetting 从 vhost 读取站点的完整设置
+func (r *websiteRepo) loadSetting(website *biz.Website, vhost webservertypes.Vhost) (*types.WebsiteSetting, error) {
+	var err error
 	setting := new(types.WebsiteSetting)
 	setting.ID = website.ID
 	setting.Name = website.Name
@@ -631,6 +637,184 @@ func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, 
 
 	_ = io.Remove(backupDir)
 	return website, nil
+}
+
+// Rebuild 用上一个 Web 服务器留下的配置为当前 Web 服务器重建站点配置，返回是否重建及需人工处理的提示
+func (r *websiteRepo) Rebuild(website *biz.Website) (bool, []string, error) {
+	d, err := r.dialect()
+	if err != nil {
+		return false, nil, err
+	}
+	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+	source, ok := sourceDialect(configDir)
+	if !ok || source.Type == d.Type {
+		return false, nil, nil
+	}
+
+	oldVhost, err := newVhost(source, website)
+	if err != nil {
+		return false, nil, err
+	}
+	setting, err := r.loadSetting(website, oldVhost)
+	if err != nil {
+		return false, nil, err
+	}
+
+	// 目标不支持的 IPv6 监听直接丢弃
+	listens := setting.Listens
+	if !d.Features().IPv6Listen {
+		listens = lo.Filter(listens, func(listen webservertypes.Listen, _ int) bool {
+			return !strings.HasPrefix(listen.Address, "[")
+		})
+	}
+	if len(listens) == 0 {
+		listens = []webservertypes.Listen{{Address: "80"}}
+	}
+	index := setting.Index
+	if len(index) == 0 {
+		index = []string{"index.html"}
+		if website.Type == biz.WebsiteTypePHP {
+			index = []string{"index.php", "index.html"}
+		}
+	}
+	update := &request.WebsiteUpdate{
+		ID:           website.ID,
+		Listens:      listens,
+		Domains:      setting.Domains,
+		Path:         setting.Path,
+		Root:         setting.Root,
+		Index:        index,
+		SSL:          setting.SSL,
+		SSLCert:      setting.SSLCert,
+		SSLKey:       setting.SSLKey,
+		HSTS:         setting.HSTS,
+		OCSP:         setting.OCSP,
+		HTTPRedirect: setting.HTTPRedirect,
+		SSLProtocols: setting.SSLProtocols,
+		PHP:          setting.PHP,
+		Rewrite:      setting.Rewrite,
+		OpenBasedir:  setting.OpenBasedir,
+		Upstreams:    setting.Upstreams,
+		Proxies:      setting.Proxies,
+		Redirects:    setting.Redirects,
+		// 目标支持访问统计时沿用原开关，来源不支持则默认开启
+		StatEnabled: d.Features().Stat && (setting.StatEnabled || !source.Features().Stat),
+		AccessLog:   setting.AccessLog,
+		ErrorLog:    setting.ErrorLog,
+		RateLimit:   setting.RateLimit,
+		RealIP:      setting.RealIP,
+		BasicAuth:   setting.BasicAuth,
+		CustomConfigs: lo.Map(setting.CustomConfigs, func(config types.WebsiteCustomConfig, _ int) request.WebsiteCustomConfig {
+			return request.WebsiteCustomConfig{Name: config.Name, Scope: config.Scope, Content: config.Content}
+		}),
+	}
+
+	// 伪静态与自定义配置是各服务器自己的语法，语法不同时只能停用，原文件带后缀保留
+	var notes []string
+	sameSyntax := source.RewritesDir() == d.RewritesDir()
+	if !sameSyntax && (setting.Rewrite != "" || len(setting.CustomConfigs) > 0) {
+		update.Rewrite = ""
+		update.CustomConfigs = nil
+		notes = append(notes, r.t.Get("rewrite rules and custom configs are written for %s and have been disabled, the originals are kept as *.conf.%s", source.Type, source.Type))
+	}
+
+	backupDir := fmt.Sprintf("%s.rebuild-backup-%d", configDir, time.Now().UnixNano())
+	if err = os.Rename(configDir, backupDir); err != nil {
+		return false, nil, err
+	}
+	restore := func(rebuildErr error) (bool, []string, error) {
+		removeErr := io.Remove(configDir)
+		return false, nil, errors.Join(rebuildErr, removeErr, os.Rename(backupDir, configDir))
+	}
+	for _, scope := range []string{"site", "shared"} {
+		if err = os.MkdirAll(filepath.Join(configDir, scope), 0600); err != nil {
+			return restore(err)
+		}
+	}
+	if !sameSyntax {
+		if err = stashFragments(backupDir, configDir, string(source.Type)); err != nil {
+			return restore(err)
+		}
+	}
+	if err = r.applyUpdate(update, website); err != nil {
+		return restore(err)
+	}
+	vhost, err := newVhost(d, website)
+	if err != nil {
+		return restore(err)
+	}
+	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
+		return restore(err)
+	}
+	if err = writeTypeConfigs(d, vhost, website.Type); err != nil {
+		return restore(err)
+	}
+	if err = vhost.SetEnable(website.Status); err != nil {
+		return restore(err)
+	}
+	if err = vhost.Save(); err != nil {
+		return restore(err)
+	}
+
+	_ = io.Remove(backupDir)
+	return true, notes, nil
+}
+
+// sourceDialect 按站点目录里最新修改的主配置文件识别上一个 Web 服务器
+func sourceDialect(configDir string) (webserver.Dialect, bool) {
+	var latest webserver.Dialect
+	var modTime time.Time
+	for _, t := range webserver.Types() {
+		d, err := webserver.Get(t)
+		if err != nil {
+			continue
+		}
+		info, err := os.Stat(filepath.Join(configDir, d.ConfigFile()))
+		if err != nil || (!modTime.IsZero() && !info.ModTime().After(modTime)) {
+			continue
+		}
+		latest, modTime = d, info.ModTime()
+	}
+
+	return latest, !modTime.IsZero()
+}
+
+// stashFragments 把旧服务器的伪静态与自定义配置片段带后缀存入新目录，避免被新服务器加载
+func stashFragments(from, to, suffix string) error {
+	for _, scope := range []string{"site", "shared"} {
+		entries, err := os.ReadDir(filepath.Join(from, scope))
+		if err != nil {
+			continue
+		}
+		for _, entry := range entries {
+			name := entry.Name()
+			if entry.IsDir() || (name != "010-rewrite.conf" && !isCustomConfig(name)) {
+				continue
+			}
+			content, err := os.ReadFile(filepath.Join(from, scope, name))
+			if err != nil {
+				return err
+			}
+			if err = os.WriteFile(filepath.Join(to, scope, name+"."+suffix), content, 0600); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// isCustomConfig 判断文件名是否为自定义配置片段（800-999 序号）
+func isCustomConfig(name string) bool {
+	if !strings.HasSuffix(name, ".conf") {
+		return false
+	}
+	parts := strings.SplitN(name, "-", 2)
+	if len(parts) < 2 {
+		return false
+	}
+	num, err := strconv.Atoi(parts[0])
+	return err == nil && num >= customConfigStartNum && num <= customConfigEndNum
 }
 
 // applyUpdate 将更新请求应用到网站配置与实体，供 Update 复用

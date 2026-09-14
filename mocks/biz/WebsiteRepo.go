@@ -536,6 +536,74 @@ func (_c *WebsiteRepo_List_Call) RunAndReturn(run func(typ string, page uint, li
 	return _c
 }
 
+// Rebuild provides a mock function for the type WebsiteRepo
+func (_mock *WebsiteRepo) Rebuild(website *biz.Website) (bool, []string, error) {
+	ret := _mock.Called(website)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Rebuild")
+	}
+
+	var r0 bool
+	var r1 []string
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(*biz.Website) (bool, []string, error)); ok {
+		return returnFunc(website)
+	}
+	if returnFunc, ok := ret.Get(0).(func(*biz.Website) bool); ok {
+		r0 = returnFunc(website)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(*biz.Website) []string); ok {
+		r1 = returnFunc(website)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]string)
+		}
+	}
+	if returnFunc, ok := ret.Get(2).(func(*biz.Website) error); ok {
+		r2 = returnFunc(website)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
+}
+
+// WebsiteRepo_Rebuild_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Rebuild'
+type WebsiteRepo_Rebuild_Call struct {
+	*mock.Call
+}
+
+// Rebuild is a helper method to define mock.On call
+//   - website *biz.Website
+func (_e *WebsiteRepo_Expecter) Rebuild(website any) *WebsiteRepo_Rebuild_Call {
+	return &WebsiteRepo_Rebuild_Call{Call: _e.mock.On("Rebuild", website)}
+}
+
+func (_c *WebsiteRepo_Rebuild_Call) Run(run func(website *biz.Website)) *WebsiteRepo_Rebuild_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *biz.Website
+		if args[0] != nil {
+			arg0 = args[0].(*biz.Website)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *WebsiteRepo_Rebuild_Call) Return(b bool, strings []string, err error) *WebsiteRepo_Rebuild_Call {
+	_c.Call.Return(b, strings, err)
+	return _c
+}
+
+func (_c *WebsiteRepo_Rebuild_Call) RunAndReturn(run func(website *biz.Website) (bool, []string, error)) *WebsiteRepo_Rebuild_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ReloadWebServer provides a mock function for the type WebsiteRepo
 func (_mock *WebsiteRepo) ReloadWebServer() error {
 	ret := _mock.Called()

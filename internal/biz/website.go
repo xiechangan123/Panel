@@ -62,6 +62,7 @@ type WebsiteRepo interface {
 	ReloadWebServer() error
 	UpdateRemark(id uint, remark string) error
 	ResetConfig(id uint) error
+	Rebuild(website *Website) (bool, []string, error)
 	UpdateStatus(id uint, status bool) error
 	UpdateExpireAt(id uint, expireAt *time.Time) error
 	UpdateCert(req *request.WebsiteUpdateCert) error
@@ -224,6 +225,11 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 
 func (uc *WebsiteUsecase) UpdateRemark(id uint, remark string) error {
 	return uc.repo.UpdateRemark(id, remark)
+}
+
+// Rebuild 按当前 Web 服务器重建站点配置
+func (uc *WebsiteUsecase) Rebuild(website *Website) (bool, []string, error) {
+	return uc.repo.Rebuild(website)
 }
 
 func (uc *WebsiteUsecase) ResetConfig(id uint) error {

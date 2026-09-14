@@ -937,6 +937,31 @@ func (s *CliService) WebsiteCert(ctx context.Context, cmd *cli.Command) error {
 	return nil
 }
 
+// WebsiteRebuild 按当前 Web 服务器重建全部站点配置，供切换 Web 服务器的安装脚本调用
+func (s *CliService) WebsiteRebuild(ctx context.Context, cmd *cli.Command) error {
+	websites, _, err := s.websiteRepo.List("all", 1, 10000)
+	if err != nil {
+		return err
+	}
+
+	for _, website := range websites {
+		rebuilt, notes, err := s.websiteRepo.Rebuild(website)
+		switch {
+		case err != nil:
+			fmt.Printf("[ERROR] %s: %v\n", website.Name, err)
+		case !rebuilt:
+			fmt.Printf("[SKIP] %s\n", website.Name)
+		default:
+			fmt.Printf("[OK] %s\n", website.Name)
+			for _, note := range notes {
+				fmt.Printf("[WARN] %s: %s\n", website.Name, note)
+			}
+		}
+	}
+
+	return s.ReloadWebserver(ctx, cmd)
+}
+
 func (s *CliService) WebsiteRemove(ctx context.Context, cmd *cli.Command) error {
 	website, err := s.websiteRepo.GetByName(cmd.String("name"))
 	if err != nil {

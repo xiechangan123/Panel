@@ -2,6 +2,7 @@ package webserver
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -21,6 +22,7 @@ var dialects = map[Type]types.Dialect{
 // Dialect 在具体方言之上补充与服务器无关的通用逻辑
 type Dialect struct {
 	types.Dialect
+	Type Type
 }
 
 // Get 按类型取方言
@@ -30,7 +32,17 @@ func Get(t Type) (Dialect, error) {
 		return Dialect{}, fmt.Errorf("unsupported web server: %s", t)
 	}
 
-	return Dialect{Dialect: d}, nil
+	return Dialect{Dialect: d, Type: t}, nil
+}
+
+// Types 已注册的 Web 服务器类型
+func Types() []Type {
+	keys := make([]Type, 0, len(dialects))
+	for t := range dialects {
+		keys = append(keys, t)
+	}
+	slices.Sort(keys)
+	return keys
 }
 
 // NewVhost 按网站类型构造站点 vhost，typ 取值 proxy、php、static
