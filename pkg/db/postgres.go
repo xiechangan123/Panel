@@ -54,29 +54,29 @@ func (r *Postgres) Close() {
 	_ = r.db.Close()
 }
 
-func (r *Postgres) Ping() error {
-	return r.db.PingContext(context.Background())
+func (r *Postgres) Ping(ctx context.Context) error {
+	return r.db.PingContext(ctx)
 }
 
-func (r *Postgres) Query(query string, args ...any) (*sql.Rows, error) {
-	return r.db.QueryContext(context.Background(), query, args...)
+func (r *Postgres) Query(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+	return r.db.QueryContext(ctx, query, args...)
 }
 
-func (r *Postgres) QueryRow(query string, args ...any) *sql.Row {
-	return r.db.QueryRowContext(context.Background(), query, args...)
+func (r *Postgres) QueryRow(ctx context.Context, query string, args ...any) *sql.Row {
+	return r.db.QueryRowContext(ctx, query, args...)
 }
 
-func (r *Postgres) Exec(query string, args ...any) (sql.Result, error) {
-	return r.db.ExecContext(context.Background(), query, args...)
+func (r *Postgres) Exec(ctx context.Context, query string, args ...any) (sql.Result, error) {
+	return r.db.ExecContext(ctx, query, args...)
 }
 
-func (r *Postgres) Prepare(query string) (*sql.Stmt, error) {
-	return r.db.PrepareContext(context.Background(), query)
+func (r *Postgres) Prepare(ctx context.Context, query string) (*sql.Stmt, error) {
+	return r.db.PrepareContext(ctx, query)
 }
 
-func (r *Postgres) DatabaseCreate(name string) error {
+func (r *Postgres) DatabaseCreate(ctx context.Context, name string) error {
 	// postgres 不支持 CREATE DATABASE IF NOT EXISTS，但是为了保持与 MySQL 一致，先检查数据库是否存在
-	exist, err := r.DatabaseExists(name)
+	exist, err := r.DatabaseExists(ctx, name)
 	if err != nil {
 		return err
 	}
@@ -84,41 +84,41 @@ func (r *Postgres) DatabaseCreate(name string) error {
 		return nil
 	}
 	name = strings.ReplaceAll(name, `"`, `""`)
-	_, err = r.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, name))
+	_, err = r.Exec(ctx, fmt.Sprintf(`CREATE DATABASE "%s"`, name))
 	return err
 }
 
-func (r *Postgres) DatabaseDrop(name string) error {
+func (r *Postgres) DatabaseDrop(ctx context.Context, name string) error {
 	name = strings.ReplaceAll(name, `"`, `""`)
-	_, err := r.Exec(fmt.Sprintf(`DROP DATABASE IF EXISTS "%s"`, name))
+	_, err := r.Exec(ctx, fmt.Sprintf(`DROP DATABASE IF EXISTS "%s"`, name))
 	return err
 }
 
-func (r *Postgres) DatabaseExists(name string) (bool, error) {
+func (r *Postgres) DatabaseExists(ctx context.Context, name string) (bool, error) {
 	var count int
-	if err := r.QueryRow("SELECT COUNT(*) FROM pg_database WHERE datname = $1", name).Scan(&count); err != nil {
+	if err := r.QueryRow(ctx, "SELECT COUNT(*) FROM pg_database WHERE datname = $1", name).Scan(&count); err != nil {
 		return false, err
 	}
 	return count > 0, nil
 }
 
-func (r *Postgres) DatabaseSize(name string) (int64, error) {
+func (r *Postgres) DatabaseSize(ctx context.Context, name string) (int64, error) {
 	var size int64
-	if err := r.QueryRow("SELECT pg_database_size($1)", name).Scan(&size); err != nil {
+	if err := r.QueryRow(ctx, "SELECT pg_database_size($1)", name).Scan(&size); err != nil {
 		return 0, err
 	}
 	return size, nil
 }
 
-func (r *Postgres) DatabaseComment(name, comment string) error {
+func (r *Postgres) DatabaseComment(ctx context.Context, name, comment string) error {
 	name = strings.ReplaceAll(name, `"`, `""`)
-	_, err := r.Exec(fmt.Sprintf(`COMMENT ON DATABASE "%s" IS '%s'`, name, comment))
+	_, err := r.Exec(ctx, fmt.Sprintf(`COMMENT ON DATABASE "%s" IS '%s'`, name, comment))
 	return err
 }
 
-func (r *Postgres) UserCreate(user, password string, host ...string) error {
+func (r *Postgres) UserCreate(ctx context.Context, user, password string, host ...string) error {
 	user = strings.ReplaceAll(user, `"`, `""`)
-	_, err := r.Exec(fmt.Sprintf(`CREATE USER "%s" WITH PASSWORD '%s'`, user, password))
+	_, err := r.Exec(ctx, fmt.Sprintf(`CREATE USER "%s" WITH PASSWORD '%s'`, user, password))
 	if err != nil {
 		return err
 	}
@@ -126,18 +126,20 @@ func (r *Postgres) UserCreate(user, password string, host ...string) error {
 	return nil
 }
 
-func (r *Postgres) UserDrop(user string, host ...string) error {
+func (r *Postgres) UserDrop(ctx context.Context, user string, host ...string) error {
 	// PostgreSQL 中，如果用户拥有数据库对象或权限，直接 DROP USER 会失败
 	// 必须先转移所有权并撤销权限
+	// 三步是一个整体，中途取消会留下丢了所有权却没被删掉的用户
+	ctx = context.WithoutCancel(ctx)
 	user = strings.ReplaceAll(user, `"`, `""`)
 	username := strings.ReplaceAll(r.username, `"`, `""`)
-	if _, err := r.Exec(fmt.Sprintf(`REASSIGN OWNED BY "%s" TO "%s"`, user, username)); err != nil {
+	if _, err := r.Exec(ctx, fmt.Sprintf(`REASSIGN OWNED BY "%s" TO "%s"`, user, username)); err != nil {
 		return err
 	}
-	if _, err := r.Exec(fmt.Sprintf(`DROP OWNED BY "%s"`, user)); err != nil {
+	if _, err := r.Exec(ctx, fmt.Sprintf(`DROP OWNED BY "%s"`, user)); err != nil {
 		return err
 	}
-	_, err := r.Exec(fmt.Sprintf(`DROP USER IF EXISTS "%s"`, user))
+	_, err := r.Exec(ctx, fmt.Sprintf(`DROP USER IF EXISTS "%s"`, user))
 	if err != nil {
 		return err
 	}
@@ -145,13 +147,13 @@ func (r *Postgres) UserDrop(user string, host ...string) error {
 	return nil
 }
 
-func (r *Postgres) UserPassword(user, password string, host ...string) error {
+func (r *Postgres) UserPassword(ctx context.Context, user, password string, host ...string) error {
 	user = strings.ReplaceAll(user, `"`, `""`)
-	_, err := r.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, user, password))
+	_, err := r.Exec(ctx, fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, user, password))
 	return err
 }
 
-func (r *Postgres) UserPrivileges(user string, host ...string) ([]string, error) {
+func (r *Postgres) UserPrivileges(ctx context.Context, user string, host ...string) ([]string, error) {
 	query := `
         SELECT d.datname
         FROM pg_catalog.pg_database d
@@ -162,7 +164,7 @@ func (r *Postgres) UserPrivileges(user string, host ...string) ([]string, error)
         ORDER BY d.datname;
     `
 
-	rows, err := r.Query(query, user)
+	rows, err := r.Query(ctx, query, user)
 	if err != nil {
 		return nil, err
 	}
@@ -185,27 +187,29 @@ func (r *Postgres) UserPrivileges(user string, host ...string) ([]string, error)
 	return databases, nil
 }
 
-func (r *Postgres) PrivilegesGrant(user, database string, host ...string) error {
+func (r *Postgres) PrivilegesGrant(ctx context.Context, user, database string, host ...string) error {
+	// 改属主和授权是一个整体，中途取消会留下换了属主却没有权限的库
+	ctx = context.WithoutCancel(ctx)
 	user = strings.ReplaceAll(user, `"`, `""`)
 	database = strings.ReplaceAll(database, `"`, `""`)
-	if _, err := r.Exec(fmt.Sprintf(`ALTER DATABASE "%s" OWNER TO "%s"`, database, user)); err != nil {
+	if _, err := r.Exec(ctx, fmt.Sprintf(`ALTER DATABASE "%s" OWNER TO "%s"`, database, user)); err != nil {
 		return err
 	}
-	if _, err := r.Exec(fmt.Sprintf(`GRANT ALL PRIVILEGES ON DATABASE "%s" TO "%s"`, database, user)); err != nil {
+	if _, err := r.Exec(ctx, fmt.Sprintf(`GRANT ALL PRIVILEGES ON DATABASE "%s" TO "%s"`, database, user)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (r *Postgres) PrivilegesRevoke(user, database string, host ...string) error {
+func (r *Postgres) PrivilegesRevoke(ctx context.Context, user, database string, host ...string) error {
 	user = strings.ReplaceAll(user, `"`, `""`)
 	database = strings.ReplaceAll(database, `"`, `""`)
-	_, err := r.Exec(fmt.Sprintf(`REVOKE ALL PRIVILEGES ON DATABASE "%s" FROM "%s"`, database, user))
+	_, err := r.Exec(ctx, fmt.Sprintf(`REVOKE ALL PRIVILEGES ON DATABASE "%s" FROM "%s"`, database, user))
 	return err
 }
 
-func (r *Postgres) Users() ([]User, error) {
+func (r *Postgres) Users(ctx context.Context) ([]User, error) {
 	query := `
         SELECT rolname,
                rolsuper,
@@ -216,7 +220,7 @@ func (r *Postgres) Users() ([]User, error) {
         FROM pg_roles
         WHERE rolcanlogin = true;
     `
-	rows, err := r.Query(query)
+	rows, err := r.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -257,7 +261,7 @@ func (r *Postgres) Users() ([]User, error) {
 	return users, nil
 }
 
-func (r *Postgres) Databases() ([]Database, error) {
+func (r *Postgres) Databases(ctx context.Context) ([]Database, error) {
 	query := `
         SELECT 
             d.datname, 
@@ -267,7 +271,7 @@ func (r *Postgres) Databases() ([]Database, error) {
         FROM pg_catalog.pg_database d
         WHERE datistemplate = false;
     `
-	rows, err := r.Query(query)
+	rows, err := r.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}

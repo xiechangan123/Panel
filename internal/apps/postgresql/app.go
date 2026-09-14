@@ -234,16 +234,18 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 
 	oldPassword, _ := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
 	port := db.PostgresPort(app.Root)
+	// 改完密码还要存进面板库，中途取消会让两边密码对不上
+	ctx := context.WithoutCancel(r.Context())
 	postgres, err := db.NewPostgres(r.Context(), "postgres", oldPassword, "127.0.0.1", port)
 	if err != nil {
-		// 直接修改密码，改完还要存进面板库，中途取消会让两边密码对不上
-		if _, err = shell.Execf(context.WithoutCancel(r.Context()), `su - postgres -c "psql -p %d -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, port, req.Password); err != nil {
+		// 回退到直接修改密码
+		if _, err = shell.Execf(ctx, `su - postgres -c "psql -p %d -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, port, req.Password); err != nil {
 			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set postgres password: %v", err))
 			return
 		}
 	} else {
 		defer postgres.Close()
-		if err = postgres.UserPassword("postgres", req.Password); err != nil {
+		if err = postgres.UserPassword(ctx, "postgres", req.Password); err != nil {
 			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set postgres password: %v", err))
 			return
 		}
@@ -453,7 +455,7 @@ func (s *App) EnableExtension(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	if _, err = postgres.Exec(fmt.Sprintf(`CREATE EXTENSION IF NOT EXISTS "%s"`, ext.ExtName)); err != nil {
+	if _, err = postgres.Exec(r.Context(), fmt.Sprintf(`CREATE EXTENSION IF NOT EXISTS "%s"`, ext.ExtName)); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to enable extension: %v", err))
 		return
 	}
@@ -470,7 +472,7 @@ func (s *App) SessionList(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	rows, err := postgres.Query(`
+	rows, err := postgres.Query(r.Context(), `
 		SELECT a.pid, coalesce(a.datname,''), coalesce(a.usename,''), coalesce(a.client_addr::text,''),
 		       coalesce(a.state,''), coalesce(a.wait_event_type,''), coalesce(a.wait_event,''),
 		       coalesce(array_to_string(pg_blocking_pids(a.pid),','),''),
@@ -519,7 +521,7 @@ func (s *App) TerminateSession(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	if _, err = postgres.Exec(`SELECT pg_terminate_backend($1)`, pid); err != nil {
+	if _, err = postgres.Exec(r.Context(), `SELECT pg_terminate_backend($1)`, pid); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -536,7 +538,7 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	rows, err := postgres.Query(`
+	rows, err := postgres.Query(r.Context(), `
 		SELECT coalesce(d.datname,''), s.calls, round(s.total_exec_time)::bigint,
 		       round(s.mean_exec_time::numeric,2)::float8, s.rows,
 		       coalesce(round(100.0*s.shared_blks_hit/nullif(s.shared_blks_hit+s.shared_blks_read,0),1),0)::float8,
@@ -606,7 +608,7 @@ func (s *App) EnableTopSQL(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	if _, err = postgres.Exec(`CREATE EXTENSION IF NOT EXISTS pg_stat_statements`); err != nil {
+	if _, err = postgres.Exec(r.Context(), `CREATE EXTENSION IF NOT EXISTS pg_stat_statements`); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -623,7 +625,7 @@ func (s *App) ResetTopSQL(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	if _, err = postgres.Exec(`SELECT pg_stat_statements_reset()`); err != nil {
+	if _, err = postgres.Exec(r.Context(), `SELECT pg_stat_statements_reset()`); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -640,7 +642,7 @@ func (s *App) DatabaseList(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	rows, err := postgres.Query(`SELECT datname FROM pg_database WHERE datallowconn ORDER BY datname`)
+	rows, err := postgres.Query(r.Context(), `SELECT datname FROM pg_database WHERE datallowconn ORDER BY datname`)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -679,7 +681,7 @@ func (s *App) BloatList(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	rows, err := postgres.Query(`
+	rows, err := postgres.Query(r.Context(), `
 		SELECT schemaname, relname, pg_size_pretty(pg_total_relation_size(relid)),
 		       pg_total_relation_size(relid), n_live_tup, n_dead_tup,
 		       coalesce(round(100.0*n_dead_tup/nullif(n_live_tup+n_dead_tup,0),1),0)::float8,
@@ -773,17 +775,17 @@ func (s *App) WalStatus(w http.ResponseWriter, r *http.Request) {
 	defer postgres.Close()
 
 	var wal Wal
-	if err = postgres.QueryRow(`SELECT pg_size_pretty(coalesce(sum(size),0)) FROM pg_ls_waldir()`).Scan(&wal.WalSize); err != nil {
+	if err = postgres.QueryRow(r.Context(), `SELECT pg_size_pretty(coalesce(sum(size),0)) FROM pg_ls_waldir()`).Scan(&wal.WalSize); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = postgres.QueryRow(`SELECT archived_count, failed_count, coalesce(last_archived_wal,''), coalesce(last_failed_wal,'') FROM pg_stat_archiver`).Scan(
+	if err = postgres.QueryRow(r.Context(), `SELECT archived_count, failed_count, coalesce(last_archived_wal,''), coalesce(last_failed_wal,'') FROM pg_stat_archiver`).Scan(
 		&wal.Archiver.ArchivedCount, &wal.Archiver.FailedCount, &wal.Archiver.LastArchivedWal, &wal.Archiver.LastFailedWal); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	slotRows, err := postgres.Query(`SELECT slot_name, slot_type, active, coalesce(pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)),'') FROM pg_replication_slots`)
+	slotRows, err := postgres.Query(r.Context(), `SELECT slot_name, slot_type, active, coalesce(pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)),'') FROM pg_replication_slots`)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -803,7 +805,7 @@ func (s *App) WalStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	replRows, err := postgres.Query(`SELECT coalesce(client_addr::text,''), coalesce(state,''), coalesce(sync_state,''), coalesce(pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn)),'') FROM pg_stat_replication`)
+	replRows, err := postgres.Query(r.Context(), `SELECT coalesce(client_addr::text,''), coalesce(state,''), coalesce(sync_state,''), coalesce(pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn)),'') FROM pg_stat_replication`)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -841,7 +843,7 @@ func (s *App) DropReplicationSlot(w http.ResponseWriter, r *http.Request) {
 	}
 	defer postgres.Close()
 
-	if _, err = postgres.Exec(`SELECT pg_drop_replication_slot($1)`, slot); err != nil {
+	if _, err = postgres.Exec(r.Context(), `SELECT pg_drop_replication_slot($1)`, slot); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

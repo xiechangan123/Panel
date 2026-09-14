@@ -44,42 +44,42 @@ func (r *MySQL) Close() {
 	_ = r.db.Close()
 }
 
-func (r *MySQL) Ping() error {
-	return r.db.PingContext(context.Background())
+func (r *MySQL) Ping(ctx context.Context) error {
+	return r.db.PingContext(ctx)
 }
 
-func (r *MySQL) Query(query string, args ...any) (*sql.Rows, error) {
-	return r.db.QueryContext(context.Background(), query, args...)
+func (r *MySQL) Query(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+	return r.db.QueryContext(ctx, query, args...)
 }
 
-func (r *MySQL) QueryRow(query string, args ...any) *sql.Row {
-	return r.db.QueryRowContext(context.Background(), query, args...)
+func (r *MySQL) QueryRow(ctx context.Context, query string, args ...any) *sql.Row {
+	return r.db.QueryRowContext(ctx, query, args...)
 }
 
-func (r *MySQL) Exec(query string, args ...any) (sql.Result, error) {
-	return r.db.ExecContext(context.Background(), query, args...)
+func (r *MySQL) Exec(ctx context.Context, query string, args ...any) (sql.Result, error) {
+	return r.db.ExecContext(ctx, query, args...)
 }
 
-func (r *MySQL) Prepare(query string) (*sql.Stmt, error) {
-	return r.db.PrepareContext(context.Background(), query)
+func (r *MySQL) Prepare(ctx context.Context, query string) (*sql.Stmt, error) {
+	return r.db.PrepareContext(ctx, query)
 }
 
-func (r *MySQL) DatabaseCreate(name string) error {
+func (r *MySQL) DatabaseCreate(ctx context.Context, name string) error {
 	name = strings.ReplaceAll(name, "`", "``")
-	_, err := r.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", name))
-	r.flushPrivileges()
+	_, err := r.Exec(ctx, fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", name))
+	r.flushPrivileges(ctx)
 	return err
 }
 
-func (r *MySQL) DatabaseDrop(name string) error {
+func (r *MySQL) DatabaseDrop(ctx context.Context, name string) error {
 	name = strings.ReplaceAll(name, "`", "``")
-	_, err := r.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS `%s`", name))
-	r.flushPrivileges()
+	_, err := r.Exec(ctx, fmt.Sprintf("DROP DATABASE IF EXISTS `%s`", name))
+	r.flushPrivileges(ctx)
 	return err
 }
 
-func (r *MySQL) DatabaseExists(name string) (bool, error) {
-	rows, err := r.Query("SHOW DATABASES")
+func (r *MySQL) DatabaseExists(ctx context.Context, name string) (bool, error) {
+	rows, err := r.Query(ctx, "SHOW DATABASES")
 	if err != nil {
 		return false, err
 	}
@@ -97,45 +97,45 @@ func (r *MySQL) DatabaseExists(name string) (bool, error) {
 	return false, rows.Err()
 }
 
-func (r *MySQL) DatabaseSize(name string) (int64, error) {
+func (r *MySQL) DatabaseSize(ctx context.Context, name string) (int64, error) {
 	var size int64
-	err := r.QueryRow("SELECT COALESCE(SUM(data_length) + SUM(index_length), 0) FROM information_schema.tables WHERE table_schema = ?", name).Scan(&size)
+	err := r.QueryRow(ctx, "SELECT COALESCE(SUM(data_length) + SUM(index_length), 0) FROM information_schema.tables WHERE table_schema = ?", name).Scan(&size)
 	return size, err
 }
 
-func (r *MySQL) UserCreate(user, password string, host ...string) error {
+func (r *MySQL) UserCreate(ctx context.Context, user, password string, host ...string) error {
 	if len(host) == 0 || host[0] == "" {
 		host = []string{"%"}
 	}
-	_, err := r.Exec(fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%s' IDENTIFIED BY '%s'", user, host[0], password))
-	r.flushPrivileges()
+	_, err := r.Exec(ctx, fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%s' IDENTIFIED BY '%s'", user, host[0], password))
+	r.flushPrivileges(ctx)
 	return err
 }
 
-func (r *MySQL) UserDrop(user string, host ...string) error {
+func (r *MySQL) UserDrop(ctx context.Context, user string, host ...string) error {
 	if len(host) == 0 || host[0] == "" {
 		host = []string{"%"}
 	}
-	_, err := r.Exec(fmt.Sprintf("DROP USER IF EXISTS '%s'@'%s'", user, host[0]))
-	r.flushPrivileges()
+	_, err := r.Exec(ctx, fmt.Sprintf("DROP USER IF EXISTS '%s'@'%s'", user, host[0]))
+	r.flushPrivileges(ctx)
 	return err
 }
 
-func (r *MySQL) UserPassword(user, password string, host ...string) error {
+func (r *MySQL) UserPassword(ctx context.Context, user, password string, host ...string) error {
 	if len(host) == 0 || host[0] == "" {
 		host = []string{"%"}
 	}
-	_, err := r.Exec(fmt.Sprintf("ALTER USER '%s'@'%s' IDENTIFIED BY '%s'", user, host[0], password))
-	r.flushPrivileges()
+	_, err := r.Exec(ctx, fmt.Sprintf("ALTER USER '%s'@'%s' IDENTIFIED BY '%s'", user, host[0], password))
+	r.flushPrivileges(ctx)
 	return err
 }
 
-func (r *MySQL) UserPrivileges(user string, host ...string) ([]string, error) {
+func (r *MySQL) UserPrivileges(ctx context.Context, user string, host ...string) ([]string, error) {
 	if len(host) == 0 || host[0] == "" {
 		host = []string{"%"}
 	}
 
-	rows, err := r.Query(fmt.Sprintf("SHOW GRANTS FOR '%s'@'%s'", user, host[0]))
+	rows, err := r.Query(ctx, fmt.Sprintf("SHOW GRANTS FOR '%s'@'%s'", user, host[0]))
 	if err != nil {
 		return nil, err
 	}
@@ -167,28 +167,28 @@ func (r *MySQL) UserPrivileges(user string, host ...string) ([]string, error) {
 	return slices.Compact(databases), nil
 }
 
-func (r *MySQL) PrivilegesGrant(user, database string, host ...string) error {
+func (r *MySQL) PrivilegesGrant(ctx context.Context, user, database string, host ...string) error {
 	if len(host) == 0 || host[0] == "" {
 		host = []string{"%"}
 	}
 	database = strings.ReplaceAll(database, "`", "``")
-	_, err := r.Exec(fmt.Sprintf("GRANT ALL PRIVILEGES ON `%s`.* TO '%s'@'%s'", database, user, host[0]))
-	r.flushPrivileges()
+	_, err := r.Exec(ctx, fmt.Sprintf("GRANT ALL PRIVILEGES ON `%s`.* TO '%s'@'%s'", database, user, host[0]))
+	r.flushPrivileges(ctx)
 	return err
 }
 
-func (r *MySQL) PrivilegesRevoke(user, database string, host ...string) error {
+func (r *MySQL) PrivilegesRevoke(ctx context.Context, user, database string, host ...string) error {
 	if len(host) == 0 || host[0] == "" {
 		host = []string{"%"}
 	}
 	database = strings.ReplaceAll(database, "`", "``")
-	_, err := r.Exec(fmt.Sprintf("REVOKE ALL PRIVILEGES ON `%s`.* FROM '%s'@'%s'", database, user, host[0]))
-	r.flushPrivileges()
+	_, err := r.Exec(ctx, fmt.Sprintf("REVOKE ALL PRIVILEGES ON `%s`.* FROM '%s'@'%s'", database, user, host[0]))
+	r.flushPrivileges(ctx)
 	return err
 }
 
-func (r *MySQL) Users() ([]User, error) {
-	rows, err := r.Query("SELECT user, host FROM mysql.user")
+func (r *MySQL) Users(ctx context.Context) ([]User, error) {
+	rows, err := r.Query(ctx, "SELECT user, host FROM mysql.user")
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +200,7 @@ func (r *MySQL) Users() ([]User, error) {
 		if err := rows.Scan(&user, &host); err != nil {
 			continue
 		}
-		grants, err := r.userGrants(user, host)
+		grants, err := r.userGrants(ctx, user, host)
 		if err != nil {
 			continue
 		}
@@ -215,7 +215,7 @@ func (r *MySQL) Users() ([]User, error) {
 	return users, rows.Err()
 }
 
-func (r *MySQL) Databases() ([]Database, error) {
+func (r *MySQL) Databases(ctx context.Context) ([]Database, error) {
 	query := `
         SELECT 
             SCHEMA_NAME,
@@ -225,7 +225,7 @@ func (r *MySQL) Databases() ([]Database, error) {
         WHERE SCHEMA_NAME NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys')
     `
 
-	rows, err := r.Query(query)
+	rows, err := r.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -247,8 +247,8 @@ func (r *MySQL) Databases() ([]Database, error) {
 	return databases, nil
 }
 
-func (r *MySQL) userGrants(user, host string) ([]string, error) {
-	rows, err := r.Query(fmt.Sprintf("SHOW GRANTS FOR '%s'@'%s'", user, host))
+func (r *MySQL) userGrants(ctx context.Context, user, host string) ([]string, error) {
+	rows, err := r.Query(ctx, fmt.Sprintf("SHOW GRANTS FOR '%s'@'%s'", user, host))
 	if err != nil {
 		return nil, err
 	}
@@ -265,6 +265,7 @@ func (r *MySQL) userGrants(user, host string) ([]string, error) {
 	return grants, rows.Err()
 }
 
-func (r *MySQL) flushPrivileges() {
-	_, _ = r.Exec("FLUSH PRIVILEGES")
+func (r *MySQL) flushPrivileges(ctx context.Context) {
+	// 权限变更后必须刷新，取消时跳过会让新用户或授权不生效
+	_, _ = r.Exec(context.WithoutCancel(ctx), "FLUSH PRIVILEGES")
 }

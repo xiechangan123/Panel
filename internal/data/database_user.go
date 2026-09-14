@@ -152,7 +152,7 @@ func (r *databaseUserRepo) fillUser(ctx context.Context, user *biz.DatabaseUser)
 
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
-		privileges, _ := operator.UserPrivileges(user.Username, user.Host)
+		privileges, _ := operator.UserPrivileges(ctx, user.Username, user.Host)
 		user.Privileges = privileges
 		if mysql2, err := newMySQLOperator(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
 			mysql2.Close()
@@ -161,7 +161,7 @@ func (r *databaseUserRepo) fillUser(ctx context.Context, user *biz.DatabaseUser)
 			user.Status = biz.DatabaseUserStatusInvalid
 		}
 	case biz.DatabaseTypePostgresql:
-		privileges, _ := operator.UserPrivileges(user.Username)
+		privileges, _ := operator.UserPrivileges(ctx, user.Username)
 		user.Privileges = privileges
 		if postgres2, err := db.NewPostgres(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
 			postgres2.Close()
@@ -170,7 +170,7 @@ func (r *databaseUserRepo) fillUser(ctx context.Context, user *biz.DatabaseUser)
 			user.Status = biz.DatabaseUserStatusInvalid
 		}
 	case biz.DatabaseTypeClickHouse:
-		privileges, _ := operator.UserPrivileges(user.Username)
+		privileges, _ := operator.UserPrivileges(ctx, user.Username)
 		user.Privileges = privileges
 		if ch2, err := db.NewClickHouse(ctx, user.Username, user.Password, fmt.Sprintf("%s:%d", server.Host, server.Port)); err == nil {
 			ch2.Close()

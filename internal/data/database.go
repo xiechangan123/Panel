@@ -43,7 +43,7 @@ func (r *databaseRepo) DatabasesOf(ctx context.Context, server *biz.DatabaseServ
 		if err != nil {
 			return nil, err
 		}
-		if databases, err := mongo.Databases(); err == nil { //nolint:contextcheck
+		if databases, err := mongo.Databases(ctx); err == nil {
 			for item := range slices.Values(databases) {
 				database = append(database, &biz.Database{
 					Type:     server.Type,
@@ -55,11 +55,11 @@ func (r *databaseRepo) DatabasesOf(ctx context.Context, server *biz.DatabaseServ
 		}
 		mongo.Close()
 	case biz.DatabaseTypeSQLite:
-		sqlite, err := db.NewSQLite(server.Host) //nolint:contextcheck
+		sqlite, err := db.NewSQLite(ctx, server.Host)
 		if err != nil {
 			return nil, err
 		}
-		if tables, err := sqlite.Tables(); err == nil { //nolint:contextcheck
+		if tables, err := sqlite.Tables(ctx); err == nil {
 			for table := range slices.Values(tables) {
 				database = append(database, &biz.Database{
 					Type:     server.Type,
@@ -75,7 +75,7 @@ func (r *databaseRepo) DatabasesOf(ctx context.Context, server *biz.DatabaseServ
 		if err != nil {
 			return nil, err
 		}
-		if databases, err := operator.Databases(); err == nil {
+		if databases, err := operator.Databases(ctx); err == nil {
 			for item := range slices.Values(databases) {
 				database = append(database, &biz.Database{
 					Type:     server.Type,

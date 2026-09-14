@@ -199,7 +199,7 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 
 	switch server.Type {
 	case DatabaseTypeMysql:
-		allUsers, err := operator.Users()
+		allUsers, err := operator.Users(ctx)
 		if err != nil {
 			return err
 		}
@@ -219,7 +219,7 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 			}
 		}
 	case DatabaseTypePostgresql:
-		allUsers, err := operator.Users()
+		allUsers, err := operator.Users(ctx)
 		if err != nil {
 			return err
 		}
@@ -238,7 +238,7 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 			}
 		}
 	case DatabaseTypeClickHouse:
-		allUsers, err := operator.Users()
+		allUsers, err := operator.Users(ctx)
 		if err != nil {
 			return err
 		}

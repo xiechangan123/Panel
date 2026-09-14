@@ -1,6 +1,8 @@
 package biz
 
 import (
+	"context"
+
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/request"
@@ -9,11 +11,11 @@ import (
 )
 
 type ContainerImageRepo interface {
-	List(sock string) ([]types.ContainerImage, error)
-	Exist(sock string, name string) (bool, error)
-	Pull(sock string, req *request.ContainerImagePull) error
-	Remove(sock string, id string) error
-	Prune(sock string) error
+	List(ctx context.Context, sock string) ([]types.ContainerImage, error)
+	Exist(ctx context.Context, sock string, name string) (bool, error)
+	Pull(ctx context.Context, sock string, req *request.ContainerImagePull) error
+	Remove(ctx context.Context, sock string, id string) error
+	Prune(ctx context.Context, sock string) error
 }
 
 type ContainerImageUsecase struct {
@@ -32,19 +34,19 @@ func NewContainerImageUsecase(t *gotext.Locale, containerImageRepo ContainerImag
 	}
 }
 
-func (uc *ContainerImageUsecase) List() ([]types.ContainerImage, error) {
+func (uc *ContainerImageUsecase) List(ctx context.Context) ([]types.ContainerImage, error) {
 	sock := containerSock(uc.setting)
-	return uc.repo.List(sock)
+	return uc.repo.List(ctx, sock)
 }
 
-func (uc *ContainerImageUsecase) Exist(name string) (bool, error) {
+func (uc *ContainerImageUsecase) Exist(ctx context.Context, name string) (bool, error) {
 	sock := containerSock(uc.setting)
-	return uc.repo.Exist(sock, name)
+	return uc.repo.Exist(ctx, sock, name)
 }
 
-func (uc *ContainerImageUsecase) Pull(req *request.ContainerImagePull) error {
+func (uc *ContainerImageUsecase) Pull(ctx context.Context, req *request.ContainerImagePull) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Pull(sock, req)
+	return uc.repo.Pull(ctx, sock, req)
 }
 
 func (uc *ContainerImageUsecase) PullBackground(req *request.ContainerImagePull) error {
@@ -63,12 +65,12 @@ func (uc *ContainerImageUsecase) PullBackground(req *request.ContainerImagePull)
 	return uc.task.Push(task)
 }
 
-func (uc *ContainerImageUsecase) Remove(id string) error {
+func (uc *ContainerImageUsecase) Remove(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Remove(sock, id)
+	return uc.repo.Remove(ctx, sock, id)
 }
 
-func (uc *ContainerImageUsecase) Prune() error {
+func (uc *ContainerImageUsecase) Prune(ctx context.Context) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Prune(sock)
+	return uc.repo.Prune(ctx, sock)
 }

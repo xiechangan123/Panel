@@ -27,14 +27,14 @@ func NewContainerImageRepo() biz.ContainerImageRepo {
 }
 
 // List 列出镜像
-func (r *containerImageRepo) List(sock string) ([]types.ContainerImage, error) {
+func (r *containerImageRepo) List(ctx context.Context, sock string) ([]types.ContainerImage, error) {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return nil, err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	resp, err := apiClient.ImageList(context.Background(), client.ImageListOptions{
+	resp, err := apiClient.ImageList(ctx, client.ImageListOptions{
 		All: true,
 	})
 	if err != nil {
@@ -61,14 +61,14 @@ func (r *containerImageRepo) List(sock string) ([]types.ContainerImage, error) {
 }
 
 // Exist 检查镜像是否存在
-func (r *containerImageRepo) Exist(sock string, name string) (bool, error) {
+func (r *containerImageRepo) Exist(ctx context.Context, sock string, name string) (bool, error) {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return false, err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ImageInspect(context.Background(), name)
+	_, err = apiClient.ImageInspect(ctx, name)
 	if err != nil {
 		if cerrdefs.IsNotFound(err) {
 			return false, nil
@@ -80,7 +80,7 @@ func (r *containerImageRepo) Exist(sock string, name string) (bool, error) {
 }
 
 // Pull 拉取镜像
-func (r *containerImageRepo) Pull(sock string, req *request.ContainerImagePull) error {
+func (r *containerImageRepo) Pull(ctx context.Context, sock string, req *request.ContainerImagePull) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
@@ -101,24 +101,25 @@ func (r *containerImageRepo) Pull(sock string, req *request.ContainerImagePull) 
 		options.RegistryAuth = authStr
 	}
 
-	out, err := apiClient.ImagePull(context.Background(), req.Name, options)
+	out, err := apiClient.ImagePull(ctx, req.Name, options)
 	if err != nil {
 		return err
 	}
 	defer func(out client.ImagePullResponse) { _ = out.Close() }(out)
 
-	return out.Wait(context.Background())
+	return out.Wait(ctx)
 }
 
 // Remove 删除镜像
-func (r *containerImageRepo) Remove(sock string, id string) error {
+func (r *containerImageRepo) Remove(ctx context.Context, sock string, id string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ImageRemove(context.Background(), id, client.ImageRemoveOptions{
+	// 级联删除父层，中途取消会留下删了一半的镜像链
+	_, err = apiClient.ImageRemove(context.WithoutCancel(ctx), id, client.ImageRemoveOptions{
 		Force:         true,
 		PruneChildren: true,
 	})
@@ -126,14 +127,15 @@ func (r *containerImageRepo) Remove(sock string, id string) error {
 }
 
 // Prune 清理未使用的镜像
-func (r *containerImageRepo) Prune(sock string) error {
+func (r *containerImageRepo) Prune(ctx context.Context, sock string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ImagePrune(context.Background(), client.ImagePruneOptions{
+	// 中途取消会留下清理到一半的状态
+	_, err = apiClient.ImagePrune(context.WithoutCancel(ctx), client.ImagePruneOptions{
 		Filters: make(client.Filters).
 			Add("dangling", "false").
 			Add("label", "created_by!=acepanel"),

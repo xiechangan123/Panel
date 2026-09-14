@@ -31,9 +31,9 @@ type BackupRepo interface {
 	Delete(ctx context.Context, typ BackupType, name string) error
 	Restore(ctx context.Context, typ BackupType, backup, target string) error
 	ClearExpired(path, prefix string, save uint) error
-	ClearStorageExpired(account uint, dir, prefix string, save uint) error
+	ClearStorageExpired(ctx context.Context, account uint, dir, prefix string, save uint) error
 	CutoffLog(ctx context.Context, path, target string) (string, error)
-	CutoffUpload(account uint, typ BackupType, name string, files []string) error
+	CutoffUpload(ctx context.Context, account uint, typ BackupType, name string, files []string) error
 	GetDefaultPath(typ BackupType) string
 	FixPanel(ctx context.Context) error
 	UpdatePanel(ctx context.Context, version, url, checksum string, progress func(string)) error
@@ -113,16 +113,16 @@ func (uc *BackupUsecase) ClearExpired(path, prefix string, save uint) error {
 	return uc.repo.ClearExpired(path, prefix, save)
 }
 
-func (uc *BackupUsecase) ClearStorageExpired(account uint, dir, prefix string, save uint) error {
-	return uc.repo.ClearStorageExpired(account, dir, prefix, save)
+func (uc *BackupUsecase) ClearStorageExpired(ctx context.Context, account uint, dir, prefix string, save uint) error {
+	return uc.repo.ClearStorageExpired(ctx, account, dir, prefix, save)
 }
 
 func (uc *BackupUsecase) CutoffLog(ctx context.Context, path, target string) (string, error) {
 	return uc.repo.CutoffLog(ctx, path, target)
 }
 
-func (uc *BackupUsecase) CutoffUpload(account uint, typ BackupType, name string, files []string) error {
-	return uc.repo.CutoffUpload(account, typ, name, files)
+func (uc *BackupUsecase) CutoffUpload(ctx context.Context, account uint, typ BackupType, name string, files []string) error {
+	return uc.repo.CutoffUpload(ctx, account, typ, name, files)
 }
 
 func (uc *BackupUsecase) GetDefaultPath(typ BackupType) string {

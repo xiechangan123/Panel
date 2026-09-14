@@ -21,7 +21,7 @@ func NewContainerService(containerUsecase *biz.ContainerUsecase) *ContainerServi
 }
 
 func (s *ContainerService) List(w http.ResponseWriter, r *http.Request) {
-	containers, err := s.containerRepo.ListAll()
+	containers, err := s.containerRepo.ListAll(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 	}
@@ -35,7 +35,7 @@ func (s *ContainerService) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ContainerService) Search(w http.ResponseWriter, r *http.Request) {
-	containers, err := s.containerRepo.ListByName(r.FormValue("name"))
+	containers, err := s.containerRepo.ListByName(r.Context(), r.FormValue("name"))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -48,7 +48,7 @@ func (s *ContainerService) Search(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ContainerService) Inspect(w http.ResponseWriter, r *http.Request) {
-	data, err := s.containerRepo.Inspect(chi.URLParam(r, "id"))
+	data, err := s.containerRepo.Inspect(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -74,7 +74,7 @@ func (s *ContainerService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := s.containerRepo.Update(idParam, req)
+	id, err := s.containerRepo.Update(r.Context(), idParam, req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -99,7 +99,7 @@ func (s *ContainerService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := s.containerRepo.Create(req)
+	id, err := s.containerRepo.Create(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -115,7 +115,7 @@ func (s *ContainerService) Remove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerRepo.Remove(req.ID); err != nil {
+	if err = s.containerRepo.Remove(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -130,7 +130,7 @@ func (s *ContainerService) Start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerRepo.Start(req.ID); err != nil {
+	if err = s.containerRepo.Start(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -145,7 +145,7 @@ func (s *ContainerService) Stop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerRepo.Stop(req.ID); err != nil {
+	if err = s.containerRepo.Stop(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -160,7 +160,7 @@ func (s *ContainerService) Restart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerRepo.Restart(req.ID); err != nil {
+	if err = s.containerRepo.Restart(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -175,7 +175,7 @@ func (s *ContainerService) Pause(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerRepo.Pause(req.ID); err != nil {
+	if err = s.containerRepo.Pause(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -190,7 +190,7 @@ func (s *ContainerService) Unpause(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerRepo.Unpause(req.ID); err != nil {
+	if err = s.containerRepo.Unpause(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -205,7 +205,7 @@ func (s *ContainerService) Kill(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerRepo.Kill(req.ID); err != nil {
+	if err = s.containerRepo.Kill(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -220,7 +220,7 @@ func (s *ContainerService) Rename(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerRepo.Rename(req.ID, req.Name); err != nil {
+	if err = s.containerRepo.Rename(r.Context(), req.ID, req.Name); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -229,7 +229,7 @@ func (s *ContainerService) Rename(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ContainerService) Prune(w http.ResponseWriter, r *http.Request) {
-	if err := s.containerRepo.Prune(); err != nil {
+	if err := s.containerRepo.Prune(r.Context()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -233,16 +233,18 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldRootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
+	// 改密后还要写回面板设置，中途取消会让面板存的密码与实际不符
+	ctx := context.WithoutCancel(r.Context())
 	mysql, err := db.NewMySQL(r.Context(), "root", oldRootPassword, db.MySQLSocket(app.Root), "unix")
 	if err != nil {
-		// 尝试安全模式直接改密，中途取消会让面板存的密码与实际不符
-		if err = db.MySQLResetRootPassword(context.WithoutCancel(r.Context()), req.Password, app.Root); err != nil {
+		// 尝试安全模式直接改密
+		if err = db.MySQLResetRootPassword(ctx, req.Password, app.Root); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
 	} else {
 		defer mysql.Close()
-		if err = mysql.UserPassword("root", req.Password, "localhost"); err != nil {
+		if err = mysql.UserPassword(ctx, "root", req.Password, "localhost"); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -365,7 +367,7 @@ func (s *App) ProcessList(w http.ResponseWriter, r *http.Request) {
 	}
 	defer mysql.Close()
 
-	rows, err := mysql.Query(`
+	rows, err := mysql.Query(r.Context(), `
 		SELECT ID, coalesce(USER,''), coalesce(HOST,''), coalesce(DB,''), coalesce(COMMAND,''),
 		       TIME, coalesce(STATE,''), coalesce(INFO,'')
 		FROM information_schema.PROCESSLIST WHERE ID != CONNECTION_ID() ORDER BY TIME DESC`)
@@ -408,7 +410,7 @@ func (s *App) KillProcess(w http.ResponseWriter, r *http.Request) {
 	defer mysql.Close()
 
 	// KILL 不支持预编译参数，id 已校验为正整数
-	if _, err = mysql.Exec(fmt.Sprintf(`KILL %d`, id)); err != nil {
+	if _, err = mysql.Exec(r.Context(), fmt.Sprintf(`KILL %d`, id)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -425,7 +427,7 @@ func (s *App) TransactionList(w http.ResponseWriter, r *http.Request) {
 	}
 	defer mysql.Close()
 
-	rows, err := mysql.Query(`
+	rows, err := mysql.Query(r.Context(), `
 		SELECT trx_id, trx_mysql_thread_id, coalesce(trx_state,''), coalesce(trx_query,''),
 		       timestampdiff(SECOND, trx_started, now()), trx_rows_locked, trx_rows_modified
 		FROM information_schema.INNODB_TRX ORDER BY trx_started`)
@@ -455,14 +457,14 @@ func (s *App) TransactionList(w http.ResponseWriter, r *http.Request) {
 		FROM performance_schema.data_lock_waits w
 		JOIN information_schema.innodb_trx r ON r.trx_id = w.REQUESTING_ENGINE_TRANSACTION_ID
 		JOIN information_schema.innodb_trx b ON b.trx_id = w.BLOCKING_ENGINE_TRANSACTION_ID`
-	if s.isMariaDB(mysql) {
+	if s.isMariaDB(r.Context(), mysql) {
 		lockSQL = `
 		SELECT r.trx_mysql_thread_id, coalesce(r.trx_query,''), b.trx_mysql_thread_id, coalesce(b.trx_query,'')
 		FROM information_schema.INNODB_LOCK_WAITS w
 		JOIN information_schema.INNODB_TRX r ON r.trx_id = w.requesting_trx_id
 		JOIN information_schema.INNODB_TRX b ON b.trx_id = w.blocking_trx_id`
 	}
-	if lockRows, lockErr := mysql.Query(lockSQL); lockErr == nil {
+	if lockRows, lockErr := mysql.Query(r.Context(), lockSQL); lockErr == nil {
 		defer func() { _ = lockRows.Close() }()
 		for lockRows.Next() {
 			var item LockWait
@@ -490,7 +492,7 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 	defer mysql.Close()
 
 	var enabled int
-	if err = mysql.QueryRow(`SELECT @@performance_schema`).Scan(&enabled); err != nil {
+	if err = mysql.QueryRow(r.Context(), `SELECT @@performance_schema`).Scan(&enabled); err != nil {
 		if strings.Contains(err.Error(), "Unknown system variable") {
 			service.Success(w, TopSQL{Supported: false, Items: []TopSQLItem{}})
 			return
@@ -506,7 +508,7 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := mysql.Query(`
+	rows, err := mysql.Query(r.Context(), `
 		SELECT coalesce(SCHEMA_NAME,''), COUNT_STAR, SUM_TIMER_WAIT DIV 1000000000,
 		       round(AVG_TIMER_WAIT/1e9,2), SUM_ROWS_SENT, SUM_ROWS_EXAMINED, coalesce(DIGEST_TEXT,'')
 		FROM performance_schema.events_statements_summary_by_digest
@@ -544,7 +546,7 @@ func (s *App) EnableTopSQL(w http.ResponseWriter, r *http.Request) {
 	}
 	defer mysql.Close()
 	var enabled int
-	if err = mysql.QueryRow(`SELECT @@performance_schema`).Scan(&enabled); err != nil {
+	if err = mysql.QueryRow(r.Context(), `SELECT @@performance_schema`).Scan(&enabled); err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("performance_schema is not supported by this instance"))
 		return
 	}
@@ -575,7 +577,7 @@ func (s *App) ResetTopSQL(w http.ResponseWriter, r *http.Request) {
 	}
 	defer mysql.Close()
 
-	if _, err = mysql.Exec(`TRUNCATE TABLE performance_schema.events_statements_summary_by_digest`); err != nil {
+	if _, err = mysql.Exec(r.Context(), `TRUNCATE TABLE performance_schema.events_statements_summary_by_digest`); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -592,7 +594,7 @@ func (s *App) DatabaseList(w http.ResponseWriter, r *http.Request) {
 	}
 	defer mysql.Close()
 
-	rows, err := mysql.Query(`
+	rows, err := mysql.Query(r.Context(), `
 		SELECT SCHEMA_NAME FROM information_schema.SCHEMATA
 		WHERE SCHEMA_NAME NOT IN ('mysql','information_schema','performance_schema','sys')
 		ORDER BY SCHEMA_NAME`)
@@ -646,7 +648,7 @@ func (s *App) TableList(w http.ResponseWriter, r *http.Request) {
 		args = append(args, req.Database)
 	}
 	query += ` ORDER BY data_length + index_length DESC LIMIT 50`
-	rows, err := mysql.Query(query, args...)
+	rows, err := mysql.Query(r.Context(), query, args...)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -729,7 +731,7 @@ func (s *App) BinlogList(w http.ResponseWriter, r *http.Request) {
 	defer mysql.Close()
 
 	var enabled int
-	if err = mysql.QueryRow(`SELECT @@log_bin`).Scan(&enabled); err != nil {
+	if err = mysql.QueryRow(r.Context(), `SELECT @@log_bin`).Scan(&enabled); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -738,7 +740,7 @@ func (s *App) BinlogList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := mysql.Query(`SHOW BINARY LOGS`)
+	rows, err := mysql.Query(r.Context(), `SHOW BINARY LOGS`)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -778,7 +780,7 @@ func (s *App) PurgeBinlog(w http.ResponseWriter, r *http.Request) {
 	defer mysql.Close()
 
 	// 校验文件名存在于 binlog 列表，PURGE 不支持预编译参数
-	rows, err := mysql.Query(`SHOW BINARY LOGS`)
+	rows, err := mysql.Query(r.Context(), `SHOW BINARY LOGS`)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -793,7 +795,7 @@ func (s *App) PurgeBinlog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = mysql.Exec(fmt.Sprintf(`PURGE BINARY LOGS TO '%s'`, req.File)); err != nil {
+	if _, err = mysql.Exec(r.Context(), fmt.Sprintf(`PURGE BINARY LOGS TO '%s'`, req.File)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -810,10 +812,10 @@ func (s *App) ReplicationStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	defer mysql.Close()
 
-	rows, err := mysql.Query(`SHOW REPLICA STATUS`)
+	rows, err := mysql.Query(r.Context(), `SHOW REPLICA STATUS`)
 	if err != nil {
 		// 老版本 fallback
-		if rows, err = mysql.Query(`SHOW SLAVE STATUS`); err != nil {
+		if rows, err = mysql.Query(r.Context(), `SHOW SLAVE STATUS`); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -859,9 +861,9 @@ func (s *App) connect(ctx context.Context) (db.Operator, error) {
 }
 
 // isMariaDB 判断当前实例是否为 MariaDB
-func (s *App) isMariaDB(op db.Operator) bool {
+func (s *App) isMariaDB(ctx context.Context, op db.Operator) bool {
 	var version string
-	if err := op.QueryRow(`SELECT VERSION()`).Scan(&version); err != nil {
+	if err := op.QueryRow(ctx, `SELECT VERSION()`).Scan(&version); err != nil {
 		return false
 	}
 	return strings.Contains(strings.ToLower(version), "mariadb")

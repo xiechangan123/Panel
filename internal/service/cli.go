@@ -1194,7 +1194,7 @@ func (s *CliService) BackupClear(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Uint("keep")))
 
 	if cmd.Uint("storage") != 0 {
-		if err := s.backupRepo.ClearStorageExpired(cmd.Uint("storage"), cmd.String("type"), cmd.String("file"), cmd.Uint("keep")); err != nil {
+		if err := s.backupRepo.ClearStorageExpired(ctx, cmd.Uint("storage"), cmd.String("type"), cmd.String("file"), cmd.Uint("keep")); err != nil {
 			return errors.New(s.t.Get("Cleaning failed: %v", err))
 		}
 	} else {
@@ -1250,7 +1250,7 @@ func (s *CliService) CutoffWebsite(ctx context.Context, cmd *cli.Command) error 
 
 	// 上传到远程存储
 	if cmd.Uint("storage") != 0 {
-		if err = s.backupRepo.CutoffUpload(cmd.Uint("storage"), biz.BackupTypeWebsite, website.Name, files); err != nil {
+		if err = s.backupRepo.CutoffUpload(ctx, cmd.Uint("storage"), biz.BackupTypeWebsite, website.Name, files); err != nil {
 			return err
 		}
 	}
@@ -1289,7 +1289,7 @@ func (s *CliService) CutoffContainer(ctx context.Context, cmd *cli.Command) erro
 
 	// 上传到远程存储
 	if cmd.Uint("storage") != 0 {
-		if err = s.backupRepo.CutoffUpload(cmd.Uint("storage"), "container", name, []string{zipPath}); err != nil {
+		if err = s.backupRepo.CutoffUpload(ctx, cmd.Uint("storage"), "container", name, []string{zipPath}); err != nil {
 			return err
 		}
 	}
@@ -1337,7 +1337,7 @@ func (s *CliService) CutoffClear(ctx context.Context, cmd *cli.Command) error {
 		}
 		// 清理远程存储过期日志，切割日志上传在 cutoff/<类型>/<目标> 下
 		if storageID != 0 {
-			if err := s.backupRepo.ClearStorageExpired(storageID, filepath.Join("cutoff", typ, name), prefix, keep); err != nil {
+			if err := s.backupRepo.ClearStorageExpired(ctx, storageID, filepath.Join("cutoff", typ, name), prefix, keep); err != nil {
 				return err
 			}
 		}

@@ -353,7 +353,7 @@ func (r *backupRepo) CutoffLog(ctx context.Context, path, target string) (string
 }
 
 // CutoffUpload 将指定的切割日志文件上传到远程存储
-func (r *backupRepo) CutoffUpload(account uint, typ biz.BackupType, name string, files []string) error {
+func (r *backupRepo) CutoffUpload(ctx context.Context, account uint, typ biz.BackupType, name string, files []string) error {
 	backupStorage, err := r.GetStorage(account)
 	if err != nil {
 		return err
@@ -370,7 +370,7 @@ func (r *backupRepo) CutoffUpload(account uint, typ biz.BackupType, name string,
 			return err
 		}
 		remotePath := filepath.Join("cutoff", string(typ), name, filepath.Base(localPath))
-		if putErr := client.Put(remotePath, file); putErr != nil {
+		if putErr := r.upload(ctx, client, remotePath, file); putErr != nil {
 			_ = file.Close()
 			return putErr
 		}
@@ -434,7 +434,7 @@ func (r *backupRepo) ClearExpired(path, prefix string, save uint) error {
 // dir 存储器内的目标目录，备份为 <类型>，切割日志为 cutoff/<类型>/<目标>
 // prefix 目标文件前缀
 // save 保存份数
-func (r *backupRepo) ClearStorageExpired(storage uint, dir, prefix string, save uint) error {
+func (r *backupRepo) ClearStorageExpired(ctx context.Context, storage uint, dir, prefix string, save uint) error {
 	backupStorage, err := r.GetStorage(storage)
 	if err != nil {
 		return err
@@ -445,7 +445,7 @@ func (r *backupRepo) ClearStorageExpired(storage uint, dir, prefix string, save 
 		return err
 	}
 
-	files, err := client.List(dir)
+	files, err := client.List(ctx, dir)
 	if err != nil {
 		return err
 	}
@@ -457,7 +457,7 @@ func (r *backupRepo) ClearStorageExpired(storage uint, dir, prefix string, save 
 	var filtered []fileInfo
 	for _, file := range files {
 		if strings.HasPrefix(file, prefix) && r.isBackupArchive(file) {
-			lastModified, modErr := client.LastModified(filepath.Join(dir, file))
+			lastModified, modErr := client.LastModified(ctx, filepath.Join(dir, file))
 			if modErr != nil {
 				continue
 			}
@@ -480,18 +480,26 @@ func (r *backupRepo) ClearStorageExpired(storage uint, dir, prefix string, save 
 	}
 
 	// 切片保留 save 份，删除剩余
+	// 已判定过期的文件删到一半就停会留下无人认领的残留，这段不可取消
+	deleteCtx := context.WithoutCancel(ctx)
 	toDelete := filtered[save:]
 	for _, file := range toDelete {
 		filePath := filepath.Join(dir, file.name)
 		if app.IsCli {
 			fmt.Println(r.t.Get("|-Cleaning expired file: %s", filePath))
 		}
-		if err = client.Delete(filePath); err != nil {
+		if err = client.Delete(deleteCtx, filePath); err != nil {
 			return errors.New(r.t.Get("Cleanup failed: %v", err))
 		}
 	}
 
 	return nil
+}
+
+// upload 上传备份文件到存储器
+// 上传中途取消会在远端留下截断的文件，而过期清理只按前缀和后缀识别备份，会把它当成有效备份计入保留份数
+func (r *backupRepo) upload(ctx context.Context, client storage.Storage, path string, content stdio.Reader) error {
+	return client.Put(context.WithoutCancel(ctx), path, content)
 }
 
 // getStorage 获取存储器
@@ -562,7 +570,7 @@ func (r *backupRepo) createWebsite(ctx context.Context, name string, storage sto
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
 
-	if err = storage.Put(filepath.Join(string(biz.BackupTypeWebsite), name), file); err != nil {
+	if err = r.upload(ctx, storage, filepath.Join(string(biz.BackupTypeWebsite), name), file); err != nil {
 		return err
 	}
 
@@ -584,7 +592,7 @@ func (r *backupRepo) createMySQL(ctx context.Context, name string, storage stora
 		return err
 	}
 	defer mysql.Close()
-	if exist, _ := mysql.DatabaseExists(target); !exist {
+	if exist, _ := mysql.DatabaseExists(ctx, target); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", target))
 	}
 
@@ -602,7 +610,7 @@ func (r *backupRepo) createMySQL(ctx context.Context, name string, storage stora
 	// 导出数据库
 	var gtidMode string
 	dumpArgs := "--single-transaction --quick --routines --events --max-allowed-packet=1G"
-	if mysql.QueryRow(`SELECT @@gtid_mode`).Scan(&gtidMode) == nil {
+	if mysql.QueryRow(ctx, `SELECT @@gtid_mode`).Scan(&gtidMode) == nil {
 		dumpArgs += " --set-gtid-purged=OFF"
 	}
 	name += ".sql"
@@ -629,7 +637,7 @@ func (r *backupRepo) createMySQL(ctx context.Context, name string, storage stora
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
 
-	if err = storage.Put(filepath.Join(string(biz.BackupTypeMySQL), name), file); err != nil {
+	if err = r.upload(ctx, storage, filepath.Join(string(biz.BackupTypeMySQL), name), file); err != nil {
 		return err
 	}
 
@@ -652,7 +660,7 @@ func (r *backupRepo) createPostgres(ctx context.Context, name string, storage st
 		return err
 	}
 	defer postgres.Close()
-	if exist, _ := postgres.DatabaseExists(target); !exist {
+	if exist, _ := postgres.DatabaseExists(ctx, target); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", target))
 	}
 
@@ -692,7 +700,7 @@ func (r *backupRepo) createPostgres(ctx context.Context, name string, storage st
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
 
-	if err = storage.Put(filepath.Join(string(biz.BackupTypePostgres), name), file); err != nil {
+	if err = r.upload(ctx, storage, filepath.Join(string(biz.BackupTypePostgres), name), file); err != nil {
 		return err
 	}
 
@@ -785,7 +793,7 @@ func (r *backupRepo) createClickHouse(ctx context.Context, name string, storage 
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
 
-	if err = storage.Put(filepath.Join(string(biz.BackupTypeClickHouse), name), file); err != nil {
+	if err = r.upload(ctx, storage, filepath.Join(string(biz.BackupTypeClickHouse), name), file); err != nil {
 		return err
 	}
 
@@ -849,7 +857,7 @@ func (r *backupRepo) createPath(ctx context.Context, name string, storage storag
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
 
-	if err = storage.Put(filepath.Join(string(biz.BackupTypePath), name), file); err != nil {
+	if err = r.upload(ctx, storage, filepath.Join(string(biz.BackupTypePath), name), file); err != nil {
 		return err
 	}
 
@@ -969,7 +977,7 @@ func (r *backupRepo) restoreMySQL(ctx context.Context, backup, target string) er
 		return err
 	}
 	defer mysql.Close()
-	if exist, _ := mysql.DatabaseExists(target); !exist {
+	if exist, _ := mysql.DatabaseExists(ctx, target); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", target))
 	}
 
@@ -1002,7 +1010,7 @@ func (r *backupRepo) restorePostgres(ctx context.Context, backup, target string)
 		return err
 	}
 	defer postgres.Close()
-	if exist, _ := postgres.DatabaseExists(target); !exist {
+	if exist, _ := postgres.DatabaseExists(ctx, target); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", target))
 	}
 
@@ -1214,7 +1222,7 @@ func (r *backupRepo) createRedisLike(ctx context.Context, name string, storage s
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
 
-	if err = storage.Put(filepath.Join(kind, name), file); err != nil {
+	if err = r.upload(ctx, storage, filepath.Join(kind, name), file); err != nil {
 		return err
 	}
 

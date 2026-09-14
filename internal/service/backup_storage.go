@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -51,7 +52,7 @@ func (s *BackupStorageService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateStorage(req.Type, req.Info); err != nil {
+	if err = s.validateStorage(r.Context(), req.Type, req.Info); err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
@@ -72,7 +73,7 @@ func (s *BackupStorageService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.validateStorage(req.Type, req.Info); err != nil {
+	if err = s.validateStorage(r.Context(), req.Type, req.Info); err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
@@ -117,7 +118,7 @@ func (s *BackupStorageService) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 // validateStorage 验证存储配置是否正确
-func (s *BackupStorageService) validateStorage(accountType string, info types.BackupStorageInfo) error {
+func (s *BackupStorageService) validateStorage(ctx context.Context, accountType string, info types.BackupStorageInfo) error {
 	var err error
 	var client storage.Storage
 
@@ -159,7 +160,7 @@ func (s *BackupStorageService) validateStorage(accountType string, info types.Ba
 		return nil
 	}
 
-	if _, err = client.List(""); err != nil {
+	if _, err = client.List(ctx, ""); err != nil {
 		return errors.New(s.t.Get("storage connection error: %v", err))
 	}
 

@@ -1,9 +1,11 @@
 package storage
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -45,7 +47,7 @@ func NewSFTP(config SFTPConfig) (Storage, error) {
 }
 
 // connect 建立 SFTP 连接，返回 client 和 cleanup 函数
-func (s *SFTP) connect() (*sftp.Client, func(), error) {
+func (s *SFTP) connect(ctx context.Context) (*sftp.Client, func(), error) {
 	var auth []ssh.AuthMethod
 	// 密码认证
 	if s.config.Password != "" {
@@ -68,10 +70,16 @@ func (s *SFTP) connect() (*sftp.Client, func(), error) {
 	}
 
 	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
-	sshClient, err := ssh.Dial("tcp", addr, clientConfig)
+	conn, err := (&net.Dialer{Timeout: s.config.Timeout}).DialContext(ctx, "tcp", addr)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to connect to SSH server: %w", err)
 	}
+	sshConn, chans, reqs, err := ssh.NewClientConn(conn, addr, clientConfig)
+	if err != nil {
+		_ = conn.Close()
+		return nil, nil, fmt.Errorf("failed to connect to SSH server: %w", err)
+	}
+	sshClient := ssh.NewClient(sshConn, chans, reqs)
 
 	sftpClient, err := sftp.NewClient(sshClient)
 	if err != nil {
@@ -88,8 +96,8 @@ func (s *SFTP) connect() (*sftp.Client, func(), error) {
 }
 
 // Delete 删除文件
-func (s *SFTP) Delete(files ...string) error {
-	client, cleanup, err := s.connect()
+func (s *SFTP) Delete(ctx context.Context, files ...string) error {
+	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return err
 	}
@@ -105,8 +113,8 @@ func (s *SFTP) Delete(files ...string) error {
 }
 
 // Exists 检查文件是否存在
-func (s *SFTP) Exists(file string) bool {
-	client, cleanup, err := s.connect()
+func (s *SFTP) Exists(ctx context.Context, file string) bool {
+	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return false
 	}
@@ -118,8 +126,8 @@ func (s *SFTP) Exists(file string) bool {
 }
 
 // LastModified 获取文件最后修改时间
-func (s *SFTP) LastModified(file string) (time.Time, error) {
-	client, cleanup, err := s.connect()
+func (s *SFTP) LastModified(ctx context.Context, file string) (time.Time, error) {
+	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -135,8 +143,8 @@ func (s *SFTP) LastModified(file string) (time.Time, error) {
 }
 
 // List 列出目录下的所有文件
-func (s *SFTP) List(path string) ([]string, error) {
-	client, cleanup, err := s.connect()
+func (s *SFTP) List(ctx context.Context, path string) ([]string, error) {
+	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -163,8 +171,8 @@ func (s *SFTP) List(path string) ([]string, error) {
 }
 
 // Put 写入文件内容
-func (s *SFTP) Put(file string, content io.Reader) error {
-	client, cleanup, err := s.connect()
+func (s *SFTP) Put(ctx context.Context, file string, content io.Reader) error {
+	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return err
 	}
@@ -194,8 +202,8 @@ func (s *SFTP) Put(file string, content io.Reader) error {
 }
 
 // Size 获取文件大小
-func (s *SFTP) Size(file string) (int64, error) {
-	client, cleanup, err := s.connect()
+func (s *SFTP) Size(ctx context.Context, file string) (int64, error) {
+	client, cleanup, err := s.connect(ctx)
 	if err != nil {
 		return 0, err
 	}

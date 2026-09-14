@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -53,7 +54,7 @@ func NewWebDav(config WebDavConfig) (Storage, error) {
 }
 
 // Delete 删除文件
-func (w *WebDav) Delete(files ...string) error {
+func (w *WebDav) Delete(_ context.Context, files ...string) error {
 	for _, file := range files {
 		remotePath := w.fullPath(file)
 		if err := w.client.Remove(remotePath); err != nil {
@@ -64,14 +65,14 @@ func (w *WebDav) Delete(files ...string) error {
 }
 
 // Exists 检查文件是否存在
-func (w *WebDav) Exists(file string) bool {
+func (w *WebDav) Exists(_ context.Context, file string) bool {
 	remotePath := w.fullPath(file)
 	_, err := w.client.Stat(remotePath)
 	return err == nil
 }
 
 // LastModified 获取文件最后修改时间
-func (w *WebDav) LastModified(file string) (time.Time, error) {
+func (w *WebDav) LastModified(_ context.Context, file string) (time.Time, error) {
 	remotePath := w.fullPath(file)
 	stat, err := w.client.Stat(remotePath)
 	if err != nil {
@@ -82,7 +83,7 @@ func (w *WebDav) LastModified(file string) (time.Time, error) {
 }
 
 // Put 写入文件内容
-func (w *WebDav) Put(file string, content io.Reader) error {
+func (w *WebDav) Put(_ context.Context, file string, content io.Reader) error {
 	remotePath := w.fullPath(file)
 
 	// 确保目录存在
@@ -101,7 +102,7 @@ func (w *WebDav) Put(file string, content io.Reader) error {
 }
 
 // Size 获取文件大小
-func (w *WebDav) Size(file string) (int64, error) {
+func (w *WebDav) Size(_ context.Context, file string) (int64, error) {
 	remotePath := w.fullPath(file)
 	stat, err := w.client.Stat(remotePath)
 	if err != nil {
@@ -112,7 +113,7 @@ func (w *WebDav) Size(file string) (int64, error) {
 }
 
 // List 列出目录下的所有文件
-func (w *WebDav) List(path string) ([]string, error) {
+func (w *WebDav) List(_ context.Context, path string) ([]string, error) {
 	remotePath := w.fullPath(path)
 	entries, err := w.client.ReadDir(remotePath)
 	if err != nil {

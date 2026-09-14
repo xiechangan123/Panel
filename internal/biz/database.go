@@ -93,7 +93,7 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 			return mongoErr
 		}
 		defer mongo.Close()
-		if mongoErr = mongo.DatabaseCreate(req.Name); mongoErr != nil { //nolint:contextcheck
+		if mongoErr = mongo.DatabaseCreate(ctx, req.Name); mongoErr != nil {
 			return mongoErr
 		}
 		uc.log.Info("database created", slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)))
@@ -105,6 +105,9 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 		return err
 	}
 	defer operator.Close()
+
+	// 建用户 → 建库 → 授权是一个整体，中途取消会留下空库或没有权限的用户
+	ctx = context.WithoutCancel(ctx)
 
 	switch server.Type {
 	case DatabaseTypeMysql:
@@ -118,19 +121,19 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 				return err
 			}
 		}
-		if err = operator.DatabaseCreate(req.Name); err != nil {
+		if err = operator.DatabaseCreate(ctx, req.Name); err != nil {
 			return err
 		}
 		if req.Username != "" {
 			// 授权已有用户时按其实际 host 授权，MySQL 8 起 GRANT 不再隐式创建用户
 			hosts := []string{req.Host}
 			if !req.CreateUser {
-				if hosts = uc.mysqlUserHosts(operator, req.Username); len(hosts) == 0 {
+				if hosts = uc.mysqlUserHosts(ctx, operator, req.Username); len(hosts) == 0 {
 					return errors.New(uc.t.Get("database user %s does not exist", req.Username))
 				}
 			}
 			for _, host := range hosts {
-				if err = operator.PrivilegesGrant(req.Username, req.Name, host); err != nil {
+				if err = operator.PrivilegesGrant(ctx, req.Username, req.Name, host); err != nil {
 					return err
 				}
 			}
@@ -146,11 +149,11 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 				return err
 			}
 		}
-		if err = operator.DatabaseCreate(req.Name); err != nil {
+		if err = operator.DatabaseCreate(ctx, req.Name); err != nil {
 			return err
 		}
 		if req.Username != "" {
-			if err = operator.PrivilegesGrant(req.Username, req.Name); err != nil {
+			if err = operator.PrivilegesGrant(ctx, req.Username, req.Name); err != nil {
 				return err
 			}
 		}
@@ -158,7 +161,7 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 		if !ok {
 			return errors.New(uc.t.Get("%s does not support database comment", server.Type))
 		}
-		if err = pg.DatabaseComment(req.Name, req.Comment); err != nil { //nolint:contextcheck
+		if err = pg.DatabaseComment(ctx, req.Name, req.Comment); err != nil {
 			return err
 		}
 	case DatabaseTypeClickHouse:
@@ -171,11 +174,11 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 				return err
 			}
 		}
-		if err = operator.DatabaseCreate(req.Name); err != nil {
+		if err = operator.DatabaseCreate(ctx, req.Name); err != nil {
 			return err
 		}
 		if req.Username != "" {
-			if err = operator.PrivilegesGrant(req.Username, req.Name); err != nil {
+			if err = operator.PrivilegesGrant(ctx, req.Username, req.Name); err != nil {
 				return err
 			}
 		}
@@ -189,8 +192,8 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 }
 
 // mysqlUserHosts 查询 MySQL 用户实际存在的 host 列表
-func (uc *DatabaseUsecase) mysqlUserHosts(operator db.Operator, user string) []string {
-	rows, err := operator.Query("SELECT host FROM mysql.user WHERE user = ?", user)
+func (uc *DatabaseUsecase) mysqlUserHosts(ctx context.Context, operator db.Operator, user string) []string {
+	rows, err := operator.Query(ctx, "SELECT host FROM mysql.user WHERE user = ?", user)
 	if err != nil {
 		return nil
 	}
@@ -219,7 +222,7 @@ func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name strin
 			return mongoErr
 		}
 		defer mongo.Close()
-		if mongoErr = mongo.DatabaseDrop(name); mongoErr != nil { //nolint:contextcheck
+		if mongoErr = mongo.DatabaseDrop(ctx, name); mongoErr != nil {
 			return mongoErr
 		}
 	case DatabaseTypeSQLite:
@@ -230,7 +233,7 @@ func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name strin
 			return opErr
 		}
 		defer operator.Close()
-		if opErr = operator.DatabaseDrop(name); opErr != nil {
+		if opErr = operator.DatabaseDrop(ctx, name); opErr != nil {
 			return opErr
 		}
 	}
@@ -258,7 +261,7 @@ func (uc *DatabaseUsecase) Comment(ctx context.Context, req *request.DatabaseCom
 		if !ok {
 			return errors.New(uc.t.Get("%s does not support database comment", server.Type))
 		}
-		return pg.DatabaseComment(req.Name, req.Comment) //nolint:contextcheck
+		return pg.DatabaseComment(ctx, req.Name, req.Comment)
 	default:
 		return errors.New(uc.t.Get("%s does not support database comment", server.Type))
 	}

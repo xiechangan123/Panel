@@ -40,7 +40,7 @@ func NewElasticsearch(ctx context.Context, address, username, password string) (
 	}
 
 	es := &Elasticsearch{client: client}
-	if err := es.ping(ctx); err != nil {
+	if err := es.Ping(ctx); err != nil {
 		_ = client.Close()
 		return nil, fmt.Errorf("connect to elasticsearch failed: %w", err)
 	}
@@ -52,12 +52,7 @@ func (r *Elasticsearch) Close() {
 	_ = r.client.Close()
 }
 
-func (r *Elasticsearch) Ping() error {
-	return r.ping(context.Background())
-}
-
-// ping 带 context 的连通性检查，供构造时使用
-func (r *Elasticsearch) ping(ctx context.Context) error {
+func (r *Elasticsearch) Ping(ctx context.Context) error {
 	resp, err := r.client.R().SetContext(ctx).Get("/")
 	if err != nil {
 		return err
@@ -70,8 +65,8 @@ func (r *Elasticsearch) ping(ctx context.Context) error {
 }
 
 // Indices 获取所有索引
-func (r *Elasticsearch) Indices() ([]ESIndex, error) {
-	resp, err := r.client.R().Get("/_cat/indices?format=json&h=index,health,status,docs.count,store.size")
+func (r *Elasticsearch) Indices(ctx context.Context) ([]ESIndex, error) {
+	resp, err := r.client.R().SetContext(ctx).Get("/_cat/indices?format=json&h=index,health,status,docs.count,store.size")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get indices: %w", err)
 	}
@@ -109,8 +104,9 @@ func (r *Elasticsearch) Indices() ([]ESIndex, error) {
 }
 
 // IndexCreate 创建索引
-func (r *Elasticsearch) IndexCreate(name string) error {
+func (r *Elasticsearch) IndexCreate(ctx context.Context, name string) error {
 	resp, err := r.client.R().
+		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
 		Put("/" + name)
 	if err != nil {
@@ -123,8 +119,8 @@ func (r *Elasticsearch) IndexCreate(name string) error {
 }
 
 // IndexDelete 删除索引
-func (r *Elasticsearch) IndexDelete(name string) error {
-	resp, err := r.client.R().Delete("/" + name)
+func (r *Elasticsearch) IndexDelete(ctx context.Context, name string) error {
+	resp, err := r.client.R().SetContext(ctx).Delete("/" + name)
 	if err != nil {
 		return fmt.Errorf("failed to delete index: %w", err)
 	}
@@ -135,7 +131,7 @@ func (r *Elasticsearch) IndexDelete(name string) error {
 }
 
 // Search 搜索文档
-func (r *Elasticsearch) Search(index, query string, page, pageSize int) ([]ESDocument, int64, error) {
+func (r *Elasticsearch) Search(ctx context.Context, index, query string, page, pageSize int) ([]ESDocument, int64, error) {
 	from := (page - 1) * pageSize
 	body := map[string]any{
 		"from": from,
@@ -150,6 +146,7 @@ func (r *Elasticsearch) Search(index, query string, page, pageSize int) ([]ESDoc
 	}
 
 	resp, err := r.client.R().
+		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
 		SetBody(body).
 		Post("/" + index + "/_search")
@@ -189,8 +186,8 @@ func (r *Elasticsearch) Search(index, query string, page, pageSize int) ([]ESDoc
 }
 
 // DocumentGet 获取文档
-func (r *Elasticsearch) DocumentGet(index, id string) (*ESDocument, error) {
-	resp, err := r.client.R().Get("/" + index + "/_doc/" + id)
+func (r *Elasticsearch) DocumentGet(ctx context.Context, index, id string) (*ESDocument, error) {
+	resp, err := r.client.R().SetContext(ctx).Get("/" + index + "/_doc/" + id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get document: %w", err)
 	}
@@ -215,8 +212,9 @@ func (r *Elasticsearch) DocumentGet(index, id string) (*ESDocument, error) {
 }
 
 // DocumentCreate 创建文档（自动生成 ID）
-func (r *Elasticsearch) DocumentCreate(index, body string) error {
+func (r *Elasticsearch) DocumentCreate(ctx context.Context, index, body string) error {
 	resp, err := r.client.R().
+		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
 		SetQueryParam("refresh", "true").
 		SetBody(body).
@@ -231,8 +229,9 @@ func (r *Elasticsearch) DocumentCreate(index, body string) error {
 }
 
 // DocumentUpdate 更新文档
-func (r *Elasticsearch) DocumentUpdate(index, id, body string) error {
+func (r *Elasticsearch) DocumentUpdate(ctx context.Context, index, id, body string) error {
 	resp, err := r.client.R().
+		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
 		SetQueryParam("refresh", "true").
 		SetBody(body).
@@ -247,8 +246,9 @@ func (r *Elasticsearch) DocumentUpdate(index, id, body string) error {
 }
 
 // DocumentDelete 删除文档
-func (r *Elasticsearch) DocumentDelete(index, id string) error {
+func (r *Elasticsearch) DocumentDelete(ctx context.Context, index, id string) error {
 	resp, err := r.client.R().
+		SetContext(ctx).
 		SetQueryParam("refresh", "true").
 		Delete("/" + index + "/_doc/" + id)
 	if err != nil {

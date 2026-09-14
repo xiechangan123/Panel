@@ -54,7 +54,7 @@ func TestPut(t *testing.T) {
 
 	t.Run("small file uses single PUT", func(t *testing.T) {
 		data := bytes.Repeat([]byte("x"), 1024)
-		if err := c.Put("small.txt", bytes.NewReader(data), "text/plain"); err != nil {
+		if err := c.Put(t.Context(), "small.txt", bytes.NewReader(data), "text/plain"); err != nil {
 			t.Fatal(err)
 		}
 		if !bytes.Equal(simpleBody, data) {
@@ -76,7 +76,7 @@ func TestPut(t *testing.T) {
 		for i := range data {
 			data[i] = byte(i)
 		}
-		if err := c.Put("big.bin", bytes.NewReader(data), "application/octet-stream"); err != nil {
+		if err := c.Put(t.Context(), "big.bin", bytes.NewReader(data), "application/octet-stream"); err != nil {
 			t.Fatal(err)
 		}
 		if len(parts) != 3 {

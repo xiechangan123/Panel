@@ -20,7 +20,7 @@ func NewContainerImageService(containerImageUsecase *biz.ContainerImageUsecase) 
 }
 
 func (s *ContainerImageService) List(w http.ResponseWriter, r *http.Request) {
-	images, err := s.containerImageRepo.List()
+	images, err := s.containerImageRepo.List(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -41,7 +41,7 @@ func (s *ContainerImageService) Exist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exist, err := s.containerImageRepo.Exist(req.Name)
+	exist, err := s.containerImageRepo.Exist(r.Context(), req.Name)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -66,7 +66,7 @@ func (s *ContainerImageService) Pull(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerImageRepo.Pull(req); err != nil {
+	if err = s.containerImageRepo.Pull(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -81,7 +81,7 @@ func (s *ContainerImageService) Remove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerImageRepo.Remove(req.ID); err != nil {
+	if err = s.containerImageRepo.Remove(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -90,7 +90,7 @@ func (s *ContainerImageService) Remove(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ContainerImageService) Prune(w http.ResponseWriter, r *http.Request) {
-	if err := s.containerImageRepo.Prune(); err != nil {
+	if err := s.containerImageRepo.Prune(r.Context()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

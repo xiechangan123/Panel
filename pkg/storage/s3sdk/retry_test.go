@@ -29,7 +29,7 @@ func TestDoRetry(t *testing.T) {
 	defer srv.Close()
 
 	c := New(Config{Region: "us-east-1", Bucket: "b", Endpoint: srv.URL, PathStyle: true})
-	if err := c.putObject("k", []byte("hello"), "text/plain"); err != nil {
+	if err := c.putObject(t.Context(), "k", []byte("hello"), "text/plain"); err != nil {
 		t.Fatal(err)
 	}
 

@@ -1,21 +1,22 @@
 package storage
 
 import (
+	"context"
 	"io"
 	"time"
 )
 
 type Storage interface {
 	// Delete deletes the given file(s).
-	Delete(file ...string) error
+	Delete(ctx context.Context, file ...string) error
 	// Exists determines if a file exists.
-	Exists(file string) bool
+	Exists(ctx context.Context, file string) bool
 	// LastModified gets the file's last modified time.
-	LastModified(file string) (time.Time, error)
+	LastModified(ctx context.Context, file string) (time.Time, error)
 	// List lists all files (not directories) in the given path.
-	List(path string) ([]string, error)
+	List(ctx context.Context, path string) ([]string, error)
 	// Put writes the contents of a file.
-	Put(file string, content io.Reader) error
+	Put(ctx context.Context, file string, content io.Reader) error
 	// Size gets the file size of a given file.
-	Size(file string) (int64, error)
+	Size(ctx context.Context, file string) (int64, error)
 }

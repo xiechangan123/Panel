@@ -116,17 +116,20 @@ func (uc *DatabaseUserUsecase) Create(ctx context.Context, req *request.Database
 	}
 	defer operator.Close()
 
+	// 建用户 → 建库 → 授权 → 落库是一个整体，中途取消会留下没有权限的用户
+	ctx = context.WithoutCancel(ctx)
+
 	// 创建用户
-	if err = operator.UserCreate(req.Username, req.Password, req.Host); err != nil {
+	if err = operator.UserCreate(ctx, req.Username, req.Password, req.Host); err != nil {
 		return err
 	}
 
 	// 创建数据库并授权
 	for name := range slices.Values(req.Privileges) {
-		if err = operator.DatabaseCreate(name); err != nil {
+		if err = operator.DatabaseCreate(ctx, name); err != nil {
 			return err
 		}
-		if err = operator.PrivilegesGrant(req.Username, name, req.Host); err != nil {
+		if err = operator.PrivilegesGrant(ctx, req.Username, name, req.Host); err != nil {
 			return err
 		}
 	}
@@ -166,28 +169,31 @@ func (uc *DatabaseUserUsecase) Update(ctx context.Context, req *request.Database
 	}
 	defer operator.Close()
 
+	// 改密码 → 撤权 → 重新授权 → 落库是一个整体，中途取消会让面板记录与实际权限不一致
+	ctx = context.WithoutCancel(ctx)
+
 	// 更新密码
 	if req.Password != "" {
-		if err = operator.UserPassword(user.Username, req.Password, user.Host); err != nil {
+		if err = operator.UserPassword(ctx, user.Username, req.Password, user.Host); err != nil {
 			return err
 		}
 		user.Password = req.Password
 	}
 
 	// 撤销被移除的权限
-	currentPrivileges, _ := operator.UserPrivileges(user.Username, user.Host)
+	currentPrivileges, _ := operator.UserPrivileges(ctx, user.Username, user.Host)
 	for name := range slices.Values(currentPrivileges) {
 		if !slices.Contains(req.Privileges, name) {
-			_ = operator.PrivilegesRevoke(user.Username, name, user.Host)
+			_ = operator.PrivilegesRevoke(ctx, user.Username, name, user.Host)
 		}
 	}
 
 	// 创建数据库并授权
 	for name := range slices.Values(req.Privileges) {
-		if err = operator.DatabaseCreate(name); err != nil {
+		if err = operator.DatabaseCreate(ctx, name); err != nil {
 			return err
 		}
-		if err = operator.PrivilegesGrant(user.Username, name, user.Host); err != nil {
+		if err = operator.PrivilegesGrant(ctx, user.Username, name, user.Host); err != nil {
 			return err
 		}
 	}
@@ -218,7 +224,8 @@ func (uc *DatabaseUserUsecase) Delete(ctx context.Context, id uint) error {
 	}
 	defer operator.Close()
 
-	_ = operator.UserDrop(user.Username, user.Host)
+	// 取消会让面板记录已删而引擎里的用户残留
+	_ = operator.UserDrop(context.WithoutCancel(ctx), user.Username, user.Host)
 
 	if err = uc.repo.DeleteByID(id); err != nil {
 		return err
@@ -242,6 +249,9 @@ func (uc *DatabaseUserUsecase) DeleteByNames(ctx context.Context, serverID uint,
 	}
 	defer operator.Close()
 
+	// 取消会让面板记录已删而引擎里的用户残留
+	ctx = context.WithoutCancel(ctx)
+
 	switch server.Type {
 	case DatabaseTypeMysql:
 		users, err := uc.repo.ListByNames(serverID, names)
@@ -256,11 +266,11 @@ func (uc *DatabaseUserUsecase) DeleteByNames(ctx context.Context, serverID uint,
 					break
 				}
 			}
-			_ = operator.UserDrop(name, host)
+			_ = operator.UserDrop(ctx, name, host)
 		}
 	case DatabaseTypePostgresql, DatabaseTypeClickHouse:
 		for name := range slices.Values(names) {
-			_ = operator.UserDrop(name)
+			_ = operator.UserDrop(ctx, name)
 		}
 	default:
 	}

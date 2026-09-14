@@ -63,7 +63,7 @@ func (s *ToolboxLogService) Scan(w http.ResponseWriter, r *http.Request) {
 	case "mysql":
 		items = s.scanMySQLLogs()
 	case "docker":
-		items = s.scanDockerLogs()
+		items = s.scanDockerLogs(r.Context())
 	case "system":
 		items = s.scanSystemLogs(r.Context())
 	default:
@@ -237,11 +237,11 @@ func (s *ToolboxLogService) scanMySQLLogs() []LogItem {
 }
 
 // scanDockerLogs 扫描 Docker/Podman 相关内容
-func (s *ToolboxLogService) scanDockerLogs() []LogItem {
+func (s *ToolboxLogService) scanDockerLogs(ctx context.Context) []LogItem {
 	items := make([]LogItem, 0)
 
 	// 未使用的容器镜像 (Docker)
-	images, err := s.containerImageRepo.List()
+	images, err := s.containerImageRepo.List(ctx)
 	if err == nil {
 		// 计算未使用的镜像
 		var unusedCount int
@@ -532,7 +532,7 @@ func (s *ToolboxLogService) cleanDockerLogs(ctx context.Context) int64 {
 	var cleaned int64
 
 	// 清理未使用的镜像 (Docker)
-	_ = s.containerImageRepo.Prune()
+	_ = s.containerImageRepo.Prune(ctx)
 
 	// 清理 Docker 容器日志
 	dockerLogPath := "/var/lib/docker/containers"

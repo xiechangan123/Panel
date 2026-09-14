@@ -488,7 +488,7 @@ func (uc *AlertUsecase) collect(ctx context.Context, rule *AlertRule, info types
 		}), nil
 
 	case AlertTypeContainer:
-		containers, err := uc.container.ListAll(containerSock(uc.setting))
+		containers, err := uc.container.ListAll(ctx, containerSock(uc.setting))
 		if err != nil {
 			return nil, err
 		}

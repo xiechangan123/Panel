@@ -20,7 +20,7 @@ func NewContainerVolumeService(containerVolumeUsecase *biz.ContainerVolumeUsecas
 }
 
 func (s *ContainerVolumeService) List(w http.ResponseWriter, r *http.Request) {
-	volumes, err := s.containerVolumeRepo.List()
+	volumes, err := s.containerVolumeRepo.List(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -41,7 +41,7 @@ func (s *ContainerVolumeService) Create(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	name, err := s.containerVolumeRepo.Create(req)
+	name, err := s.containerVolumeRepo.Create(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -57,7 +57,7 @@ func (s *ContainerVolumeService) Remove(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err = s.containerVolumeRepo.Remove(req.ID); err != nil {
+	if err = s.containerVolumeRepo.Remove(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -66,7 +66,7 @@ func (s *ContainerVolumeService) Remove(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *ContainerVolumeService) Prune(w http.ResponseWriter, r *http.Request) {
-	if err := s.containerVolumeRepo.Prune(); err != nil {
+	if err := s.containerVolumeRepo.Prune(r.Context()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

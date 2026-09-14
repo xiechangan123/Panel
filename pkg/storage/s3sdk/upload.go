@@ -31,7 +31,7 @@ const (
 )
 
 // Put 上传一个对象：内容不足一个分片时走单次 PUT，否则流式分片上传
-func (c *S3) Put(key string, body io.Reader, contentType string) error {
+func (c *S3) Put(ctx context.Context, key string, body io.Reader, contentType string) error {
 	// 用动态 buffer 读取首块，避免小对象也分配整个 partSize
 	var first bytes.Buffer
 	n, err := io.CopyN(&first, body, c.partSize)
@@ -40,14 +40,13 @@ func (c *S3) Put(key string, body io.Reader, contentType string) error {
 	}
 	if n < c.partSize {
 		// 全部内容不足一个分片 → 单次 PUT（含空对象）
-		return c.putObject(key, first.Bytes(), contentType)
+		return c.putObject(ctx, key, first.Bytes(), contentType)
 	}
 	// 已读满一个分片，可能还有更多 → 流式分片上传
-	return c.uploadMultipart(key, first.Bytes(), body, contentType)
+	return c.uploadMultipart(ctx, key, first.Bytes(), body, contentType)
 }
 
-func (c *S3) putObject(key string, data []byte, contentType string) error {
-	ctx := context.Background()
+func (c *S3) putObject(ctx context.Context, key string, data []byte, contentType string) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.objectURL(key), bytes.NewReader(data))
 	if err != nil {
 		return err
@@ -67,19 +66,19 @@ type completedPart struct {
 	ETag       string `xml:"ETag"`
 }
 
-func (c *S3) uploadMultipart(key string, first []byte, body io.Reader, contentType string) error {
-	uploadID, err := c.initiate(key, contentType)
+func (c *S3) uploadMultipart(ctx context.Context, key string, first []byte, body io.Reader, contentType string) error {
+	uploadID, err := c.initiate(ctx, key, contentType)
 	if err != nil {
 		return err
 	}
 
-	parts, err := c.uploadParts(key, uploadID, first, body)
+	parts, err := c.uploadParts(ctx, key, uploadID, first, body)
 	if err != nil {
-		_ = c.abort(key, uploadID)
+		_ = c.abort(ctx, key, uploadID)
 		return err
 	}
-	if err := c.complete(key, uploadID, parts); err != nil {
-		_ = c.abort(key, uploadID)
+	if err := c.complete(ctx, key, uploadID, parts); err != nil {
+		_ = c.abort(ctx, key, uploadID)
 		return err
 	}
 	return nil
@@ -87,8 +86,8 @@ func (c *S3) uploadMultipart(key string, first []byte, body io.Reader, contentTy
 
 // uploadParts 顺序读取、并发上传分片。errgroup 的并发上限会对读取形成背压，
 // 因此常驻内存约为 concurrency × partSize，而非整个文件大小
-func (c *S3) uploadParts(key, uploadID string, first []byte, body io.Reader) ([]completedPart, error) {
-	g, ctx := errgroup.WithContext(context.Background())
+func (c *S3) uploadParts(ctx context.Context, key, uploadID string, first []byte, body io.Reader) ([]completedPart, error) {
+	g, ctx := errgroup.WithContext(ctx)
 	g.SetLimit(c.concurrency)
 
 	var mu sync.Mutex
@@ -166,8 +165,7 @@ func isRetryable(err error) bool {
 	return errors.As(err, &ne)
 }
 
-func (c *S3) initiate(key, contentType string) (string, error) {
-	ctx := context.Background()
+func (c *S3) initiate(ctx context.Context, key, contentType string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.objectURL(key)+"?uploads", nil)
 	if err != nil {
 		return "", err
@@ -193,7 +191,7 @@ func (c *S3) initiate(key, contentType string) (string, error) {
 	return result.UploadID, nil
 }
 
-func (c *S3) complete(key, uploadID string, parts []completedPart) error {
+func (c *S3) complete(ctx context.Context, key, uploadID string, parts []completedPart) error {
 	payload := struct {
 		XMLName xml.Name        `xml:"CompleteMultipartUpload"`
 		XMLNS   string          `xml:"xmlns,attr"`
@@ -205,7 +203,6 @@ func (c *S3) complete(key, uploadID string, parts []completedPart) error {
 		return err
 	}
 
-	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.objectURL(key)+"?uploadId="+url.QueryEscape(uploadID), bytes.NewReader(body))
 	if err != nil {
 		return err
@@ -220,8 +217,9 @@ func (c *S3) complete(key, uploadID string, parts []completedPart) error {
 	return err
 }
 
-func (c *S3) abort(key, uploadID string) error {
-	ctx := context.Background()
+// abort 清理未完成的分片上传，取消导致的失败也要清，否则残片会一直占用存储
+func (c *S3) abort(ctx context.Context, key, uploadID string) error {
+	ctx = context.WithoutCancel(ctx)
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.objectURL(key)+"?uploadId="+url.QueryEscape(uploadID), nil)
 	if err != nil {
 		return err

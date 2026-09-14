@@ -25,7 +25,7 @@ var _ biz.BackupRepo = &BackupRepo{}
 //			ClearExpiredFunc: func(path string, prefix string, save uint) error {
 //				panic("mock out the ClearExpired method")
 //			},
-//			ClearStorageExpiredFunc: func(account uint, dir string, prefix string, save uint) error {
+//			ClearStorageExpiredFunc: func(ctx context.Context, account uint, dir string, prefix string, save uint) error {
 //				panic("mock out the ClearStorageExpired method")
 //			},
 //			CreateFunc: func(ctx context.Context, typ biz.BackupType, target string, account uint) error {
@@ -37,7 +37,7 @@ var _ biz.BackupRepo = &BackupRepo{}
 //			CutoffLogFunc: func(ctx context.Context, path string, target string) (string, error) {
 //				panic("mock out the CutoffLog method")
 //			},
-//			CutoffUploadFunc: func(account uint, typ biz.BackupType, name string, files []string) error {
+//			CutoffUploadFunc: func(ctx context.Context, account uint, typ biz.BackupType, name string, files []string) error {
 //				panic("mock out the CutoffUpload method")
 //			},
 //			DeleteFunc: func(ctx context.Context, typ biz.BackupType, name string) error {
@@ -72,7 +72,7 @@ type BackupRepo struct {
 	ClearExpiredFunc func(path string, prefix string, save uint) error
 
 	// ClearStorageExpiredFunc mocks the ClearStorageExpired method.
-	ClearStorageExpiredFunc func(account uint, dir string, prefix string, save uint) error
+	ClearStorageExpiredFunc func(ctx context.Context, account uint, dir string, prefix string, save uint) error
 
 	// CreateFunc mocks the Create method.
 	CreateFunc func(ctx context.Context, typ biz.BackupType, target string, account uint) error
@@ -84,7 +84,7 @@ type BackupRepo struct {
 	CutoffLogFunc func(ctx context.Context, path string, target string) (string, error)
 
 	// CutoffUploadFunc mocks the CutoffUpload method.
-	CutoffUploadFunc func(account uint, typ biz.BackupType, name string, files []string) error
+	CutoffUploadFunc func(ctx context.Context, account uint, typ biz.BackupType, name string, files []string) error
 
 	// DeleteFunc mocks the Delete method.
 	DeleteFunc func(ctx context.Context, typ biz.BackupType, name string) error
@@ -120,6 +120,8 @@ type BackupRepo struct {
 		}
 		// ClearStorageExpired holds details about calls to the ClearStorageExpired method.
 		ClearStorageExpired []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Account is the account argument value.
 			Account uint
 			// Dir is the dir argument value.
@@ -156,6 +158,8 @@ type BackupRepo struct {
 		}
 		// CutoffUpload holds details about calls to the CutoffUpload method.
 		CutoffUpload []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Account is the account argument value.
 			Account uint
 			// Typ is the typ argument value.
@@ -275,16 +279,18 @@ func (mock *BackupRepo) ClearExpiredCalls() []struct {
 }
 
 // ClearStorageExpired calls ClearStorageExpiredFunc.
-func (mock *BackupRepo) ClearStorageExpired(account uint, dir string, prefix string, save uint) error {
+func (mock *BackupRepo) ClearStorageExpired(ctx context.Context, account uint, dir string, prefix string, save uint) error {
 	if mock.ClearStorageExpiredFunc == nil {
 		panic("BackupRepo.ClearStorageExpiredFunc: method is nil but BackupRepo.ClearStorageExpired was just called")
 	}
 	callInfo := struct {
+		Ctx     context.Context
 		Account uint
 		Dir     string
 		Prefix  string
 		Save    uint
 	}{
+		Ctx:     ctx,
 		Account: account,
 		Dir:     dir,
 		Prefix:  prefix,
@@ -293,7 +299,7 @@ func (mock *BackupRepo) ClearStorageExpired(account uint, dir string, prefix str
 	mock.lockClearStorageExpired.Lock()
 	mock.calls.ClearStorageExpired = append(mock.calls.ClearStorageExpired, callInfo)
 	mock.lockClearStorageExpired.Unlock()
-	return mock.ClearStorageExpiredFunc(account, dir, prefix, save)
+	return mock.ClearStorageExpiredFunc(ctx, account, dir, prefix, save)
 }
 
 // ClearStorageExpiredCalls gets all the calls that were made to ClearStorageExpired.
@@ -301,12 +307,14 @@ func (mock *BackupRepo) ClearStorageExpired(account uint, dir string, prefix str
 //
 //	len(mockedBackupRepo.ClearStorageExpiredCalls())
 func (mock *BackupRepo) ClearStorageExpiredCalls() []struct {
+	Ctx     context.Context
 	Account uint
 	Dir     string
 	Prefix  string
 	Save    uint
 } {
 	var calls []struct {
+		Ctx     context.Context
 		Account uint
 		Dir     string
 		Prefix  string
@@ -435,16 +443,18 @@ func (mock *BackupRepo) CutoffLogCalls() []struct {
 }
 
 // CutoffUpload calls CutoffUploadFunc.
-func (mock *BackupRepo) CutoffUpload(account uint, typ biz.BackupType, name string, files []string) error {
+func (mock *BackupRepo) CutoffUpload(ctx context.Context, account uint, typ biz.BackupType, name string, files []string) error {
 	if mock.CutoffUploadFunc == nil {
 		panic("BackupRepo.CutoffUploadFunc: method is nil but BackupRepo.CutoffUpload was just called")
 	}
 	callInfo := struct {
+		Ctx     context.Context
 		Account uint
 		Typ     biz.BackupType
 		Name    string
 		Files   []string
 	}{
+		Ctx:     ctx,
 		Account: account,
 		Typ:     typ,
 		Name:    name,
@@ -453,7 +463,7 @@ func (mock *BackupRepo) CutoffUpload(account uint, typ biz.BackupType, name stri
 	mock.lockCutoffUpload.Lock()
 	mock.calls.CutoffUpload = append(mock.calls.CutoffUpload, callInfo)
 	mock.lockCutoffUpload.Unlock()
-	return mock.CutoffUploadFunc(account, typ, name, files)
+	return mock.CutoffUploadFunc(ctx, account, typ, name, files)
 }
 
 // CutoffUploadCalls gets all the calls that were made to CutoffUpload.
@@ -461,12 +471,14 @@ func (mock *BackupRepo) CutoffUpload(account uint, typ biz.BackupType, name stri
 //
 //	len(mockedBackupRepo.CutoffUploadCalls())
 func (mock *BackupRepo) CutoffUploadCalls() []struct {
+	Ctx     context.Context
 	Account uint
 	Typ     biz.BackupType
 	Name    string
 	Files   []string
 } {
 	var calls []struct {
+		Ctx     context.Context
 		Account uint
 		Typ     biz.BackupType
 		Name    string

@@ -23,14 +23,14 @@ func NewContainerNetworkRepo() biz.ContainerNetworkRepo {
 }
 
 // List 列出网络
-func (r *containerNetworkRepo) List(sock string) ([]types.ContainerNetwork, error) {
+func (r *containerNetworkRepo) List(ctx context.Context, sock string) ([]types.ContainerNetwork, error) {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return nil, err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	resp, err := apiClient.NetworkList(context.Background(), client.NetworkListOptions{})
+	resp, err := apiClient.NetworkList(ctx, client.NetworkListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (r *containerNetworkRepo) List(sock string) ([]types.ContainerNetwork, erro
 }
 
 // Create 创建网络
-func (r *containerNetworkRepo) Create(sock string, req *request.ContainerNetworkCreate) (string, error) {
+func (r *containerNetworkRepo) Create(ctx context.Context, sock string, req *request.ContainerNetworkCreate) (string, error) {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return "", err
@@ -140,7 +140,7 @@ func (r *containerNetworkRepo) Create(sock string, req *request.ContainerNetwork
 		}
 	}
 
-	resp, err := apiClient.NetworkCreate(context.Background(), req.Name, options)
+	resp, err := apiClient.NetworkCreate(ctx, req.Name, options)
 	if err != nil {
 		return "", err
 	}
@@ -149,7 +149,7 @@ func (r *containerNetworkRepo) Create(sock string, req *request.ContainerNetwork
 }
 
 // Remove 删除网络
-func (r *containerNetworkRepo) Remove(sock string, id string) error {
+func (r *containerNetworkRepo) Remove(ctx context.Context, sock string, id string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
@@ -157,7 +157,7 @@ func (r *containerNetworkRepo) Remove(sock string, id string) error {
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
 	// 拦截受保护网络的删除
-	info, err := apiClient.NetworkInspect(context.Background(), id, client.NetworkInspectOptions{})
+	info, err := apiClient.NetworkInspect(ctx, id, client.NetworkInspectOptions{})
 	if err != nil {
 		return err
 	}
@@ -165,19 +165,21 @@ func (r *containerNetworkRepo) Remove(sock string, id string) error {
 		return errors.New("cannot delete acepanel-network")
 	}
 
-	_, err = apiClient.NetworkRemove(context.Background(), id, client.NetworkRemoveOptions{})
+	// 中途取消会留下拆到一半的网络
+	_, err = apiClient.NetworkRemove(context.WithoutCancel(ctx), id, client.NetworkRemoveOptions{})
 	return err
 }
 
 // Prune 清理未使用的网络
-func (r *containerNetworkRepo) Prune(sock string) error {
+func (r *containerNetworkRepo) Prune(ctx context.Context, sock string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.NetworkPrune(context.Background(), client.NetworkPruneOptions{
+	// 中途取消会留下清理到一半的状态
+	_, err = apiClient.NetworkPrune(context.WithoutCancel(ctx), client.NetworkPruneOptions{
 		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
 	})
 	return err

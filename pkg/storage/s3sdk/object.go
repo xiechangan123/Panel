@@ -24,8 +24,7 @@ type ObjectInfo struct {
 }
 
 // Stat 通过 HEAD 获取对象元数据；对象不存在时返回的错误可用 IsNotFound 判断
-func (c *S3) Stat(key string) (ObjectInfo, error) {
-	ctx := context.Background()
+func (c *S3) Stat(ctx context.Context, key string) (ObjectInfo, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodHead, c.objectURL(key), nil)
 	if err != nil {
 		return ObjectInfo{}, err
@@ -58,16 +57,16 @@ func (c *S3) Stat(key string) (ObjectInfo, error) {
 }
 
 // Delete 删除一个或多个对象，自动按每批 1000 个分批请求
-func (c *S3) Delete(keys ...string) error {
+func (c *S3) Delete(ctx context.Context, keys ...string) error {
 	for batch := range slices.Chunk(keys, 1000) {
-		if err := c.deleteBatch(batch); err != nil {
+		if err := c.deleteBatch(ctx, batch); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (c *S3) deleteBatch(keys []string) error {
+func (c *S3) deleteBatch(ctx context.Context, keys []string) error {
 	type object struct {
 		Key string `xml:"Key"`
 	}
@@ -86,7 +85,6 @@ func (c *S3) deleteBatch(keys []string) error {
 		return err
 	}
 
-	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.base+"?delete", bytes.NewReader(body))
 	if err != nil {
 		return err

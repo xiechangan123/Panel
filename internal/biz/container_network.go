@@ -1,15 +1,17 @@
 package biz
 
 import (
+	"context"
+
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type ContainerNetworkRepo interface {
-	List(sock string) ([]types.ContainerNetwork, error)
-	Create(sock string, req *request.ContainerNetworkCreate) (string, error)
-	Remove(sock string, id string) error
-	Prune(sock string) error
+	List(ctx context.Context, sock string) ([]types.ContainerNetwork, error)
+	Create(ctx context.Context, sock string, req *request.ContainerNetworkCreate) (string, error)
+	Remove(ctx context.Context, sock string, id string) error
+	Prune(ctx context.Context, sock string) error
 }
 
 type ContainerNetworkUsecase struct {
@@ -21,22 +23,22 @@ func NewContainerNetworkUsecase(repo ContainerNetworkRepo, setting SettingRepo) 
 	return &ContainerNetworkUsecase{repo: repo, setting: setting}
 }
 
-func (uc *ContainerNetworkUsecase) List() ([]types.ContainerNetwork, error) {
+func (uc *ContainerNetworkUsecase) List(ctx context.Context) ([]types.ContainerNetwork, error) {
 	sock := containerSock(uc.setting)
-	return uc.repo.List(sock)
+	return uc.repo.List(ctx, sock)
 }
 
-func (uc *ContainerNetworkUsecase) Create(req *request.ContainerNetworkCreate) (string, error) {
+func (uc *ContainerNetworkUsecase) Create(ctx context.Context, req *request.ContainerNetworkCreate) (string, error) {
 	sock := containerSock(uc.setting)
-	return uc.repo.Create(sock, req)
+	return uc.repo.Create(ctx, sock, req)
 }
 
-func (uc *ContainerNetworkUsecase) Remove(id string) error {
+func (uc *ContainerNetworkUsecase) Remove(ctx context.Context, id string) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Remove(sock, id)
+	return uc.repo.Remove(ctx, sock, id)
 }
 
-func (uc *ContainerNetworkUsecase) Prune() error {
+func (uc *ContainerNetworkUsecase) Prune(ctx context.Context) error {
 	sock := containerSock(uc.setting)
-	return uc.repo.Prune(sock)
+	return uc.repo.Prune(ctx, sock)
 }

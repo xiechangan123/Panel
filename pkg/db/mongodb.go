@@ -24,7 +24,7 @@ func NewMongoDB(ctx context.Context, username, password, address string) (*Mongo
 		address:  address,
 	}
 
-	if err := m.ping(ctx); err != nil {
+	if err := m.Ping(ctx); err != nil {
 		return nil, fmt.Errorf("connect to mongodb failed: %w", err)
 	}
 
@@ -33,31 +33,26 @@ func NewMongoDB(ctx context.Context, username, password, address string) (*Mongo
 
 func (r *MongoDB) Close() {}
 
-func (r *MongoDB) Ping() error {
-	return r.ping(context.Background())
-}
-
-// ping 带 context 的连通性检查，供构造时使用
-func (r *MongoDB) ping(ctx context.Context) error {
-	_, err := r.mongoshContext(ctx, `db.runCommand({ping:1})`)
+func (r *MongoDB) Ping(ctx context.Context) error {
+	_, err := r.mongosh(ctx, `db.runCommand({ping:1})`)
 	return err
 }
 
 // DatabaseCreate 创建数据库（MongoDB 通过创建集合来显式创建数据库）
-func (r *MongoDB) DatabaseCreate(name string) error {
-	_, err := r.mongosh(fmt.Sprintf(`db.getSiblingDB('%s').createCollection('_init')`, name))
+func (r *MongoDB) DatabaseCreate(ctx context.Context, name string) error {
+	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('%s').createCollection('_init')`, name))
 	return err
 }
 
 // DatabaseDrop 删除数据库
-func (r *MongoDB) DatabaseDrop(name string) error {
-	_, err := r.mongosh(fmt.Sprintf(`db.getSiblingDB('%s').dropDatabase()`, name))
+func (r *MongoDB) DatabaseDrop(ctx context.Context, name string) error {
+	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('%s').dropDatabase()`, name))
 	return err
 }
 
 // Databases 获取数据库列表
-func (r *MongoDB) Databases() ([]MongoDatabase, error) {
-	raw, err := r.mongosh(`JSON.stringify(db.adminCommand({listDatabases:1,nameOnly:false}))`)
+func (r *MongoDB) Databases(ctx context.Context) ([]MongoDatabase, error) {
+	raw, err := r.mongosh(ctx, `JSON.stringify(db.adminCommand({listDatabases:1,nameOnly:false}))`)
 	if err != nil {
 		return nil, err
 	}
@@ -101,26 +96,26 @@ func mongoLongToInt64(v any) int64 {
 }
 
 // UserCreate 创建用户
-func (r *MongoDB) UserCreate(user, password, database string) error {
-	_, err := r.mongosh(fmt.Sprintf(`db.getSiblingDB('%s').createUser({user:'%s',pwd:'%s',roles:[{role:'readWrite',db:'%s'}]})`, database, user, password, database))
+func (r *MongoDB) UserCreate(ctx context.Context, user, password, database string) error {
+	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('%s').createUser({user:'%s',pwd:'%s',roles:[{role:'readWrite',db:'%s'}]})`, database, user, password, database))
 	return err
 }
 
 // UserDrop 删除用户
-func (r *MongoDB) UserDrop(user, database string) error {
-	_, err := r.mongosh(fmt.Sprintf(`db.getSiblingDB('%s').dropUser('%s')`, database, user))
+func (r *MongoDB) UserDrop(ctx context.Context, user, database string) error {
+	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('%s').dropUser('%s')`, database, user))
 	return err
 }
 
 // UserPassword 修改用户密码
-func (r *MongoDB) UserPassword(user, password string) error {
-	_, err := r.mongosh(fmt.Sprintf(`db.getSiblingDB('admin').changeUserPassword('%s','%s')`, user, password))
+func (r *MongoDB) UserPassword(ctx context.Context, user, password string) error {
+	_, err := r.mongosh(ctx, fmt.Sprintf(`db.getSiblingDB('admin').changeUserPassword('%s','%s')`, user, password))
 	return err
 }
 
 // Users 获取用户列表
-func (r *MongoDB) Users() ([]MongoUser, error) {
-	raw, err := r.mongosh(`JSON.stringify(db.getSiblingDB('admin').system.users.find({},{user:1,db:1,roles:1}).toArray())`)
+func (r *MongoDB) Users(ctx context.Context) ([]MongoUser, error) {
+	raw, err := r.mongosh(ctx, `JSON.stringify(db.getSiblingDB('admin').system.users.find({},{user:1,db:1,roles:1}).toArray())`)
 	if err != nil {
 		return nil, err
 	}
@@ -153,13 +148,8 @@ func (r *MongoDB) Users() ([]MongoUser, error) {
 	return users, nil
 }
 
-// mongosh 执行 mongosh 命令
-func (r *MongoDB) mongosh(eval string) (string, error) {
-	return r.mongoshContext(context.Background(), eval)
-}
-
-// mongoshContext 执行 mongosh 命令，ctx 取消时终止进程
-func (r *MongoDB) mongoshContext(ctx context.Context, eval string) (string, error) {
+// mongosh 执行 mongosh 命令，ctx 取消时终止进程
+func (r *MongoDB) mongosh(ctx context.Context, eval string) (string, error) {
 	// serverSelectionTimeoutMS 限制建连耗时，避免不可达地址长时间挂起
 	cmd := fmt.Sprintf(`mongosh --quiet --eval "%s" "mongodb://%s:%s@%s/admin?serverSelectionTimeoutMS=10000" 2>/dev/null`,
 		strings.ReplaceAll(eval, `"`, `\"`),

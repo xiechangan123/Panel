@@ -15,12 +15,12 @@ type SQLite struct {
 }
 
 // NewSQLite 打开 SQLite 数据库文件
-func NewSQLite(path string) (*SQLite, error) {
+func NewSQLite(ctx context.Context, path string) (*SQLite, error) {
 	db, err := sql.Open("sqlite", path)
 	if err != nil {
 		return nil, fmt.Errorf("open sqlite failed: %w", err)
 	}
-	if err = db.PingContext(context.Background()); err != nil {
+	if err = db.PingContext(ctx); err != nil {
 		return nil, fmt.Errorf("connect to sqlite failed: %w", err)
 	}
 	return &SQLite{db: db, path: path}, nil
@@ -30,13 +30,13 @@ func (r *SQLite) Close() {
 	_ = r.db.Close()
 }
 
-func (r *SQLite) Ping() error {
-	return r.db.PingContext(context.Background())
+func (r *SQLite) Ping(ctx context.Context) error {
+	return r.db.PingContext(ctx)
 }
 
 // Tables 获取所有表
-func (r *SQLite) Tables() ([]string, error) {
-	rows, err := r.db.QueryContext(context.Background(), "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
+func (r *SQLite) Tables(ctx context.Context) ([]string, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +64,8 @@ type SQLiteColumn struct {
 }
 
 // TableInfo 获取表结构
-func (r *SQLite) TableInfo(name string) ([]SQLiteColumn, error) {
-	rows, err := r.db.QueryContext(context.Background(), fmt.Sprintf("PRAGMA table_info('%s')", name))
+func (r *SQLite) TableInfo(ctx context.Context, name string) ([]SQLiteColumn, error) {
+	rows, err := r.db.QueryContext(ctx, fmt.Sprintf("PRAGMA table_info('%s')", name))
 	if err != nil {
 		return nil, err
 	}

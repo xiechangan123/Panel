@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strings"
@@ -55,25 +56,25 @@ func NewS3(cfg S3Config) Storage {
 }
 
 // Delete 删除文件
-func (s *S3) Delete(files ...string) error {
+func (s *S3) Delete(ctx context.Context, files ...string) error {
 	if len(files) == 0 {
 		return nil
 	}
 	keys := lo.Map(files, func(file string, _ int) string {
 		return s.getKey(file)
 	})
-	return s.client.Delete(keys...)
+	return s.client.Delete(ctx, keys...)
 }
 
 // Exists 检查文件是否存在
-func (s *S3) Exists(file string) bool {
-	_, err := s.client.Stat(s.getKey(file))
+func (s *S3) Exists(ctx context.Context, file string) bool {
+	_, err := s.client.Stat(ctx, s.getKey(file))
 	return err == nil
 }
 
 // LastModified 获取文件最后修改时间
-func (s *S3) LastModified(file string) (time.Time, error) {
-	info, err := s.client.Stat(s.getKey(file))
+func (s *S3) LastModified(ctx context.Context, file string) (time.Time, error) {
+	info, err := s.client.Stat(ctx, s.getKey(file))
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -81,14 +82,14 @@ func (s *S3) LastModified(file string) (time.Time, error) {
 }
 
 // List 列出目录下的所有文件
-func (s *S3) List(path string) ([]string, error) {
+func (s *S3) List(ctx context.Context, path string) ([]string, error) {
 	prefix := s.getKey(path)
 	if prefix != "" && !strings.HasSuffix(prefix, "/") {
 		prefix += "/"
 	}
 
 	var files []string
-	for obj, err := range s.client.List(prefix, "/") {
+	for obj, err := range s.client.List(ctx, prefix, "/") {
 		if err != nil {
 			return nil, err
 		}
@@ -103,13 +104,13 @@ func (s *S3) List(path string) ([]string, error) {
 }
 
 // Put 写入文件内容
-func (s *S3) Put(file string, content io.Reader) error {
-	return s.client.Put(s.getKey(file), content, "application/octet-stream")
+func (s *S3) Put(ctx context.Context, file string, content io.Reader) error {
+	return s.client.Put(ctx, s.getKey(file), content, "application/octet-stream")
 }
 
 // Size 获取文件大小
-func (s *S3) Size(file string) (int64, error) {
-	info, err := s.client.Stat(s.getKey(file))
+func (s *S3) Size(ctx context.Context, file string) (int64, error) {
+	info, err := s.client.Stat(ctx, s.getKey(file))
 	if err != nil {
 		return 0, err
 	}

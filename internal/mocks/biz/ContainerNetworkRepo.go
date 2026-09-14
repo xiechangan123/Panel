@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -22,16 +23,16 @@ var _ biz.ContainerNetworkRepo = &ContainerNetworkRepo{}
 //
 //		// make and configure a mocked biz.ContainerNetworkRepo
 //		mockedContainerNetworkRepo := &ContainerNetworkRepo{
-//			CreateFunc: func(sock string, req *request.ContainerNetworkCreate) (string, error) {
+//			CreateFunc: func(ctx context.Context, sock string, req *request.ContainerNetworkCreate) (string, error) {
 //				panic("mock out the Create method")
 //			},
-//			ListFunc: func(sock string) ([]types.ContainerNetwork, error) {
+//			ListFunc: func(ctx context.Context, sock string) ([]types.ContainerNetwork, error) {
 //				panic("mock out the List method")
 //			},
-//			PruneFunc: func(sock string) error {
+//			PruneFunc: func(ctx context.Context, sock string) error {
 //				panic("mock out the Prune method")
 //			},
-//			RemoveFunc: func(sock string, id string) error {
+//			RemoveFunc: func(ctx context.Context, sock string, id string) error {
 //				panic("mock out the Remove method")
 //			},
 //		}
@@ -42,21 +43,23 @@ var _ biz.ContainerNetworkRepo = &ContainerNetworkRepo{}
 //	}
 type ContainerNetworkRepo struct {
 	// CreateFunc mocks the Create method.
-	CreateFunc func(sock string, req *request.ContainerNetworkCreate) (string, error)
+	CreateFunc func(ctx context.Context, sock string, req *request.ContainerNetworkCreate) (string, error)
 
 	// ListFunc mocks the List method.
-	ListFunc func(sock string) ([]types.ContainerNetwork, error)
+	ListFunc func(ctx context.Context, sock string) ([]types.ContainerNetwork, error)
 
 	// PruneFunc mocks the Prune method.
-	PruneFunc func(sock string) error
+	PruneFunc func(ctx context.Context, sock string) error
 
 	// RemoveFunc mocks the Remove method.
-	RemoveFunc func(sock string, id string) error
+	RemoveFunc func(ctx context.Context, sock string, id string) error
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// Create holds details about calls to the Create method.
 		Create []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// Req is the req argument value.
@@ -64,16 +67,22 @@ type ContainerNetworkRepo struct {
 		}
 		// List holds details about calls to the List method.
 		List []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 		}
 		// Prune holds details about calls to the Prune method.
 		Prune []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 		}
 		// Remove holds details about calls to the Remove method.
 		Remove []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -87,21 +96,23 @@ type ContainerNetworkRepo struct {
 }
 
 // Create calls CreateFunc.
-func (mock *ContainerNetworkRepo) Create(sock string, req *request.ContainerNetworkCreate) (string, error) {
+func (mock *ContainerNetworkRepo) Create(ctx context.Context, sock string, req *request.ContainerNetworkCreate) (string, error) {
 	if mock.CreateFunc == nil {
 		panic("ContainerNetworkRepo.CreateFunc: method is nil but ContainerNetworkRepo.Create was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		Req  *request.ContainerNetworkCreate
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		Req:  req,
 	}
 	mock.lockCreate.Lock()
 	mock.calls.Create = append(mock.calls.Create, callInfo)
 	mock.lockCreate.Unlock()
-	return mock.CreateFunc(sock, req)
+	return mock.CreateFunc(ctx, sock, req)
 }
 
 // CreateCalls gets all the calls that were made to Create.
@@ -109,10 +120,12 @@ func (mock *ContainerNetworkRepo) Create(sock string, req *request.ContainerNetw
 //
 //	len(mockedContainerNetworkRepo.CreateCalls())
 func (mock *ContainerNetworkRepo) CreateCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	Req  *request.ContainerNetworkCreate
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		Req  *request.ContainerNetworkCreate
 	}
@@ -123,19 +136,21 @@ func (mock *ContainerNetworkRepo) CreateCalls() []struct {
 }
 
 // List calls ListFunc.
-func (mock *ContainerNetworkRepo) List(sock string) ([]types.ContainerNetwork, error) {
+func (mock *ContainerNetworkRepo) List(ctx context.Context, sock string) ([]types.ContainerNetwork, error) {
 	if mock.ListFunc == nil {
 		panic("ContainerNetworkRepo.ListFunc: method is nil but ContainerNetworkRepo.List was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 	}
 	mock.lockList.Lock()
 	mock.calls.List = append(mock.calls.List, callInfo)
 	mock.lockList.Unlock()
-	return mock.ListFunc(sock)
+	return mock.ListFunc(ctx, sock)
 }
 
 // ListCalls gets all the calls that were made to List.
@@ -143,9 +158,11 @@ func (mock *ContainerNetworkRepo) List(sock string) ([]types.ContainerNetwork, e
 //
 //	len(mockedContainerNetworkRepo.ListCalls())
 func (mock *ContainerNetworkRepo) ListCalls() []struct {
+	Ctx  context.Context
 	Sock string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 	}
 	mock.lockList.RLock()
@@ -155,19 +172,21 @@ func (mock *ContainerNetworkRepo) ListCalls() []struct {
 }
 
 // Prune calls PruneFunc.
-func (mock *ContainerNetworkRepo) Prune(sock string) error {
+func (mock *ContainerNetworkRepo) Prune(ctx context.Context, sock string) error {
 	if mock.PruneFunc == nil {
 		panic("ContainerNetworkRepo.PruneFunc: method is nil but ContainerNetworkRepo.Prune was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 	}
 	mock.lockPrune.Lock()
 	mock.calls.Prune = append(mock.calls.Prune, callInfo)
 	mock.lockPrune.Unlock()
-	return mock.PruneFunc(sock)
+	return mock.PruneFunc(ctx, sock)
 }
 
 // PruneCalls gets all the calls that were made to Prune.
@@ -175,9 +194,11 @@ func (mock *ContainerNetworkRepo) Prune(sock string) error {
 //
 //	len(mockedContainerNetworkRepo.PruneCalls())
 func (mock *ContainerNetworkRepo) PruneCalls() []struct {
+	Ctx  context.Context
 	Sock string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 	}
 	mock.lockPrune.RLock()
@@ -187,21 +208,23 @@ func (mock *ContainerNetworkRepo) PruneCalls() []struct {
 }
 
 // Remove calls RemoveFunc.
-func (mock *ContainerNetworkRepo) Remove(sock string, id string) error {
+func (mock *ContainerNetworkRepo) Remove(ctx context.Context, sock string, id string) error {
 	if mock.RemoveFunc == nil {
 		panic("ContainerNetworkRepo.RemoveFunc: method is nil but ContainerNetworkRepo.Remove was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 	}
 	mock.lockRemove.Lock()
 	mock.calls.Remove = append(mock.calls.Remove, callInfo)
 	mock.lockRemove.Unlock()
-	return mock.RemoveFunc(sock, id)
+	return mock.RemoveFunc(ctx, sock, id)
 }
 
 // RemoveCalls gets all the calls that were made to Remove.
@@ -209,10 +232,12 @@ func (mock *ContainerNetworkRepo) Remove(sock string, id string) error {
 //
 //	len(mockedContainerNetworkRepo.RemoveCalls())
 func (mock *ContainerNetworkRepo) RemoveCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}

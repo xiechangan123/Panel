@@ -146,7 +146,7 @@ func (r *databaseServerRepo) CheckServer(ctx context.Context, server *biz.Databa
 			return true
 		}
 	case biz.DatabaseTypeSQLite:
-		sqlite, err := db.NewSQLite(server.Host) //nolint:contextcheck
+		sqlite, err := db.NewSQLite(ctx, server.Host)
 		if err == nil {
 			sqlite.Close()
 			server.Status = biz.DatabaseServerStatusValid

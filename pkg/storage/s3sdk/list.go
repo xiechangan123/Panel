@@ -22,11 +22,11 @@ type Object struct {
 // List 返回一个自动翻页、产出 prefix 下所有对象的迭代器
 // delimiter 非空（通常为 "/"）时按目录层级分组
 // 迭代中若出错，会以 (零值 Object, err) 产出一次随后结束
-func (c *S3) List(prefix, delimiter string) iter.Seq2[Object, error] {
+func (c *S3) List(ctx context.Context, prefix, delimiter string) iter.Seq2[Object, error] {
 	return func(yield func(Object, error) bool) {
 		token := ""
 		for {
-			page, err := c.listPage(prefix, delimiter, token)
+			page, err := c.listPage(ctx, prefix, delimiter, token)
 			if err != nil {
 				yield(Object{}, err)
 				return
@@ -50,7 +50,7 @@ type listPage struct {
 	nextToken string
 }
 
-func (c *S3) listPage(prefix, delimiter, token string) (listPage, error) {
+func (c *S3) listPage(ctx context.Context, prefix, delimiter, token string) (listPage, error) {
 	query := url.Values{"list-type": {"2"}}
 	if prefix != "" {
 		query.Set("prefix", prefix)
@@ -62,7 +62,6 @@ func (c *S3) listPage(prefix, delimiter, token string) (listPage, error) {
 		query.Set("continuation-token", token)
 	}
 
-	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.base+"?"+query.Encode(), nil)
 	if err != nil {
 		return listPage{}, err

@@ -20,7 +20,7 @@ func NewContainerNetworkService(containerNetworkUsecase *biz.ContainerNetworkUse
 }
 
 func (s *ContainerNetworkService) List(w http.ResponseWriter, r *http.Request) {
-	networks, err := s.containerNetworkRepo.List()
+	networks, err := s.containerNetworkRepo.List(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -41,7 +41,7 @@ func (s *ContainerNetworkService) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	id, err := s.containerNetworkRepo.Create(req)
+	id, err := s.containerNetworkRepo.Create(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -57,7 +57,7 @@ func (s *ContainerNetworkService) Remove(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err = s.containerNetworkRepo.Remove(req.ID); err != nil {
+	if err = s.containerNetworkRepo.Remove(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -66,7 +66,7 @@ func (s *ContainerNetworkService) Remove(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *ContainerNetworkService) Prune(w http.ResponseWriter, r *http.Request) {
-	if err := s.containerNetworkRepo.Prune(); err != nil {
+	if err := s.containerNetworkRepo.Prune(r.Context()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

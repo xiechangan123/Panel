@@ -29,14 +29,14 @@ func NewContainerRepo() biz.ContainerRepo {
 }
 
 // ListAll 列出所有容器
-func (r *containerRepo) ListAll(sock string) ([]types.Container, error) {
+func (r *containerRepo) ListAll(ctx context.Context, sock string) ([]types.Container, error) {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return nil, err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	resp, err := apiClient.ContainerList(context.Background(), client.ContainerListOptions{
+	resp, err := apiClient.ContainerList(ctx, client.ContainerListOptions{
 		All: true,
 	})
 	if err != nil {
@@ -114,14 +114,14 @@ func (r *containerRepo) ListAll(sock string) ([]types.Container, error) {
 }
 
 // Inspect 获取容器详细信息
-func (r *containerRepo) Inspect(sock string, id string) (any, error) {
+func (r *containerRepo) Inspect(ctx context.Context, sock string, id string) (any, error) {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return nil, err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	resp, err := apiClient.ContainerInspect(context.Background(), id, client.ContainerInspectOptions{})
+	resp, err := apiClient.ContainerInspect(ctx, id, client.ContainerInspectOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -130,14 +130,15 @@ func (r *containerRepo) Inspect(sock string, id string) (any, error) {
 }
 
 // Create 创建容器
-func (r *containerRepo) Create(sock string, req *request.ContainerCreate) (string, error) {
+func (r *containerRepo) Create(ctx context.Context, sock string, req *request.ContainerCreate) (string, error) {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return "", err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	ctx := context.Background()
+	// 创建后紧接着启动，中途取消会留下已创建未启动的容器
+	ctx = context.WithoutCancel(ctx)
 
 	// 获取镜像信息
 	image, err := apiClient.ImageInspect(ctx, req.Image)
@@ -295,109 +296,111 @@ func (r *containerRepo) Create(sock string, req *request.ContainerCreate) (strin
 }
 
 // Remove 移除容器
-func (r *containerRepo) Remove(sock string, id string) error {
+func (r *containerRepo) Remove(ctx context.Context, sock string, id string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerRemove(context.Background(), id, client.ContainerRemoveOptions{
+	// 中途取消会把容器留在删除中的半状态
+	_, err = apiClient.ContainerRemove(context.WithoutCancel(ctx), id, client.ContainerRemoveOptions{
 		Force: true,
 	})
 	return err
 }
 
 // Start 启动容器
-func (r *containerRepo) Start(sock string, id string) error {
+func (r *containerRepo) Start(ctx context.Context, sock string, id string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerStart(context.Background(), id, client.ContainerStartOptions{})
+	_, err = apiClient.ContainerStart(ctx, id, client.ContainerStartOptions{})
 	return err
 }
 
 // Stop 停止容器
-func (r *containerRepo) Stop(sock string, id string) error {
+func (r *containerRepo) Stop(ctx context.Context, sock string, id string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerStop(context.Background(), id, client.ContainerStopOptions{})
+	_, err = apiClient.ContainerStop(ctx, id, client.ContainerStopOptions{})
 	return err
 }
 
 // Restart 重启容器
-func (r *containerRepo) Restart(sock string, id string) error {
+func (r *containerRepo) Restart(ctx context.Context, sock string, id string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerRestart(context.Background(), id, client.ContainerRestartOptions{})
+	// 内部先停后启，中途取消会把容器留在停止状态
+	_, err = apiClient.ContainerRestart(context.WithoutCancel(ctx), id, client.ContainerRestartOptions{})
 	return err
 }
 
 // Pause 暂停容器
-func (r *containerRepo) Pause(sock string, id string) error {
+func (r *containerRepo) Pause(ctx context.Context, sock string, id string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerPause(context.Background(), id, client.ContainerPauseOptions{})
+	_, err = apiClient.ContainerPause(ctx, id, client.ContainerPauseOptions{})
 	return err
 }
 
 // Unpause 恢复容器
-func (r *containerRepo) Unpause(sock string, id string) error {
+func (r *containerRepo) Unpause(ctx context.Context, sock string, id string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerUnpause(context.Background(), id, client.ContainerUnpauseOptions{})
+	_, err = apiClient.ContainerUnpause(ctx, id, client.ContainerUnpauseOptions{})
 	return err
 }
 
 // Kill 杀死容器
-func (r *containerRepo) Kill(sock string, id string) error {
+func (r *containerRepo) Kill(ctx context.Context, sock string, id string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerKill(context.Background(), id, client.ContainerKillOptions{
+	_, err = apiClient.ContainerKill(ctx, id, client.ContainerKillOptions{
 		Signal: "KILL",
 	})
 	return err
 }
 
 // Rename 重命名容器
-func (r *containerRepo) Rename(sock string, id string, newName string) error {
+func (r *containerRepo) Rename(ctx context.Context, sock string, id string, newName string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerRename(context.Background(), id, client.ContainerRenameOptions{
+	_, err = apiClient.ContainerRename(ctx, id, client.ContainerRenameOptions{
 		NewName: newName,
 	})
 	return err
 }
 
 // Logs 查看容器末尾 tail 行日志
-func (r *containerRepo) Logs(sock string, id string, tail int) (string, error) {
+func (r *containerRepo) Logs(ctx context.Context, sock string, id string, tail int) (string, error) {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return "", err
@@ -405,13 +408,13 @@ func (r *containerRepo) Logs(sock string, id string, tail int) (string, error) {
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
 	// 非 TTY 容器日志为多路复用流，需按 TTY 设置决定是否解复用
-	inspect, err := apiClient.ContainerInspect(context.Background(), id, client.ContainerInspectOptions{})
+	inspect, err := apiClient.ContainerInspect(ctx, id, client.ContainerInspectOptions{})
 	if err != nil {
 		return "", err
 	}
 	tty := inspect.Container.Config != nil && inspect.Container.Config.Tty
 
-	reader, err := apiClient.ContainerLogs(context.Background(), id, client.ContainerLogsOptions{
+	reader, err := apiClient.ContainerLogs(ctx, id, client.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Tail:       strconv.Itoa(tail),
@@ -430,14 +433,15 @@ func (r *containerRepo) Logs(sock string, id string, tail int) (string, error) {
 }
 
 // Prune 清理未使用的容器
-func (r *containerRepo) Prune(sock string) error {
+func (r *containerRepo) Prune(ctx context.Context, sock string) error {
 	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerPrune(context.Background(), client.ContainerPruneOptions{
+	// 中途取消会留下清理到一半的状态
+	_, err = apiClient.ContainerPrune(context.WithoutCancel(ctx), client.ContainerPruneOptions{
 		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
 	})
 	return err

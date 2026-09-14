@@ -144,7 +144,7 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Container != "" {
-		s.tailContainer(w, req)
+		s.tailContainer(r.Context(), w, req)
 		return
 	}
 
@@ -1058,10 +1058,10 @@ func formatJournalLine(ts, hostname, ident, comm, pid, message string) string {
 }
 
 // tailContainer 反向读取容器末尾日志
-func (s *FileService) tailContainer(w http.ResponseWriter, req *request.FileTail) {
+func (s *FileService) tailContainer(ctx context.Context, w http.ResponseWriter, req *request.FileTail) {
 	// 容器日志只能整段拉取再切片，回溯深度由 Tail 顶部统一钳制
 	total := req.Offset + req.Limit
-	out, err := s.containerRepo.Logs(req.Container, total)
+	out, err := s.containerRepo.Logs(ctx, req.Container, total)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

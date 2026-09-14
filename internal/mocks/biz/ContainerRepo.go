@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -22,43 +23,43 @@ var _ biz.ContainerRepo = &ContainerRepo{}
 //
 //		// make and configure a mocked biz.ContainerRepo
 //		mockedContainerRepo := &ContainerRepo{
-//			CreateFunc: func(sock string, req *request.ContainerCreate) (string, error) {
+//			CreateFunc: func(ctx context.Context, sock string, req *request.ContainerCreate) (string, error) {
 //				panic("mock out the Create method")
 //			},
-//			InspectFunc: func(sock string, id string) (any, error) {
+//			InspectFunc: func(ctx context.Context, sock string, id string) (any, error) {
 //				panic("mock out the Inspect method")
 //			},
-//			KillFunc: func(sock string, id string) error {
+//			KillFunc: func(ctx context.Context, sock string, id string) error {
 //				panic("mock out the Kill method")
 //			},
-//			ListAllFunc: func(sock string) ([]types.Container, error) {
+//			ListAllFunc: func(ctx context.Context, sock string) ([]types.Container, error) {
 //				panic("mock out the ListAll method")
 //			},
-//			LogsFunc: func(sock string, id string, tail int) (string, error) {
+//			LogsFunc: func(ctx context.Context, sock string, id string, tail int) (string, error) {
 //				panic("mock out the Logs method")
 //			},
-//			PauseFunc: func(sock string, id string) error {
+//			PauseFunc: func(ctx context.Context, sock string, id string) error {
 //				panic("mock out the Pause method")
 //			},
-//			PruneFunc: func(sock string) error {
+//			PruneFunc: func(ctx context.Context, sock string) error {
 //				panic("mock out the Prune method")
 //			},
-//			RemoveFunc: func(sock string, id string) error {
+//			RemoveFunc: func(ctx context.Context, sock string, id string) error {
 //				panic("mock out the Remove method")
 //			},
-//			RenameFunc: func(sock string, id string, newName string) error {
+//			RenameFunc: func(ctx context.Context, sock string, id string, newName string) error {
 //				panic("mock out the Rename method")
 //			},
-//			RestartFunc: func(sock string, id string) error {
+//			RestartFunc: func(ctx context.Context, sock string, id string) error {
 //				panic("mock out the Restart method")
 //			},
-//			StartFunc: func(sock string, id string) error {
+//			StartFunc: func(ctx context.Context, sock string, id string) error {
 //				panic("mock out the Start method")
 //			},
-//			StopFunc: func(sock string, id string) error {
+//			StopFunc: func(ctx context.Context, sock string, id string) error {
 //				panic("mock out the Stop method")
 //			},
-//			UnpauseFunc: func(sock string, id string) error {
+//			UnpauseFunc: func(ctx context.Context, sock string, id string) error {
 //				panic("mock out the Unpause method")
 //			},
 //		}
@@ -69,48 +70,50 @@ var _ biz.ContainerRepo = &ContainerRepo{}
 //	}
 type ContainerRepo struct {
 	// CreateFunc mocks the Create method.
-	CreateFunc func(sock string, req *request.ContainerCreate) (string, error)
+	CreateFunc func(ctx context.Context, sock string, req *request.ContainerCreate) (string, error)
 
 	// InspectFunc mocks the Inspect method.
-	InspectFunc func(sock string, id string) (any, error)
+	InspectFunc func(ctx context.Context, sock string, id string) (any, error)
 
 	// KillFunc mocks the Kill method.
-	KillFunc func(sock string, id string) error
+	KillFunc func(ctx context.Context, sock string, id string) error
 
 	// ListAllFunc mocks the ListAll method.
-	ListAllFunc func(sock string) ([]types.Container, error)
+	ListAllFunc func(ctx context.Context, sock string) ([]types.Container, error)
 
 	// LogsFunc mocks the Logs method.
-	LogsFunc func(sock string, id string, tail int) (string, error)
+	LogsFunc func(ctx context.Context, sock string, id string, tail int) (string, error)
 
 	// PauseFunc mocks the Pause method.
-	PauseFunc func(sock string, id string) error
+	PauseFunc func(ctx context.Context, sock string, id string) error
 
 	// PruneFunc mocks the Prune method.
-	PruneFunc func(sock string) error
+	PruneFunc func(ctx context.Context, sock string) error
 
 	// RemoveFunc mocks the Remove method.
-	RemoveFunc func(sock string, id string) error
+	RemoveFunc func(ctx context.Context, sock string, id string) error
 
 	// RenameFunc mocks the Rename method.
-	RenameFunc func(sock string, id string, newName string) error
+	RenameFunc func(ctx context.Context, sock string, id string, newName string) error
 
 	// RestartFunc mocks the Restart method.
-	RestartFunc func(sock string, id string) error
+	RestartFunc func(ctx context.Context, sock string, id string) error
 
 	// StartFunc mocks the Start method.
-	StartFunc func(sock string, id string) error
+	StartFunc func(ctx context.Context, sock string, id string) error
 
 	// StopFunc mocks the Stop method.
-	StopFunc func(sock string, id string) error
+	StopFunc func(ctx context.Context, sock string, id string) error
 
 	// UnpauseFunc mocks the Unpause method.
-	UnpauseFunc func(sock string, id string) error
+	UnpauseFunc func(ctx context.Context, sock string, id string) error
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// Create holds details about calls to the Create method.
 		Create []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// Req is the req argument value.
@@ -118,6 +121,8 @@ type ContainerRepo struct {
 		}
 		// Inspect holds details about calls to the Inspect method.
 		Inspect []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -125,6 +130,8 @@ type ContainerRepo struct {
 		}
 		// Kill holds details about calls to the Kill method.
 		Kill []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -132,11 +139,15 @@ type ContainerRepo struct {
 		}
 		// ListAll holds details about calls to the ListAll method.
 		ListAll []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 		}
 		// Logs holds details about calls to the Logs method.
 		Logs []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -146,6 +157,8 @@ type ContainerRepo struct {
 		}
 		// Pause holds details about calls to the Pause method.
 		Pause []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -153,11 +166,15 @@ type ContainerRepo struct {
 		}
 		// Prune holds details about calls to the Prune method.
 		Prune []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 		}
 		// Remove holds details about calls to the Remove method.
 		Remove []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -165,6 +182,8 @@ type ContainerRepo struct {
 		}
 		// Rename holds details about calls to the Rename method.
 		Rename []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -174,6 +193,8 @@ type ContainerRepo struct {
 		}
 		// Restart holds details about calls to the Restart method.
 		Restart []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -181,6 +202,8 @@ type ContainerRepo struct {
 		}
 		// Start holds details about calls to the Start method.
 		Start []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -188,6 +211,8 @@ type ContainerRepo struct {
 		}
 		// Stop holds details about calls to the Stop method.
 		Stop []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -195,6 +220,8 @@ type ContainerRepo struct {
 		}
 		// Unpause holds details about calls to the Unpause method.
 		Unpause []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Sock is the sock argument value.
 			Sock string
 			// ID is the id argument value.
@@ -217,21 +244,23 @@ type ContainerRepo struct {
 }
 
 // Create calls CreateFunc.
-func (mock *ContainerRepo) Create(sock string, req *request.ContainerCreate) (string, error) {
+func (mock *ContainerRepo) Create(ctx context.Context, sock string, req *request.ContainerCreate) (string, error) {
 	if mock.CreateFunc == nil {
 		panic("ContainerRepo.CreateFunc: method is nil but ContainerRepo.Create was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		Req  *request.ContainerCreate
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		Req:  req,
 	}
 	mock.lockCreate.Lock()
 	mock.calls.Create = append(mock.calls.Create, callInfo)
 	mock.lockCreate.Unlock()
-	return mock.CreateFunc(sock, req)
+	return mock.CreateFunc(ctx, sock, req)
 }
 
 // CreateCalls gets all the calls that were made to Create.
@@ -239,10 +268,12 @@ func (mock *ContainerRepo) Create(sock string, req *request.ContainerCreate) (st
 //
 //	len(mockedContainerRepo.CreateCalls())
 func (mock *ContainerRepo) CreateCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	Req  *request.ContainerCreate
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		Req  *request.ContainerCreate
 	}
@@ -253,21 +284,23 @@ func (mock *ContainerRepo) CreateCalls() []struct {
 }
 
 // Inspect calls InspectFunc.
-func (mock *ContainerRepo) Inspect(sock string, id string) (any, error) {
+func (mock *ContainerRepo) Inspect(ctx context.Context, sock string, id string) (any, error) {
 	if mock.InspectFunc == nil {
 		panic("ContainerRepo.InspectFunc: method is nil but ContainerRepo.Inspect was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 	}
 	mock.lockInspect.Lock()
 	mock.calls.Inspect = append(mock.calls.Inspect, callInfo)
 	mock.lockInspect.Unlock()
-	return mock.InspectFunc(sock, id)
+	return mock.InspectFunc(ctx, sock, id)
 }
 
 // InspectCalls gets all the calls that were made to Inspect.
@@ -275,10 +308,12 @@ func (mock *ContainerRepo) Inspect(sock string, id string) (any, error) {
 //
 //	len(mockedContainerRepo.InspectCalls())
 func (mock *ContainerRepo) InspectCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}
@@ -289,21 +324,23 @@ func (mock *ContainerRepo) InspectCalls() []struct {
 }
 
 // Kill calls KillFunc.
-func (mock *ContainerRepo) Kill(sock string, id string) error {
+func (mock *ContainerRepo) Kill(ctx context.Context, sock string, id string) error {
 	if mock.KillFunc == nil {
 		panic("ContainerRepo.KillFunc: method is nil but ContainerRepo.Kill was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 	}
 	mock.lockKill.Lock()
 	mock.calls.Kill = append(mock.calls.Kill, callInfo)
 	mock.lockKill.Unlock()
-	return mock.KillFunc(sock, id)
+	return mock.KillFunc(ctx, sock, id)
 }
 
 // KillCalls gets all the calls that were made to Kill.
@@ -311,10 +348,12 @@ func (mock *ContainerRepo) Kill(sock string, id string) error {
 //
 //	len(mockedContainerRepo.KillCalls())
 func (mock *ContainerRepo) KillCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}
@@ -325,19 +364,21 @@ func (mock *ContainerRepo) KillCalls() []struct {
 }
 
 // ListAll calls ListAllFunc.
-func (mock *ContainerRepo) ListAll(sock string) ([]types.Container, error) {
+func (mock *ContainerRepo) ListAll(ctx context.Context, sock string) ([]types.Container, error) {
 	if mock.ListAllFunc == nil {
 		panic("ContainerRepo.ListAllFunc: method is nil but ContainerRepo.ListAll was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 	}
 	mock.lockListAll.Lock()
 	mock.calls.ListAll = append(mock.calls.ListAll, callInfo)
 	mock.lockListAll.Unlock()
-	return mock.ListAllFunc(sock)
+	return mock.ListAllFunc(ctx, sock)
 }
 
 // ListAllCalls gets all the calls that were made to ListAll.
@@ -345,9 +386,11 @@ func (mock *ContainerRepo) ListAll(sock string) ([]types.Container, error) {
 //
 //	len(mockedContainerRepo.ListAllCalls())
 func (mock *ContainerRepo) ListAllCalls() []struct {
+	Ctx  context.Context
 	Sock string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 	}
 	mock.lockListAll.RLock()
@@ -357,15 +400,17 @@ func (mock *ContainerRepo) ListAllCalls() []struct {
 }
 
 // Logs calls LogsFunc.
-func (mock *ContainerRepo) Logs(sock string, id string, tail int) (string, error) {
+func (mock *ContainerRepo) Logs(ctx context.Context, sock string, id string, tail int) (string, error) {
 	if mock.LogsFunc == nil {
 		panic("ContainerRepo.LogsFunc: method is nil but ContainerRepo.Logs was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 		Tail int
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 		Tail: tail,
@@ -373,7 +418,7 @@ func (mock *ContainerRepo) Logs(sock string, id string, tail int) (string, error
 	mock.lockLogs.Lock()
 	mock.calls.Logs = append(mock.calls.Logs, callInfo)
 	mock.lockLogs.Unlock()
-	return mock.LogsFunc(sock, id, tail)
+	return mock.LogsFunc(ctx, sock, id, tail)
 }
 
 // LogsCalls gets all the calls that were made to Logs.
@@ -381,11 +426,13 @@ func (mock *ContainerRepo) Logs(sock string, id string, tail int) (string, error
 //
 //	len(mockedContainerRepo.LogsCalls())
 func (mock *ContainerRepo) LogsCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 	Tail int
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 		Tail int
@@ -397,21 +444,23 @@ func (mock *ContainerRepo) LogsCalls() []struct {
 }
 
 // Pause calls PauseFunc.
-func (mock *ContainerRepo) Pause(sock string, id string) error {
+func (mock *ContainerRepo) Pause(ctx context.Context, sock string, id string) error {
 	if mock.PauseFunc == nil {
 		panic("ContainerRepo.PauseFunc: method is nil but ContainerRepo.Pause was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 	}
 	mock.lockPause.Lock()
 	mock.calls.Pause = append(mock.calls.Pause, callInfo)
 	mock.lockPause.Unlock()
-	return mock.PauseFunc(sock, id)
+	return mock.PauseFunc(ctx, sock, id)
 }
 
 // PauseCalls gets all the calls that were made to Pause.
@@ -419,10 +468,12 @@ func (mock *ContainerRepo) Pause(sock string, id string) error {
 //
 //	len(mockedContainerRepo.PauseCalls())
 func (mock *ContainerRepo) PauseCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}
@@ -433,19 +484,21 @@ func (mock *ContainerRepo) PauseCalls() []struct {
 }
 
 // Prune calls PruneFunc.
-func (mock *ContainerRepo) Prune(sock string) error {
+func (mock *ContainerRepo) Prune(ctx context.Context, sock string) error {
 	if mock.PruneFunc == nil {
 		panic("ContainerRepo.PruneFunc: method is nil but ContainerRepo.Prune was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 	}
 	mock.lockPrune.Lock()
 	mock.calls.Prune = append(mock.calls.Prune, callInfo)
 	mock.lockPrune.Unlock()
-	return mock.PruneFunc(sock)
+	return mock.PruneFunc(ctx, sock)
 }
 
 // PruneCalls gets all the calls that were made to Prune.
@@ -453,9 +506,11 @@ func (mock *ContainerRepo) Prune(sock string) error {
 //
 //	len(mockedContainerRepo.PruneCalls())
 func (mock *ContainerRepo) PruneCalls() []struct {
+	Ctx  context.Context
 	Sock string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 	}
 	mock.lockPrune.RLock()
@@ -465,21 +520,23 @@ func (mock *ContainerRepo) PruneCalls() []struct {
 }
 
 // Remove calls RemoveFunc.
-func (mock *ContainerRepo) Remove(sock string, id string) error {
+func (mock *ContainerRepo) Remove(ctx context.Context, sock string, id string) error {
 	if mock.RemoveFunc == nil {
 		panic("ContainerRepo.RemoveFunc: method is nil but ContainerRepo.Remove was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 	}
 	mock.lockRemove.Lock()
 	mock.calls.Remove = append(mock.calls.Remove, callInfo)
 	mock.lockRemove.Unlock()
-	return mock.RemoveFunc(sock, id)
+	return mock.RemoveFunc(ctx, sock, id)
 }
 
 // RemoveCalls gets all the calls that were made to Remove.
@@ -487,10 +544,12 @@ func (mock *ContainerRepo) Remove(sock string, id string) error {
 //
 //	len(mockedContainerRepo.RemoveCalls())
 func (mock *ContainerRepo) RemoveCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}
@@ -501,15 +560,17 @@ func (mock *ContainerRepo) RemoveCalls() []struct {
 }
 
 // Rename calls RenameFunc.
-func (mock *ContainerRepo) Rename(sock string, id string, newName string) error {
+func (mock *ContainerRepo) Rename(ctx context.Context, sock string, id string, newName string) error {
 	if mock.RenameFunc == nil {
 		panic("ContainerRepo.RenameFunc: method is nil but ContainerRepo.Rename was just called")
 	}
 	callInfo := struct {
+		Ctx     context.Context
 		Sock    string
 		ID      string
 		NewName string
 	}{
+		Ctx:     ctx,
 		Sock:    sock,
 		ID:      id,
 		NewName: newName,
@@ -517,7 +578,7 @@ func (mock *ContainerRepo) Rename(sock string, id string, newName string) error 
 	mock.lockRename.Lock()
 	mock.calls.Rename = append(mock.calls.Rename, callInfo)
 	mock.lockRename.Unlock()
-	return mock.RenameFunc(sock, id, newName)
+	return mock.RenameFunc(ctx, sock, id, newName)
 }
 
 // RenameCalls gets all the calls that were made to Rename.
@@ -525,11 +586,13 @@ func (mock *ContainerRepo) Rename(sock string, id string, newName string) error 
 //
 //	len(mockedContainerRepo.RenameCalls())
 func (mock *ContainerRepo) RenameCalls() []struct {
+	Ctx     context.Context
 	Sock    string
 	ID      string
 	NewName string
 } {
 	var calls []struct {
+		Ctx     context.Context
 		Sock    string
 		ID      string
 		NewName string
@@ -541,21 +604,23 @@ func (mock *ContainerRepo) RenameCalls() []struct {
 }
 
 // Restart calls RestartFunc.
-func (mock *ContainerRepo) Restart(sock string, id string) error {
+func (mock *ContainerRepo) Restart(ctx context.Context, sock string, id string) error {
 	if mock.RestartFunc == nil {
 		panic("ContainerRepo.RestartFunc: method is nil but ContainerRepo.Restart was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 	}
 	mock.lockRestart.Lock()
 	mock.calls.Restart = append(mock.calls.Restart, callInfo)
 	mock.lockRestart.Unlock()
-	return mock.RestartFunc(sock, id)
+	return mock.RestartFunc(ctx, sock, id)
 }
 
 // RestartCalls gets all the calls that were made to Restart.
@@ -563,10 +628,12 @@ func (mock *ContainerRepo) Restart(sock string, id string) error {
 //
 //	len(mockedContainerRepo.RestartCalls())
 func (mock *ContainerRepo) RestartCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}
@@ -577,21 +644,23 @@ func (mock *ContainerRepo) RestartCalls() []struct {
 }
 
 // Start calls StartFunc.
-func (mock *ContainerRepo) Start(sock string, id string) error {
+func (mock *ContainerRepo) Start(ctx context.Context, sock string, id string) error {
 	if mock.StartFunc == nil {
 		panic("ContainerRepo.StartFunc: method is nil but ContainerRepo.Start was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 	}
 	mock.lockStart.Lock()
 	mock.calls.Start = append(mock.calls.Start, callInfo)
 	mock.lockStart.Unlock()
-	return mock.StartFunc(sock, id)
+	return mock.StartFunc(ctx, sock, id)
 }
 
 // StartCalls gets all the calls that were made to Start.
@@ -599,10 +668,12 @@ func (mock *ContainerRepo) Start(sock string, id string) error {
 //
 //	len(mockedContainerRepo.StartCalls())
 func (mock *ContainerRepo) StartCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}
@@ -613,21 +684,23 @@ func (mock *ContainerRepo) StartCalls() []struct {
 }
 
 // Stop calls StopFunc.
-func (mock *ContainerRepo) Stop(sock string, id string) error {
+func (mock *ContainerRepo) Stop(ctx context.Context, sock string, id string) error {
 	if mock.StopFunc == nil {
 		panic("ContainerRepo.StopFunc: method is nil but ContainerRepo.Stop was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 	}
 	mock.lockStop.Lock()
 	mock.calls.Stop = append(mock.calls.Stop, callInfo)
 	mock.lockStop.Unlock()
-	return mock.StopFunc(sock, id)
+	return mock.StopFunc(ctx, sock, id)
 }
 
 // StopCalls gets all the calls that were made to Stop.
@@ -635,10 +708,12 @@ func (mock *ContainerRepo) Stop(sock string, id string) error {
 //
 //	len(mockedContainerRepo.StopCalls())
 func (mock *ContainerRepo) StopCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}
@@ -649,21 +724,23 @@ func (mock *ContainerRepo) StopCalls() []struct {
 }
 
 // Unpause calls UnpauseFunc.
-func (mock *ContainerRepo) Unpause(sock string, id string) error {
+func (mock *ContainerRepo) Unpause(ctx context.Context, sock string, id string) error {
 	if mock.UnpauseFunc == nil {
 		panic("ContainerRepo.UnpauseFunc: method is nil but ContainerRepo.Unpause was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}{
+		Ctx:  ctx,
 		Sock: sock,
 		ID:   id,
 	}
 	mock.lockUnpause.Lock()
 	mock.calls.Unpause = append(mock.calls.Unpause, callInfo)
 	mock.lockUnpause.Unlock()
-	return mock.UnpauseFunc(sock, id)
+	return mock.UnpauseFunc(ctx, sock, id)
 }
 
 // UnpauseCalls gets all the calls that were made to Unpause.
@@ -671,10 +748,12 @@ func (mock *ContainerRepo) Unpause(sock string, id string) error {
 //
 //	len(mockedContainerRepo.UnpauseCalls())
 func (mock *ContainerRepo) UnpauseCalls() []struct {
+	Ctx  context.Context
 	Sock string
 	ID   string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Sock string
 		ID   string
 	}

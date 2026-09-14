@@ -35,7 +35,7 @@ func (r *databaseElasticsearchRepo) Indices(ctx context.Context, req *request.Da
 	}
 	defer client.Close()
 
-	return client.Indices()
+	return client.Indices(ctx)
 }
 
 func (r *databaseElasticsearchRepo) IndexCreate(ctx context.Context, req *request.DatabaseESIndexCreate) error {
@@ -45,7 +45,7 @@ func (r *databaseElasticsearchRepo) IndexCreate(ctx context.Context, req *reques
 	}
 	defer client.Close()
 
-	return client.IndexCreate(req.Name)
+	return client.IndexCreate(ctx, req.Name)
 }
 
 func (r *databaseElasticsearchRepo) IndexDelete(ctx context.Context, req *request.DatabaseESIndexDelete) error {
@@ -55,7 +55,7 @@ func (r *databaseElasticsearchRepo) IndexDelete(ctx context.Context, req *reques
 	}
 	defer client.Close()
 
-	return client.IndexDelete(req.Name)
+	return client.IndexDelete(ctx, req.Name)
 }
 
 func (r *databaseElasticsearchRepo) Data(ctx context.Context, req *request.DatabaseESData) ([]db.ESDocument, int64, error) {
@@ -65,7 +65,7 @@ func (r *databaseElasticsearchRepo) Data(ctx context.Context, req *request.Datab
 	}
 	defer client.Close()
 
-	return client.Search(req.Index, req.Search, int(req.Page), int(req.Limit))
+	return client.Search(ctx, req.Index, req.Search, int(req.Page), int(req.Limit))
 }
 
 func (r *databaseElasticsearchRepo) DocumentGet(ctx context.Context, req *request.DatabaseESDocumentGet) (*db.ESDocument, error) {
@@ -75,7 +75,7 @@ func (r *databaseElasticsearchRepo) DocumentGet(ctx context.Context, req *reques
 	}
 	defer client.Close()
 
-	return client.DocumentGet(req.Index, req.ID)
+	return client.DocumentGet(ctx, req.Index, req.ID)
 }
 
 func (r *databaseElasticsearchRepo) DocumentSet(ctx context.Context, req *request.DatabaseESDocumentSet) error {
@@ -86,9 +86,9 @@ func (r *databaseElasticsearchRepo) DocumentSet(ctx context.Context, req *reques
 	defer client.Close()
 
 	if req.ID == "" {
-		return client.DocumentCreate(req.Index, req.Body)
+		return client.DocumentCreate(ctx, req.Index, req.Body)
 	}
-	return client.DocumentUpdate(req.Index, req.ID, req.Body)
+	return client.DocumentUpdate(ctx, req.Index, req.ID, req.Body)
 }
 
 func (r *databaseElasticsearchRepo) DocumentDelete(ctx context.Context, req *request.DatabaseESDocumentDelete) error {
@@ -98,7 +98,7 @@ func (r *databaseElasticsearchRepo) DocumentDelete(ctx context.Context, req *req
 	}
 	defer client.Close()
 
-	return client.DocumentDelete(req.Index, req.ID)
+	return client.DocumentDelete(ctx, req.Index, req.ID)
 }
 
 // getClient 根据服务器 ID 创建 Elasticsearch 客户端

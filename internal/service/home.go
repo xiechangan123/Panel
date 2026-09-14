@@ -184,7 +184,7 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		mysql, err := db.NewMySQL(r.Context(), "root", rootPassword, db.MySQLSocket(app.Root), "unix")
 		if err == nil {
 			defer mysql.Close()
-			databases, err := mysql.Databases()
+			databases, err := mysql.Databases(r.Context())
 			if err == nil {
 				databaseCount += len(databases)
 			}
@@ -194,7 +194,7 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		if server, err := s.databaseServerRepo.GetByName(r.Context(), "local_postgresql"); err == nil {
 			if postgres, err := db.NewPostgres(r.Context(), server.Username, server.Password, server.Host, server.Port); err == nil {
 				defer postgres.Close()
-				if databases, err := postgres.Databases(); err == nil {
+				if databases, err := postgres.Databases(r.Context()); err == nil {
 					databaseCount += len(databases)
 				}
 			}
@@ -212,7 +212,7 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	containerCount := -1
-	containers, err := s.containerRepo.ListAll()
+	containers, err := s.containerRepo.ListAll(r.Context())
 	if err == nil {
 		containerCount = len(containers)
 	}

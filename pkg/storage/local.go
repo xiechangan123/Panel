@@ -30,7 +30,7 @@ func NewLocal(basePath string) (Storage, error) {
 }
 
 // Delete 删除文件
-func (l *Local) Delete(files ...string) error {
+func (l *Local) Delete(_ context.Context, files ...string) error {
 	for _, file := range files {
 		fullPath := l.fullPath(file)
 		if err := os.Remove(fullPath); err != nil && !os.IsNotExist(err) {
@@ -41,14 +41,14 @@ func (l *Local) Delete(files ...string) error {
 }
 
 // Exists 检查文件是否存在
-func (l *Local) Exists(file string) bool {
+func (l *Local) Exists(_ context.Context, file string) bool {
 	fullPath := l.fullPath(file)
 	_, err := os.Stat(fullPath)
 	return !os.IsNotExist(err)
 }
 
 // LastModified 获取文件最后修改时间
-func (l *Local) LastModified(file string) (time.Time, error) {
+func (l *Local) LastModified(_ context.Context, file string) (time.Time, error) {
 	fullPath := l.fullPath(file)
 	info, err := os.Stat(fullPath)
 	if err != nil {
@@ -58,7 +58,7 @@ func (l *Local) LastModified(file string) (time.Time, error) {
 }
 
 // List 列出目录下的所有文件
-func (l *Local) List(path string) ([]string, error) {
+func (l *Local) List(_ context.Context, path string) ([]string, error) {
 	fullPath := l.fullPath(path)
 	entries, err := os.ReadDir(fullPath)
 	if err != nil {
@@ -75,7 +75,7 @@ func (l *Local) List(path string) ([]string, error) {
 }
 
 // Put 写入文件内容
-func (l *Local) Put(file string, content io.Reader) error {
+func (l *Local) Put(ctx context.Context, file string, content io.Reader) error {
 	fullPath := l.fullPath(file)
 
 	// 确保目录存在
@@ -84,7 +84,7 @@ func (l *Local) Put(file string, content io.Reader) error {
 	}
 
 	// 预检查空间
-	if err := l.preCheckPath(filepath.Dir(fullPath)); err != nil {
+	if err := l.preCheckPath(ctx, filepath.Dir(fullPath)); err != nil {
 		return fmt.Errorf("pre check path failed: %w", err)
 	}
 
@@ -100,7 +100,7 @@ func (l *Local) Put(file string, content io.Reader) error {
 }
 
 // Size 获取文件大小
-func (l *Local) Size(file string) (int64, error) {
+func (l *Local) Size(_ context.Context, file string) (int64, error) {
 	fullPath := l.fullPath(file)
 	info, err := os.Stat(fullPath)
 	if err != nil {
@@ -120,12 +120,12 @@ func (l *Local) fullPath(path string) string {
 	return filepath.Join(l.basePath, path)
 }
 
-func (l *Local) preCheckPath(path string) error {
-	size, err := pkgio.SizeX(context.Background(), path)
+func (l *Local) preCheckPath(ctx context.Context, path string) error {
+	size, err := pkgio.SizeX(ctx, path)
 	if err != nil {
 		return err
 	}
-	files, err := pkgio.CountX(context.Background(), path)
+	files, err := pkgio.CountX(ctx, path)
 	if err != nil {
 		return err
 	}
