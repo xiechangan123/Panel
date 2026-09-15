@@ -320,7 +320,7 @@ export const useUploadStore = defineStore('upload', () => {
 
   // 为冲突文件批量找不重名的新文件名（追加 -1 -2 …），每轮一次 exist 请求检查一批候选
   async function uniqueNames(conflicts: UploadItem[]): Promise<string[]> {
-    const result: string[] = new Array(conflicts.length).fill('')
+    const result: string[] = Array.from({ length: conflicts.length }, () => '')
     const reserved = new Set(items.value.map((i) => i.target))
     const batch = 10
     for (let offset = 1; offset <= 1000 && result.includes(''); offset += batch) {

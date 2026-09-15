@@ -183,7 +183,7 @@ const chartOption = computed<EChartsOption>(() => {
           <div class="flex flex-col gap-1">
             <span class="text-12px" :style="{ color: c.color }">{{ c.label }}</span>
             <span class="text-20px font-bold">{{ c.value.toLocaleString() }}</span>
-            <span class="text-12px text-[var(--text-color-3)]">{{ pct(c.value) }}</span>
+            <span class="text-[var(--text-color-3)] text-12px">{{ pct(c.value) }}</span>
           </div>
         </n-card>
       </div>

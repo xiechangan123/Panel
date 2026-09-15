@@ -442,7 +442,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
       <div class="gap-3 grid grid-cols-3 lg:grid-cols-10 sm:grid-cols-5">
         <n-card v-for="m in metrics" :key="m.key" :bordered="false" size="small">
           <div class="flex flex-col gap-1">
-            <span class="text-12px text-[var(--text-color-3)]">{{ m.label }}</span>
+            <span class="text-[var(--text-color-3)] text-12px">{{ m.label }}</span>
             <span class="text-20px font-bold">{{
               formatValue(overview.current[m.key] || 0, m.isBytes)
             }}</span>
@@ -468,7 +468,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
         </n-card>
         <n-card :bordered="false" size="small">
           <div class="flex flex-col gap-1">
-            <span class="text-12px text-[var(--text-color-3)]">
+            <span class="text-[var(--text-color-3)] text-12px">
               {{ $gettext('Outbound') }}
             </span>
             <span class="text-20px font-bold">{{ formatBytes(realtime.bandwidth) }}/s</span>
@@ -476,7 +476,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
         </n-card>
         <n-card :bordered="false" size="small">
           <div class="flex flex-col gap-1">
-            <span class="text-12px text-[var(--text-color-3)]">
+            <span class="text-[var(--text-color-3)] text-12px">
               {{ $gettext('Inbound') }}
             </span>
             <span class="text-20px font-bold">{{ formatBytes(realtime.bandwidth_in) }}/s</span>
@@ -484,7 +484,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
         </n-card>
         <n-card :bordered="false" size="small">
           <div class="flex flex-col gap-1">
-            <span class="text-12px text-[var(--text-color-3)]">RPS</span>
+            <span class="text-[var(--text-color-3)] text-12px">RPS</span>
             <span class="text-20px font-bold">{{ realtime.rps.toFixed(1) }}</span>
           </div>
         </n-card>
