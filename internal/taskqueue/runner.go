@@ -173,12 +173,15 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 	}()
 
 	if err := shell.ExecWithLog(taskCtx, task.Shell, logFile); err != nil {
-		// 用户取消和面板停机都不是任务本身失败，都记为 canceled 并跑清理命令，
-		// 否则停机会留下半装的包和假的失败通知
+		// 用户取消和面板停机都不是任务本身失败，记为 canceled 并跑清理命令；
+		// 停机时 systemd 向整个 cgroup 同时发 SIGTERM，命令可能比 ctx 取消早一步死，
+		// 给一个远大于这点调度差的宽限期，否则会被记成失败并发假告警
 		status := biz.TaskStatusFailed
-		if taskCtx.Err() != nil {
+		select {
+		case <-taskCtx.Done():
 			status = biz.TaskStatusCanceled
 			r.runCancelShell(ctx, task, logFile)
+		case <-time.After(200 * time.Millisecond):
 		}
 		r.log.Warn("background task did not finish", slog.Any("task_id", task.ID), slog.Any("status", status), slog.Any("err", err))
 		_ = r.db.Model(task).Update("status", status).Error
@@ -206,7 +209,8 @@ func (r *Runner) runCancelShell(ctx context.Context, task *biz.Task, logFile str
 		return
 	}
 
-	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), time.Minute)
+	// 超时不能超过关停总预算，否则停机时清理会跑到一半随进程退出被砍
+	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 	defer cancel()
 
 	if err := shell.ExecWithLogAppend(cleanupCtx, task.CancelShell, logFile); err != nil {

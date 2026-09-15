@@ -280,13 +280,11 @@ func (r *firewalld) Forward(ctx context.Context, rule Forward, operation Operati
 	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\nnet.ipv6.conf.all.forwarding=1\n"), 0644)
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
-		var cmd string
+		var toAddr string
 		if rule.TargetIP != "" && !isLocalAddress(rule.TargetIP) {
-			cmd = fmt.Sprintf("firewall-cmd --zone=public --%s-forward-port=port=%d:proto=%s:toport=%d:toaddr=%s --permanent", operation, rule.Port, protocol, rule.TargetPort, rule.TargetIP)
-		} else {
-			cmd = fmt.Sprintf("firewall-cmd --zone=public --%s-forward-port=port=%d:proto=%s:toport=%d --permanent", operation, rule.Port, protocol, rule.TargetPort)
+			toAddr = ":toaddr=" + rule.TargetIP
 		}
-		_, err := shell.Execf(ctx, cmd)
+		_, err := shell.Execf(ctx, "firewall-cmd --zone=public --%s-forward-port=port=%d:proto=%s:toport=%d%s --permanent", operation, rule.Port, protocol, rule.TargetPort, toAddr)
 		if err != nil && operation != OperationRemove {
 			return err
 		}

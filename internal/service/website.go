@@ -215,7 +215,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if _, err = shell.Execf(r.Context(), d.ConfigTest()); err != nil {
+	if _, err = shell.Exec(r.Context(), d.ConfigTest()); err != nil {
 		restore()
 		Error(w, http.StatusInternalServerError, s.t.Get("config test failed: %v", err))
 		return

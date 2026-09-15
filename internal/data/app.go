@@ -170,7 +170,7 @@ func (r *appRepo) ResolveScript(item *api.App, matchChannel, action, execVersion
 
 // ExecScript 执行脚本
 func (r *appRepo) ExecScript(ctx context.Context, script string) error {
-	return shell.ExecfWithOutput(ctx, script)
+	return shell.ExecWithOutput(ctx, script)
 }
 
 // customDir 自定义编译参数存放目录,安装脚本在编译时直接读取

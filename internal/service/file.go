@@ -994,7 +994,7 @@ func (s *FileService) tailService(ctx context.Context, w http.ResponseWriter, re
 	if req.Cursor != "" {
 		cmd += fmt.Sprintf(" --before-cursor %q", req.Cursor)
 	}
-	out, err := shell.Execf(ctx, cmd)
+	out, err := shell.Exec(ctx, cmd)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

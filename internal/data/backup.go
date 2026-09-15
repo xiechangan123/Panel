@@ -915,7 +915,7 @@ func (r *backupRepo) restoreWebsite(ctx context.Context, backup, target string) 
 	if err != nil {
 		return err
 	}
-	if _, err = shell.Execf(ctx, "%s", cmd); err != nil {
+	if _, err = shell.Exec(ctx, cmd); err != nil {
 		return err
 	}
 

@@ -311,7 +311,7 @@ func (r *certRepo) RunScript(ctx context.Context, cert *biz.Cert) error {
 	_ = f.Close()
 	defer func(name string) { _ = os.Remove(name) }(f.Name())
 
-	_, err = shell.Execf(ctx, "bash "+f.Name())
+	_, err = shell.Execf(ctx, "bash %s", f.Name())
 	return err
 }
 

@@ -151,11 +151,11 @@ func (r *MongoDB) Users(ctx context.Context) ([]MongoUser, error) {
 // mongosh 执行 mongosh 命令，ctx 取消时终止进程
 func (r *MongoDB) mongosh(ctx context.Context, eval string) (string, error) {
 	// serverSelectionTimeoutMS 限制建连耗时，避免不可达地址长时间挂起
-	cmd := fmt.Sprintf(`mongosh --quiet --eval "%s" "mongodb://%s:%s@%s/admin?serverSelectionTimeoutMS=10000" 2>/dev/null`,
+	raw, err := shell.Execf(ctx,
+		`mongosh --quiet --eval "%s" "mongodb://%s:%s@%s/admin?serverSelectionTimeoutMS=10000" 2>/dev/null`,
 		strings.ReplaceAll(eval, `"`, `\"`),
 		r.username, r.password, r.address,
 	)
-	raw, err := shell.Execf(ctx, cmd)
 	if err != nil {
 		return "", fmt.Errorf("mongosh error: %w", err)
 	}

@@ -74,7 +74,7 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, err := shell.ExecfWithPipe(ctx, string(cmd))
+	out, err := shell.ExecWithPipe(ctx, string(cmd))
 	if err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to run command: %v", err))
 		return

@@ -200,7 +200,7 @@ func (s *ToolboxDiskService) Format(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// mkfs 写到一半被杀会留下无法挂载的分区，同 Init 一样不跟随请求取消
-	if _, err = shell.Execf(context.WithoutCancel(r.Context()), formatCmd); err != nil {
+	if _, err = shell.Exec(context.WithoutCancel(r.Context()), formatCmd); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to format partition: %v", err))
 		return
 	}
@@ -277,7 +277,7 @@ func (s *ToolboxDiskService) Init(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(ctx, formatCmd); err != nil {
+	if _, err = shell.Exec(ctx, formatCmd); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to format partition: %v", err))
 		return
 	}

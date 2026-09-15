@@ -90,7 +90,7 @@ func (d Dialect) ReloadIfRunning(ctx context.Context) error {
 
 func (d Dialect) reload(ctx context.Context) error {
 	if err := systemctl.Reload(ctx, d.Service()); err != nil {
-		out, _ := shell.Execf(ctx, d.ConfigTest())
+		out, _ := shell.Exec(ctx, d.ConfigTest())
 		return fmt.Errorf("failed to reload %s: %w; config test: %s", d.Service(), err, out)
 	}
 

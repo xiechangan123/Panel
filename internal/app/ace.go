@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -55,16 +54,16 @@ func (r *Ace) Run() error {
 	}
 	fmt.Println("[CRON] cron scheduler started")
 
+	// setup graceful shutdown
+	sigCtx, stopSignal := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stopSignal()
+
 	// create context for runner
-	runnerCtx, runnerCancel := context.WithCancel(context.Background())
+	runnerCtx, runnerCancel := context.WithCancel(sigCtx)
 	defer runnerCancel()
 
 	// start task runner
 	r.runner.Run(runnerCtx)
-
-	// setup graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	// run http server in goroutine
 	serverErr := make(chan error, 1)
@@ -88,18 +87,18 @@ func (r *Ace) Run() error {
 		if err != nil {
 			return err
 		}
-	case sig := <-quit:
-		fmt.Println("[APP] received signal:", sig)
+	case <-sigCtx.Done():
+		fmt.Println("[APP] received shutdown signal")
 	}
 
 	// graceful shutdown
 	fmt.Println("[APP] shutting down gracefully...")
 
-	// shutdown http server
-	// HTTP 必须先停：晚于调度器停机的这段时间里接口照收请求，任务入库却没人来捞
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer shutdownCancel()
+
+	// shutdown http server
 	shutdownErr := r.server.Shutdown(shutdownCtx)
-	shutdownCancel()
 	if shutdownErr != nil {
 		fmt.Println("[HTTP] server shutdown error:", shutdownErr)
 	} else {
@@ -107,16 +106,12 @@ func (r *Ace) Run() error {
 	}
 
 	// stop cron scheduler
-	cronCtx, cronCancel := context.WithTimeout(context.Background(), 30*time.Second)
-	_ = r.cron.Stop(cronCtx)
-	cronCancel()
+	_ = r.cron.Stop(shutdownCtx)
 	fmt.Println("[CRON] cron scheduler stopped")
 
-	// stop task runner
+	// wait for task runner
 	runnerCancel()
-	waitCtx, waitCancel := context.WithTimeout(context.Background(), 30*time.Second)
-	r.runner.Wait(waitCtx)
-	waitCancel()
+	r.runner.Wait(shutdownCtx)
 	fmt.Println("[QUEUE] task runner stopped")
 
 	// close certificate reloader

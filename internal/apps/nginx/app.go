@@ -281,7 +281,7 @@ func (s *App) reload(w http.ResponseWriter, r *http.Request, rollback ...string)
 // reloadConfig 重载 nginx 并回写响应，失败时改用 nginx -t 的输出定位主配置里的语法错误
 func (s *App) reloadConfig(w http.ResponseWriter, r *http.Request) {
 	if err := systemctl.Reload(r.Context(), "nginx"); err != nil {
-		out, _ := shell.Execf(r.Context(), "nginx -t")
+		out, _ := shell.Execf(r.Context(), "nginx -t 2>&1")
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v %s", err, out))
 		return
 	}

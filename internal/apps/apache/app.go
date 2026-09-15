@@ -69,8 +69,13 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(r.Context(), "apache"); err != nil {
-		out, _ := shell.Execf(r.Context(), "%s/server/apache/bin/apachectl configtest", app.Root)
+	s.reloadConfig(w, r)
+}
+
+// reloadConfig 重载 apache 并回写响应
+func (s *App) reloadConfig(w http.ResponseWriter, r *http.Request) {
+	if err := systemctl.Reload(r.Context(), "apache"); err != nil {
+		out, _ := shell.Execf(r.Context(), "%s/server/apache/bin/apachectl configtest 2>&1", app.Root)
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v %s", err, out))
 		return
 	}
@@ -238,11 +243,5 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(r.Context(), "apache"); err != nil {
-		out, _ := shell.Execf(r.Context(), "%s/server/apache/bin/apachectl configtest", app.Root)
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v %s", err, out))
-		return
-	}
-
-	service.Success(w, nil)
+	s.reloadConfig(w, r)
 }
