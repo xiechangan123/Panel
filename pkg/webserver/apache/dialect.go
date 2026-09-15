@@ -56,8 +56,7 @@ func (Dialect) Service() string {
 }
 
 func (Dialect) ConfigTest() string {
-	// 面板自装的 apache 没有软链到 /usr/local/bin，systemd 环境下 PATH 里找不到 apachectl
-	return ServerRoot + "/bin/apachectl configtest 2>&1"
+	return "apachectl configtest 2>&1"
 }
 
 func (Dialect) HTMLDir() string {
