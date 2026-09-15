@@ -105,13 +105,13 @@ func (r *websiteRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
+func (r *websiteRepo) Get(ctx context.Context, id uint) (*types.WebsiteSetting, error) {
 	website := new(biz.Website)
 	if err := r.db.Where("id", id).First(website).Error; err != nil {
 		return nil, err
 	}
 
-	vhost, err := r.getVhost(context.Background(), website)
+	vhost, err := r.getVhost(ctx, website)
 	if err != nil {
 		return nil, err
 	}
@@ -511,7 +511,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 		return nil, errors.New(r.t.Get("website type is unchanged"))
 	}
 
-	setting, err := r.Get(req.ID)
+	setting, err := r.Get(ctx, req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -1094,7 +1094,7 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 		return err
 	}
 
-	setting, err := r.Get(id)
+	setting, err := r.Get(ctx, id)
 	if err != nil {
 		return err
 	}

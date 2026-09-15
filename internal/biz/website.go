@@ -50,7 +50,7 @@ type WebsiteRepo interface {
 	GetRewrites() (map[string]string, error)
 	UpdateDefaultConfig(ctx context.Context, req *request.WebsiteDefaultConfig) error
 	Count() (int64, error)
-	Get(id uint) (*types.WebsiteSetting, error)
+	Get(ctx context.Context, id uint) (*types.WebsiteSetting, error)
 	GetByName(name string) (*types.WebsiteSetting, error)
 	List(typ, keyword string, page, limit uint) ([]*Website, int64, error)
 	Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error)
@@ -108,8 +108,8 @@ func (uc *WebsiteUsecase) Count() (int64, error) {
 	return uc.repo.Count()
 }
 
-func (uc *WebsiteUsecase) Get(id uint) (*types.WebsiteSetting, error) {
-	return uc.repo.Get(id)
+func (uc *WebsiteUsecase) Get(ctx context.Context, id uint) (*types.WebsiteSetting, error) {
+	return uc.repo.Get(ctx, id)
 }
 
 func (uc *WebsiteUsecase) GetByName(name string) (*types.WebsiteSetting, error) {

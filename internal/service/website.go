@@ -291,7 +291,7 @@ func (s *WebsiteService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config, err := s.websiteRepo.Get(req.ID)
+	config, err := s.websiteRepo.Get(r.Context(), req.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
