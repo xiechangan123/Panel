@@ -7,9 +7,11 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/command"
+	"github.com/acepanel/panel/v3/internal/service"
 )
 
-func NewCli(t *gotext.Locale, commands []*cli.Command) *cli.Command {
+func NewCli(t *gotext.Locale, cliService *service.CliService) app.CliBuilder {
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "NAME", t.Get("NAME"))
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "USAGE", t.Get("USAGE"))
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "VERSION", t.Get("VERSION"))
@@ -33,16 +35,18 @@ func NewCli(t *gotext.Locale, commands []*cli.Command) *cli.Command {
 	cli.RootCommandHelpTemplate += "\n" + t.Get("Forum：https://tom.moe")
 	cli.RootCommandHelpTemplate += "\n" + t.Get("QQ Group：12370907") + "\n"
 
-	return &cli.Command{
-		Name:    "acepanel",
-		Usage:   t.Get("AcePanel CLI Tool"),
-		Version: app.Version,
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:  "json",
-				Usage: t.Get("Output in JSON format (list commands only)"),
+	return func() *cli.Command {
+		return &cli.Command{
+			Name:    "acepanel",
+			Usage:   t.Get("AcePanel CLI Tool"),
+			Version: app.Version,
+			Flags: []cli.Flag{
+				&cli.BoolFlag{
+					Name:  "json",
+					Usage: t.Get("Output in JSON format (list commands only)"),
+				},
 			},
-		},
-		Commands: commands,
+			Commands: command.Commands(t, cliService),
+		}
 	}
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/bootstrap"
-	"github.com/acepanel/panel/v3/internal/command"
 	"github.com/acepanel/panel/v3/internal/data"
 	"github.com/acepanel/panel/v3/internal/service"
 )
@@ -130,17 +129,15 @@ func initCli() (*app.Cli, func() error, error) {
 
 	wireValue104_0 := service.NewCliService(wireValue18_0, wireValue19_0, wireValue21_0, wireValue23_0, wireValue22_0, wireValue30_0, wireValue34_0, wireValue40_0, wireValue44_0, wireValue50_0, wireValue49_0, wireValue53_0, wireValue0_0, wireValue4_0, wireValue1_0, wireValue8_0)
 
-	wireValue154_0 := command.Commands(wireValue1_0, wireValue104_0)
-
-	wireValue15_0 := bootstrap.NewCli(wireValue1_0, wireValue154_0)
+	wireValue15_0 := bootstrap.NewCli(wireValue1_0, wireValue104_0)
 
 	wireValue5_0 := bootstrap.NewMigrate(wireValue4_0)
 
-	wireValue155_0 := app.NewCli(wireValue15_0, wireValue5_0)
+	wireValue154_0 := app.NewCli(wireValue15_0, wireValue1_0, wireValue5_0)
 
 	wireCommitted = true
 
-	return wireValue155_0, wireCleanup.close, nil
+	return wireValue154_0, wireCleanup.close, nil
 }
 
 func wireRunCleanup(cleanup func() error) (err error, panicValue any) {

@@ -46,7 +46,7 @@ func FirewallCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 			{
 				Name:      "port",
 				Usage:     t.Get("Allow or remove a port rule"),
-				ArgsUsage: t.Get("<port or port range, e.g. 8888 or 8000-9000>"),
+				Arguments: []cli.Argument{arg("port", t.Get("Port or port range, e.g. 8888 or 8000-9000"))},
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "protocol",

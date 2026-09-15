@@ -23,9 +23,12 @@ func UserCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 				},
 			},
 			{
-				Name:      "create",
-				Usage:     t.Get("Create a new user (password is read from the ACEPANEL_PASSWORD environment variable or entered interactively if omitted)"),
-				ArgsUsage: t.Get("<username> [password]"),
+				Name:  "create",
+				Usage: t.Get("Create a new user (password is read from the ACEPANEL_PASSWORD environment variable or entered interactively if omitted)"),
+				Arguments: []cli.Argument{
+					arg("username", t.Get("Username")),
+					optArg("password", t.Get("Password")),
+				},
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "email",
@@ -40,23 +43,29 @@ func UserCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 			{
 				Name:      "delete",
 				Usage:     t.Get("Delete a user"),
-				ArgsUsage: t.Get("<username>"),
+				Arguments: []cli.Argument{arg("username", t.Get("Username"))},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.UserDelete(ctx, cmd)
 				},
 			},
 			{
-				Name:      "username",
-				Usage:     t.Get("Change a user's username"),
-				ArgsUsage: t.Get("<old-username> <new-username>"),
+				Name:  "username",
+				Usage: t.Get("Change a user's username"),
+				Arguments: []cli.Argument{
+					arg("old-username", t.Get("Old username")),
+					arg("new-username", t.Get("New username")),
+				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.UserName(ctx, cmd)
 				},
 			},
 			{
-				Name:      "password",
-				Usage:     t.Get("Change a user's password (password is read from the ACEPANEL_PASSWORD environment variable or entered interactively if omitted)"),
-				ArgsUsage: t.Get("<username> [password]"),
+				Name:  "password",
+				Usage: t.Get("Change a user's password (password is read from the ACEPANEL_PASSWORD environment variable or entered interactively if omitted)"),
+				Arguments: []cli.Argument{
+					arg("username", t.Get("Username")),
+					optArg("password", t.Get("Password")),
+				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.UserPassword(ctx, cmd)
 				},
@@ -64,7 +73,7 @@ func UserCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 			{
 				Name:      "2fa",
 				Usage:     t.Get("Toggle two-factor authentication for a user"),
-				ArgsUsage: t.Get("<username>"),
+				Arguments: []cli.Argument{arg("username", t.Get("Username"))},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.UserTwoFA(ctx, cmd)
 				},
@@ -72,7 +81,7 @@ func UserCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 			{
 				Name:      "passkey",
 				Usage:     t.Get("Clear all passkeys for a user"),
-				ArgsUsage: t.Get("<username>"),
+				Arguments: []cli.Argument{arg("username", t.Get("Username"))},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.UserPasskey(ctx, cmd)
 				},

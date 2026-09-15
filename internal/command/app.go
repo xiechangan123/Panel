@@ -18,7 +18,7 @@ func AppCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 			{
 				Name:      "install",
 				Usage:     t.Get("Install application"),
-				ArgsUsage: t.Get("<slug> [channel]"),
+				Arguments: []cli.Argument{arg("slug", t.Get("Slug")), optArg("channel", t.Get("Channel"))},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.AppInstall(ctx, cmd)
 				},
@@ -26,7 +26,7 @@ func AppCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 			{
 				Name:      "uninstall",
 				Usage:     t.Get("Uninstall application"),
-				ArgsUsage: t.Get("<slug>"),
+				Arguments: []cli.Argument{arg("slug", t.Get("Slug"))},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.AppUnInstall(ctx, cmd)
 				},
@@ -34,7 +34,7 @@ func AppCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 			{
 				Name:      "update",
 				Usage:     t.Get("Update application"),
-				ArgsUsage: t.Get("<slug>"),
+				Arguments: []cli.Argument{arg("slug", t.Get("Slug"))},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.AppUpdate(ctx, cmd)
 				},
@@ -49,7 +49,7 @@ func AppCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 			{
 				Name:      "write",
 				Usage:     t.Get("Add panel application mark (use only under guidance)"),
-				ArgsUsage: t.Get("<slug> <channel> <version>"),
+				Arguments: []cli.Argument{arg("slug", t.Get("Slug")), arg("channel", t.Get("Channel")), arg("version", t.Get("Version"))},
 				Hidden:    true,
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.AppWrite(ctx, cmd)
@@ -58,7 +58,7 @@ func AppCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 			{
 				Name:      "remove",
 				Usage:     t.Get("Remove panel application mark (use only under guidance)"),
-				ArgsUsage: t.Get("<slug>"),
+				Arguments: []cli.Argument{arg("slug", t.Get("Slug"))},
 				Hidden:    true,
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.AppRemove(ctx, cmd)

@@ -7,18 +7,27 @@ import (
 	"syscall"
 
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/term"
+
+	"github.com/acepanel/panel/v3/pkg/tui"
 )
 
+// CliBuilder 构建一棵全新的命令树，交互模式每次执行都要新树，避免复用已解析过的标志状态
+type CliBuilder func() *cli.Command
+
 type Cli struct {
-	cmd      *cli.Command
+	build    CliBuilder
+	t        *gotext.Locale
 	migrator *gormigrate.Gormigrate
 }
 
-func NewCli(cmd *cli.Command, migrator *gormigrate.Gormigrate) *Cli {
+func NewCli(build CliBuilder, t *gotext.Locale, migrator *gormigrate.Gormigrate) *Cli {
 	IsCli = true
 	return &Cli{
-		cmd:      cmd,
+		build:    build,
+		t:        t,
 		migrator: migrator,
 	}
 }
@@ -32,6 +41,13 @@ func (r *Cli) Run() error {
 	defer stop()
 	context.AfterFunc(ctx, stop)
 
+	// 裸执行且处于终端时进入交互模式，其余情况按普通命令行处理
+	if len(os.Args) == 1 && term.IsTerminal(int(os.Stdin.Fd())) && term.IsTerminal(int(os.Stdout.Fd())) {
+		return tui.Run(ctx, r.t, r.build(), func(ctx context.Context, args []string) error {
+			return r.build().Run(ctx, args)
+		})
+	}
+
 	// 错误必须向上返回，调用方据此以非零码退出，后台任务才能正确判定失败
-	return r.cmd.Run(ctx, os.Args)
+	return r.build().Run(ctx, os.Args)
 }

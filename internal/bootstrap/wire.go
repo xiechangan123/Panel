@@ -13,9 +13,9 @@ import (
 	"github.com/libtnb/sessions"
 	"github.com/libtnb/validator"
 	"github.com/libtnb/wire"
-	"github.com/urfave/cli/v3"
 	"gorm.io/gorm"
 
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/middleware"
 	"github.com/acepanel/panel/v3/pkg/apploader"
 	"github.com/acepanel/panel/v3/pkg/config"
@@ -56,5 +56,5 @@ var Module = wire.New().
 	Export[*tlscert.Reloader]().
 	Export[*hlfhr.Server]().
 	Export[*cron.Cron]().
-	Export[*cli.Command]().
+	Export[app.CliBuilder]().
 	Export[*websitestat.Aggregator]()

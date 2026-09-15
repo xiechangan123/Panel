@@ -68,14 +68,14 @@ func InfoCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 // PortCommand 修改监听端口
 func PortCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 	return &cli.Command{
-		Name:      "port",
-		Usage:     t.Get("Change the AcePanel listening port"),
-		ArgsUsage: t.Get("<port>"),
+		Name:  "port",
+		Usage: t.Get("Change the AcePanel listening port"),
 		Flags: []cli.Flag{
 			&cli.UintFlag{
-				Name:    "port",
-				Aliases: []string{"p"},
-				Usage:   t.Get("Listening port"),
+				Name:     "port",
+				Aliases:  []string{"p"},
+				Usage:    t.Get("Listening port"),
+				Required: true,
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {

@@ -284,12 +284,12 @@ func (s *CliService) UserList(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) UserCreate(ctx context.Context, cmd *cli.Command) error {
-	username := cmd.Args().Get(0)
+	username := cmd.StringArg("username")
 	if username == "" {
 		return errors.New(s.t.Get("Username cannot be empty"))
 	}
 
-	password, err := s.readSecret(cmd.Args().Get(1), passwordEnv, s.t.Get("Please enter the password: "))
+	password, err := s.readSecret(cmd.StringArg("password"), passwordEnv, s.t.Get("Please enter the password: "))
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func (s *CliService) UserCreate(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) UserDelete(ctx context.Context, cmd *cli.Command) error {
-	username := cmd.Args().First()
+	username := cmd.StringArg("username")
 	if username == "" {
 		return errors.New(s.t.Get("Username cannot be empty"))
 	}
@@ -336,8 +336,8 @@ func (s *CliService) UserDelete(ctx context.Context, cmd *cli.Command) error {
 
 func (s *CliService) UserName(ctx context.Context, cmd *cli.Command) error {
 	user := new(biz.User)
-	oldUsername := cmd.Args().Get(0)
-	newUsername := cmd.Args().Get(1)
+	oldUsername := cmd.StringArg("old-username")
+	newUsername := cmd.StringArg("new-username")
 	if oldUsername == "" {
 		return errors.New(s.t.Get("Old username cannot be empty"))
 	}
@@ -363,12 +363,12 @@ func (s *CliService) UserName(ctx context.Context, cmd *cli.Command) error {
 
 func (s *CliService) UserPassword(ctx context.Context, cmd *cli.Command) error {
 	user := new(biz.User)
-	username := cmd.Args().Get(0)
+	username := cmd.StringArg("username")
 	if username == "" {
 		return errors.New(s.t.Get("Username cannot be empty"))
 	}
 
-	password, err := s.readSecret(cmd.Args().Get(1), passwordEnv, s.t.Get("Please enter the new password: "))
+	password, err := s.readSecret(cmd.StringArg("password"), passwordEnv, s.t.Get("Please enter the new password: "))
 	if err != nil {
 		return err
 	}
@@ -398,7 +398,7 @@ func (s *CliService) UserPassword(ctx context.Context, cmd *cli.Command) error {
 
 func (s *CliService) UserTwoFA(ctx context.Context, cmd *cli.Command) error {
 	user := new(biz.User)
-	username := cmd.Args().Get(0)
+	username := cmd.StringArg("username")
 	if username == "" {
 		return errors.New(s.t.Get("Username cannot be empty"))
 	}
@@ -440,7 +440,7 @@ func (s *CliService) UserTwoFA(ctx context.Context, cmd *cli.Command) error {
 
 func (s *CliService) UserPasskey(ctx context.Context, cmd *cli.Command) error {
 	user := new(biz.User)
-	username := cmd.Args().Get(0)
+	username := cmd.StringArg("username")
 	if username == "" {
 		return errors.New(s.t.Get("Username cannot be empty"))
 	}
@@ -556,7 +556,7 @@ func (s *CliService) EntranceOn(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	// 支持自定义入口，未指定时随机生成
-	entrance := strings.Trim(cmd.Args().First(), "/")
+	entrance := strings.Trim(cmd.StringArg("entrance"), "/")
 	if entrance == "" {
 		entrance = str.Random(6)
 	}
@@ -588,7 +588,7 @@ func (s *CliService) EntranceOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) BindDomainOn(ctx context.Context, cmd *cli.Command) error {
-	domains := cmd.Args().Slice()
+	domains := cmd.StringArgs("domain")
 	if len(domains) == 0 {
 		return errors.New(s.t.Get("Please specify at least one domain"))
 	}
@@ -625,7 +625,7 @@ func (s *CliService) BindDomainOff(ctx context.Context, cmd *cli.Command) error 
 }
 
 func (s *CliService) BindIPOn(ctx context.Context, cmd *cli.Command) error {
-	ips := cmd.Args().Slice()
+	ips := cmd.StringArgs("ip")
 	if len(ips) == 0 {
 		return errors.New(s.t.Get("Please specify at least one IP"))
 	}
@@ -662,7 +662,7 @@ func (s *CliService) BindIPOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) BindUAOn(ctx context.Context, cmd *cli.Command) error {
-	uas := cmd.Args().Slice()
+	uas := cmd.StringArgs("user-agent")
 	if len(uas) == 0 {
 		return errors.New(s.t.Get("Please specify at least one User-Agent"))
 	}
@@ -699,8 +699,7 @@ func (s *CliService) BindUAOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
-	// 兼容旧的位置参数写法
-	port := cmp.Or(cmd.Uint("port"), cast.ToUint(cmd.Args().First()))
+	port := cmd.Uint("port")
 	if port == 0 {
 		return errors.New(s.t.Get("Please specify the port"))
 	}
@@ -802,7 +801,7 @@ func (s *CliService) FirewallList(ctx context.Context, cmd *cli.Command) error {
 
 // FirewallPort 放行或移除端口，端口支持 8888 与 8000-9000 两种写法
 func (s *CliService) FirewallPort(ctx context.Context, cmd *cli.Command) error {
-	value := cmd.Args().First()
+	value := cmd.StringArg("port")
 	start, end, found := strings.Cut(value, "-")
 	if !found {
 		end = start
@@ -1365,12 +1364,12 @@ func (s *CliService) AppList(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) AppInstall(ctx context.Context, cmd *cli.Command) error {
-	slug := cmd.Args().First()
+	slug := cmd.StringArg("slug")
 	if slug == "" {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
 	// 未指定通道时跟随面板通道
-	channel := cmd.Args().Get(1)
+	channel := cmd.StringArg("channel")
 	if channel == "" {
 		channel, _ = s.settingRepo.Get(biz.SettingKeyChannel)
 		channel = cmp.Or(channel, "stable")
@@ -1385,7 +1384,7 @@ func (s *CliService) AppInstall(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) AppUnInstall(ctx context.Context, cmd *cli.Command) error {
-	slug := cmd.Args().First()
+	slug := cmd.StringArg("slug")
 	if slug == "" {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
@@ -1399,7 +1398,7 @@ func (s *CliService) AppUnInstall(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) AppUpdate(ctx context.Context, cmd *cli.Command) error {
-	slug := cmd.Args().First()
+	slug := cmd.StringArg("slug")
 	if slug == "" {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
@@ -1413,9 +1412,9 @@ func (s *CliService) AppUpdate(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) AppWrite(ctx context.Context, cmd *cli.Command) error {
-	slug := cmd.Args().Get(0)
-	channel := cmd.Args().Get(1)
-	version := cmd.Args().Get(2)
+	slug := cmd.StringArg("slug")
+	channel := cmd.StringArg("channel")
+	version := cmd.StringArg("version")
 	if slug == "" || channel == "" || version == "" {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
@@ -1437,7 +1436,7 @@ func (s *CliService) AppWrite(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) AppRemove(ctx context.Context, cmd *cli.Command) error {
-	slug := cmd.Args().First()
+	slug := cmd.StringArg("slug")
 	if slug == "" {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
@@ -1476,7 +1475,7 @@ func (s *CliService) ClearTask(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) GetSetting(ctx context.Context, cmd *cli.Command) error {
-	key := cmd.Args().First()
+	key := cmd.StringArg("key")
 	if key == "" {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
@@ -1494,8 +1493,8 @@ func (s *CliService) GetSetting(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) WriteSetting(ctx context.Context, cmd *cli.Command) error {
-	key := cmd.Args().Get(0)
-	value := cmd.Args().Get(1)
+	key := cmd.StringArg("key")
+	value := cmd.StringArg("value")
 	if key == "" || value == "" {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
@@ -1530,7 +1529,7 @@ func (s *CliService) ReloadWebserver(ctx context.Context, cmd *cli.Command) erro
 }
 
 func (s *CliService) RemoveSetting(ctx context.Context, cmd *cli.Command) error {
-	key := cmd.Args().First()
+	key := cmd.StringArg("key")
 	if key == "" {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
