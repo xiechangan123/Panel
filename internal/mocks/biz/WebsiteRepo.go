@@ -101,7 +101,7 @@ type WebsiteRepo struct {
 	GetFunc func(ctx context.Context, id uint) (*types.WebsiteSetting, error)
 
 	// GetByNameFunc mocks the GetByName method.
-	GetByNameFunc func(name string) (*types.WebsiteSetting, error)
+	GetByNameFunc func(ctx context.Context, name string) (*types.WebsiteSetting, error)
 
 	// GetForDeleteFunc mocks the GetForDelete method.
 	GetForDeleteFunc func(id uint) (*biz.Website, error)
@@ -171,6 +171,8 @@ type WebsiteRepo struct {
 		}
 		// GetByName holds details about calls to the GetByName method.
 		GetByName []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Name is the name argument value.
 			Name string
 		}
@@ -426,19 +428,21 @@ func (mock *WebsiteRepo) GetCalls() []struct {
 }
 
 // GetByName calls GetByNameFunc.
-func (mock *WebsiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
+func (mock *WebsiteRepo) GetByName(ctx context.Context, name string) (*types.WebsiteSetting, error) {
 	if mock.GetByNameFunc == nil {
 		panic("WebsiteRepo.GetByNameFunc: method is nil but WebsiteRepo.GetByName was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Name string
 	}{
+		Ctx:  ctx,
 		Name: name,
 	}
 	mock.lockGetByName.Lock()
 	mock.calls.GetByName = append(mock.calls.GetByName, callInfo)
 	mock.lockGetByName.Unlock()
-	return mock.GetByNameFunc(name)
+	return mock.GetByNameFunc(ctx, name)
 }
 
 // GetByNameCalls gets all the calls that were made to GetByName.
@@ -446,9 +450,11 @@ func (mock *WebsiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
 //
 //	len(mockedWebsiteRepo.GetByNameCalls())
 func (mock *WebsiteRepo) GetByNameCalls() []struct {
+	Ctx  context.Context
 	Name string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Name string
 	}
 	mock.lockGetByName.RLock()

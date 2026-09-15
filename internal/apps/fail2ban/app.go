@@ -84,7 +84,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 
 	switch req.Type {
 	case "website":
-		website, err := s.websiteRepo.GetByName(req.WebsiteName)
+		website, err := s.websiteRepo.GetByName(r.Context(), req.WebsiteName)
 		if err != nil {
 			service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 			return

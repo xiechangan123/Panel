@@ -222,13 +222,13 @@ func (r *websiteRepo) loadSetting(website *biz.Website, vhost webservertypes.Vho
 	return setting, err
 }
 
-func (r *websiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
+func (r *websiteRepo) GetByName(ctx context.Context, name string) (*types.WebsiteSetting, error) {
 	website := new(biz.Website)
 	if err := r.db.Where("name", name).First(website).Error; err != nil {
 		return nil, err
 	}
 
-	return r.Get(website.ID)
+	return r.Get(ctx, website.ID)
 }
 
 func (r *websiteRepo) List(typ, keyword string, page, limit uint) ([]*biz.Website, int64, error) {
