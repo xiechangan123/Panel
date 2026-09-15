@@ -105,13 +105,13 @@ func (r *websiteRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r *websiteRepo) Get(ctx context.Context, id uint) (*types.WebsiteSetting, error) {
+func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	website := new(biz.Website)
 	if err := r.db.Where("id", id).First(website).Error; err != nil {
 		return nil, err
 	}
 
-	vhost, err := r.getVhost(ctx, website)
+	vhost, err := r.getVhost(website)
 	if err != nil {
 		return nil, err
 	}
@@ -222,13 +222,13 @@ func (r *websiteRepo) loadSetting(website *biz.Website, vhost webservertypes.Vho
 	return setting, err
 }
 
-func (r *websiteRepo) GetByName(ctx context.Context, name string) (*types.WebsiteSetting, error) {
+func (r *websiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
 	website := new(biz.Website)
 	if err := r.db.Where("name", name).First(website).Error; err != nil {
 		return nil, err
 	}
 
-	return r.Get(ctx, website.ID)
+	return r.Get(website.ID)
 }
 
 func (r *websiteRepo) List(typ, keyword string, page, limit uint) ([]*biz.Website, int64, error) {
@@ -490,9 +490,6 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) (*
 		return nil, err
 	}
 
-	if _, _, err := r.Rebuild(ctx, website); err != nil {
-		return nil, err
-	}
 	if err := r.applyUpdate(ctx, req, website); err != nil {
 		return nil, err
 	}
@@ -511,7 +508,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 		return nil, errors.New(r.t.Get("website type is unchanged"))
 	}
 
-	setting, err := r.Get(ctx, req.ID)
+	setting, err := r.Get(req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -1094,7 +1091,7 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 		return err
 	}
 
-	setting, err := r.Get(ctx, id)
+	setting, err := r.Get(id)
 	if err != nil {
 		return err
 	}
@@ -1194,7 +1191,7 @@ func (r *websiteRepo) UpdateStatus(ctx context.Context, id uint, status bool) er
 		return err
 	}
 
-	vhost, err := r.getVhost(ctx, website)
+	vhost, err := r.getVhost(website)
 	if err != nil {
 		return err
 	}
@@ -1396,13 +1393,9 @@ func newVhost(d webserver.Dialect, website *biz.Website) (webservertypes.Vhost, 
 	return d.NewVhost(string(website.Type), filepath.Join(app.Root, "sites", website.Name, "config"))
 }
 
-// getVhost 站点还没按当前 Web 服务器生成过配置时先重建，兜住切换服务器时重建失败或被跳过的站点
-func (r *websiteRepo) getVhost(ctx context.Context, website *biz.Website) (webservertypes.Vhost, error) {
+func (r *websiteRepo) getVhost(website *biz.Website) (webservertypes.Vhost, error) {
 	d, err := r.dialect()
 	if err != nil {
-		return nil, err
-	}
-	if _, _, err = r.Rebuild(ctx, website); err != nil {
 		return nil, err
 	}
 

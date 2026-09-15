@@ -98,10 +98,10 @@ type WebsiteRepo struct {
 	DeleteFunc func(website *biz.Website) error
 
 	// GetFunc mocks the Get method.
-	GetFunc func(ctx context.Context, id uint) (*types.WebsiteSetting, error)
+	GetFunc func(id uint) (*types.WebsiteSetting, error)
 
 	// GetByNameFunc mocks the GetByName method.
-	GetByNameFunc func(ctx context.Context, name string) (*types.WebsiteSetting, error)
+	GetByNameFunc func(name string) (*types.WebsiteSetting, error)
 
 	// GetForDeleteFunc mocks the GetForDelete method.
 	GetForDeleteFunc func(id uint) (*biz.Website, error)
@@ -164,15 +164,11 @@ type WebsiteRepo struct {
 		}
 		// Get holds details about calls to the Get method.
 		Get []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
 			// ID is the id argument value.
 			ID uint
 		}
 		// GetByName holds details about calls to the GetByName method.
 		GetByName []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
 			// Name is the name argument value.
 			Name string
 		}
@@ -392,21 +388,19 @@ func (mock *WebsiteRepo) DeleteCalls() []struct {
 }
 
 // Get calls GetFunc.
-func (mock *WebsiteRepo) Get(ctx context.Context, id uint) (*types.WebsiteSetting, error) {
+func (mock *WebsiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	if mock.GetFunc == nil {
 		panic("WebsiteRepo.GetFunc: method is nil but WebsiteRepo.Get was just called")
 	}
 	callInfo := struct {
-		Ctx context.Context
-		ID  uint
+		ID uint
 	}{
-		Ctx: ctx,
-		ID:  id,
+		ID: id,
 	}
 	mock.lockGet.Lock()
 	mock.calls.Get = append(mock.calls.Get, callInfo)
 	mock.lockGet.Unlock()
-	return mock.GetFunc(ctx, id)
+	return mock.GetFunc(id)
 }
 
 // GetCalls gets all the calls that were made to Get.
@@ -414,12 +408,10 @@ func (mock *WebsiteRepo) Get(ctx context.Context, id uint) (*types.WebsiteSettin
 //
 //	len(mockedWebsiteRepo.GetCalls())
 func (mock *WebsiteRepo) GetCalls() []struct {
-	Ctx context.Context
-	ID  uint
+	ID uint
 } {
 	var calls []struct {
-		Ctx context.Context
-		ID  uint
+		ID uint
 	}
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
@@ -428,21 +420,19 @@ func (mock *WebsiteRepo) GetCalls() []struct {
 }
 
 // GetByName calls GetByNameFunc.
-func (mock *WebsiteRepo) GetByName(ctx context.Context, name string) (*types.WebsiteSetting, error) {
+func (mock *WebsiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
 	if mock.GetByNameFunc == nil {
 		panic("WebsiteRepo.GetByNameFunc: method is nil but WebsiteRepo.GetByName was just called")
 	}
 	callInfo := struct {
-		Ctx  context.Context
 		Name string
 	}{
-		Ctx:  ctx,
 		Name: name,
 	}
 	mock.lockGetByName.Lock()
 	mock.calls.GetByName = append(mock.calls.GetByName, callInfo)
 	mock.lockGetByName.Unlock()
-	return mock.GetByNameFunc(ctx, name)
+	return mock.GetByNameFunc(name)
 }
 
 // GetByNameCalls gets all the calls that were made to GetByName.
@@ -450,11 +440,9 @@ func (mock *WebsiteRepo) GetByName(ctx context.Context, name string) (*types.Web
 //
 //	len(mockedWebsiteRepo.GetByNameCalls())
 func (mock *WebsiteRepo) GetByNameCalls() []struct {
-	Ctx  context.Context
 	Name string
 } {
 	var calls []struct {
-		Ctx  context.Context
 		Name string
 	}
 	mock.lockGetByName.RLock()

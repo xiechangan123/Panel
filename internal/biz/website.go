@@ -50,8 +50,8 @@ type WebsiteRepo interface {
 	GetRewrites() (map[string]string, error)
 	UpdateDefaultConfig(ctx context.Context, req *request.WebsiteDefaultConfig) error
 	Count() (int64, error)
-	Get(ctx context.Context, id uint) (*types.WebsiteSetting, error)
-	GetByName(ctx context.Context, name string) (*types.WebsiteSetting, error)
+	Get(id uint) (*types.WebsiteSetting, error)
+	GetByName(name string) (*types.WebsiteSetting, error)
 	List(typ, keyword string, page, limit uint) ([]*Website, int64, error)
 	Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error)
 	Update(ctx context.Context, req *request.WebsiteUpdate) (*Website, error)
@@ -108,12 +108,12 @@ func (uc *WebsiteUsecase) Count() (int64, error) {
 	return uc.repo.Count()
 }
 
-func (uc *WebsiteUsecase) Get(ctx context.Context, id uint) (*types.WebsiteSetting, error) {
-	return uc.repo.Get(ctx, id)
+func (uc *WebsiteUsecase) Get(id uint) (*types.WebsiteSetting, error) {
+	return uc.repo.Get(id)
 }
 
-func (uc *WebsiteUsecase) GetByName(ctx context.Context, name string) (*types.WebsiteSetting, error) {
-	return uc.repo.GetByName(ctx, name)
+func (uc *WebsiteUsecase) GetByName(name string) (*types.WebsiteSetting, error) {
+	return uc.repo.GetByName(name)
 }
 
 func (uc *WebsiteUsecase) List(typ, keyword string, page, limit uint) ([]*Website, int64, error) {
@@ -252,7 +252,7 @@ func (uc *WebsiteUsecase) UpdateCert(ctx context.Context, req *request.WebsiteUp
 }
 
 func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) error {
-	website, err := uc.repo.Get(ctx, id)
+	website, err := uc.repo.Get(id)
 	if err != nil {
 		return err
 	}

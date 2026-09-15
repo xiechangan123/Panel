@@ -565,7 +565,7 @@ func (r *backupRepo) getStorage(backupStorage biz.BackupStorage) (storage.Storag
 
 // createWebsite 创建网站备份
 func (r *backupRepo) createWebsite(ctx context.Context, name string, storage storage.Storage, target string) error {
-	website, err := r.website.GetByName(ctx, target)
+	website, err := r.website.GetByName(target)
 	if err != nil {
 		return err
 	}
@@ -894,7 +894,7 @@ func (r *backupRepo) createPath(ctx context.Context, name string, storage storag
 
 // restoreWebsite 恢复网站备份
 func (r *backupRepo) restoreWebsite(ctx context.Context, backup, target string) error {
-	website, err := r.website.GetByName(ctx, target)
+	website, err := r.website.GetByName(target)
 	if err != nil {
 		return err
 	}
