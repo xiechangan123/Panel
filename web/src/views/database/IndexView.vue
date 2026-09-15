@@ -22,6 +22,7 @@ import UserList from '@/views/database/UserList.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('')
+const keyword = ref('')
 
 const createDatabaseModalShow = ref(false)
 const createUserModalShow = ref(false)
@@ -53,6 +54,8 @@ const typeTabs = [
   'elasticsearch',
   'redis',
 ]
+// 带数据库列表的类型标签页
+const databaseTabs = ['mysql', 'postgresql', 'clickhouse', 'mongodb', 'sqlite']
 const servers = ref<any[]>([])
 
 const availableTypes = computed(() => new Set(servers.value.map((item: any) => item.type)))
@@ -133,67 +136,77 @@ const handlePgAdmin = () => {
       </n-tabs>
     </template>
     <n-flex vertical>
-      <n-flex v-if="!['redis', 'elasticsearch'].includes(currentTab)">
-        <n-button
-          v-if="['mysql', 'postgresql', 'clickhouse', 'mongodb'].includes(currentTab)"
-          type="primary"
-          @click="createDatabaseModalShow = true"
-        >
-          {{ $gettext('Create Database') }}
-        </n-button>
-        <template v-if="currentTab === 'mysql' && phpMyAdminInstalled && mysqlServers.length > 0">
-          <n-dropdown
-            v-if="mysqlServers.length > 1"
-            :options="serverOptions"
-            trigger="click"
-            @select="handlePhpMyAdmin"
+      <n-flex v-if="!['redis', 'elasticsearch'].includes(currentTab)" justify="space-between">
+        <n-flex>
+          <n-button
+            v-if="['mysql', 'postgresql', 'clickhouse', 'mongodb'].includes(currentTab)"
+            type="primary"
+            @click="createDatabaseModalShow = true"
           >
-            <n-button :loading="phpMyAdminLoading" :disabled="phpMyAdminLoading">
+            {{ $gettext('Create Database') }}
+          </n-button>
+          <template v-if="currentTab === 'mysql' && phpMyAdminInstalled && mysqlServers.length > 0">
+            <n-dropdown
+              v-if="mysqlServers.length > 1"
+              :options="serverOptions"
+              trigger="click"
+              @select="handlePhpMyAdmin"
+            >
+              <n-button :loading="phpMyAdminLoading" :disabled="phpMyAdminLoading">
+                <template #icon>
+                  <component :is="phpMyAdminIcon" />
+                </template>
+                phpMyAdmin
+              </n-button>
+            </n-dropdown>
+            <n-button
+              v-else
+              :loading="phpMyAdminLoading"
+              :disabled="phpMyAdminLoading"
+              @click="handlePhpMyAdmin(mysqlServers[0].id)"
+            >
               <template #icon>
                 <component :is="phpMyAdminIcon" />
               </template>
               phpMyAdmin
             </n-button>
-          </n-dropdown>
+          </template>
           <n-button
-            v-else
-            :loading="phpMyAdminLoading"
-            :disabled="phpMyAdminLoading"
-            @click="handlePhpMyAdmin(mysqlServers[0].id)"
+            v-if="currentTab === 'postgresql' && pgAdminInstalled && postgresqlServers.length > 0"
+            :loading="pgAdminLoading"
+            :disabled="pgAdminLoading"
+            @click="handlePgAdmin"
           >
             <template #icon>
-              <component :is="phpMyAdminIcon" />
+              <component :is="pgAdminIcon" />
             </template>
-            phpMyAdmin
+            pgAdmin
           </n-button>
-        </template>
-        <n-button
-          v-if="currentTab === 'postgresql' && pgAdminInstalled && postgresqlServers.length > 0"
-          :loading="pgAdminLoading"
-          :disabled="pgAdminLoading"
-          @click="handlePgAdmin"
-        >
-          <template #icon>
-            <component :is="pgAdminIcon" />
-          </template>
-          pgAdmin
-        </n-button>
-        <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
-          {{ $gettext('Create User') }}
-        </n-button>
-        <n-button
-          v-if="currentTab === 'server'"
-          type="primary"
-          @click="createServerModalShow = true"
-        >
-          {{ $gettext('Add Server') }}
-        </n-button>
+          <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
+            {{ $gettext('Create User') }}
+          </n-button>
+          <n-button
+            v-if="currentTab === 'server'"
+            type="primary"
+            @click="createServerModalShow = true"
+          >
+            {{ $gettext('Add Server') }}
+          </n-button>
+        </n-flex>
+        <n-input
+          v-if="databaseTabs.includes(currentTab)"
+          v-model:value="keyword"
+          :placeholder="$gettext('Search')"
+          clearable
+          class="!w-60"
+        />
       </n-flex>
-      <database-list v-if="currentTab === 'mysql'" type="mysql" />
-      <database-list v-if="currentTab === 'postgresql'" type="postgresql" />
-      <database-list v-if="currentTab === 'clickhouse'" type="clickhouse" />
-      <database-list v-if="currentTab === 'mongodb'" type="mongodb" />
-      <database-list v-if="currentTab === 'sqlite'" type="sqlite" />
+      <database-list
+        v-if="databaseTabs.includes(currentTab)"
+        :key="currentTab"
+        :type="currentTab"
+        :keyword="keyword"
+      />
       <elasticsearch-data-view v-if="currentTab === 'elasticsearch'" type="elasticsearch" />
       <redis-data-view v-if="currentTab === 'redis'" />
       <user-list v-if="currentTab === 'user'" />

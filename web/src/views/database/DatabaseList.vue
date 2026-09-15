@@ -7,6 +7,7 @@ import { useConfirm } from '@/components/system/composables/useConfirm'
 
 const props = defineProps<{
   type: string
+  keyword: string
 }>()
 
 const { $gettext } = useGettext()
@@ -92,12 +93,14 @@ const columns: any = computed(() => {
 })
 
 const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => database.list(page, pageSize, props.type),
+  (page, pageSize) => database.list(page, pageSize, props.type, props.keyword),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
+    watchingStates: [() => props.keyword],
+    debounce: [300],
   },
 )
 

@@ -5,9 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
-import { apachePreset, type TuneProfile } from '@/utils/tunepreset'
-
 import apache from '@/api/apps/apache'
+import { apachePreset, type TuneProfile } from '@/utils/tunepreset'
 
 const { $gettext } = useGettext()
 const currentTab = ref('mpm')
@@ -94,125 +93,125 @@ const handleSave = () => {
 <template>
   <n-flex vertical>
     <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
-    <n-tab-pane name="mpm" :tab="$gettext('MPM Event')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Worker thread pool settings for the event MPM.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Start Servers (StartServers)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="startServers"
-              :placeholder="$gettext('e.g. 3')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Min Spare Threads (MinSpareThreads)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="minSpareThreads"
-              :placeholder="$gettext('e.g. 75')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Spare Threads (MaxSpareThreads)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxSpareThreads"
-              :placeholder="$gettext('e.g. 250')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Threads Per Child (ThreadsPerChild)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="threadsPerChild"
-              :placeholder="$gettext('e.g. 25')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Request Workers (MaxRequestWorkers)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxRequestWorkers"
-              :placeholder="$gettext('e.g. 400')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Connections Per Child (MaxConnectionsPerChild)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxConnectionsPerChild"
-              :placeholder="$gettext('0 means unlimited')"
-              :min="0"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      <n-tab-pane name="mpm" :tab="$gettext('MPM Event')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Worker thread pool settings for the event MPM.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Start Servers (StartServers)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="startServers"
+                :placeholder="$gettext('e.g. 3')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Min Spare Threads (MinSpareThreads)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="minSpareThreads"
+                :placeholder="$gettext('e.g. 75')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Spare Threads (MaxSpareThreads)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxSpareThreads"
+                :placeholder="$gettext('e.g. 250')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Threads Per Child (ThreadsPerChild)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="threadsPerChild"
+                :placeholder="$gettext('e.g. 25')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Request Workers (MaxRequestWorkers)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxRequestWorkers"
+                :placeholder="$gettext('e.g. 400')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Connections Per Child (MaxConnectionsPerChild)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxConnectionsPerChild"
+                :placeholder="$gettext('0 means unlimited')"
+                :min="0"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="connection" :tab="$gettext('Connection')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Connection and keep-alive settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Timeout (Timeout)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="timeout"
-              :placeholder="$gettext('e.g. 60')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Keep Alive (KeepAlive)')">
-            <n-select v-model:value="keepAlive" :options="onOffOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Keep Alive Requests (MaxKeepAliveRequests)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxKeepAliveRequests"
-              :placeholder="$gettext('0 means unlimited')"
-              :min="0"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Keep Alive Timeout (KeepAliveTimeout)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="keepAliveTimeout"
-              :placeholder="$gettext('e.g. 5')"
-              :min="1"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      </n-tab-pane>
+      <n-tab-pane name="connection" :tab="$gettext('Connection')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Connection and keep-alive settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Timeout (Timeout)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="timeout"
+                :placeholder="$gettext('e.g. 60')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Keep Alive (KeepAlive)')">
+              <n-select v-model:value="keepAlive" :options="onOffOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Keep Alive Requests (MaxKeepAliveRequests)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxKeepAliveRequests"
+                :placeholder="$gettext('0 means unlimited')"
+                :min="0"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Keep Alive Timeout (KeepAliveTimeout)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="keepAliveTimeout"
+                :placeholder="$gettext('e.g. 5')"
+                :min="1"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
+      </n-tab-pane>
     </n-tabs>
     <tune-preset-modal
       v-model:show="showPresetModal"

@@ -2,8 +2,8 @@ import { http } from '@/utils'
 
 export default {
   // 获取项目列表
-  list: (type: string, page: number, limit: number): any =>
-    http.Get('/project', { params: { type, page, limit } }),
+  list: (type: string, page: number, limit: number, keyword?: string): any =>
+    http.Get('/project', { params: { type, page, limit, keyword } }),
   // 获取项目详情
   get: (id: number): any => http.Get(`/project/${id}`),
   // 创建项目

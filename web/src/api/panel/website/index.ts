@@ -2,8 +2,8 @@ import { http } from '@/utils'
 
 export default {
   // 列表
-  list: (type: string, page: number, limit: number): any =>
-    http.Get('/website', { params: { type, page, limit } }),
+  list: (type: string, page: number, limit: number, keyword?: string): any =>
+    http.Get('/website', { params: { type, page, limit, keyword } }),
   // 创建
   create: (data: any): any => http.Post('/website', data),
   // 删除

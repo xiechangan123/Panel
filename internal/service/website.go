@@ -122,7 +122,7 @@ func (s *WebsiteService) GetDefaultSite(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	websites, _, err := s.websiteRepo.List("all", 1, 10000)
+	websites, _, err := s.websiteRepo.List("all", "", 1, 10000)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -150,7 +150,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	websites, _, err := s.websiteRepo.List("all", 1, 10000)
+	websites, _, err := s.websiteRepo.List("all", "", 1, 10000)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -253,7 +253,7 @@ func (s *WebsiteService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	websites, total, err := s.websiteRepo.List(req.Type, req.Page, req.Limit)
+	websites, total, err := s.websiteRepo.List(req.Type, req.Keyword, req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

@@ -57,5 +57,5 @@ export default {
   updateInterface: (config: NetworkInterfaceConfig): any =>
     http.Post('/toolbox_network/interfaces', config),
   confirmInterface: (): any => http.Post('/toolbox_network/interfaces/confirm'),
-  rollbackInterface: (): any => http.Post('/toolbox_network/interfaces/rollback')
+  rollbackInterface: (): any => http.Post('/toolbox_network/interfaces/rollback'),
 }

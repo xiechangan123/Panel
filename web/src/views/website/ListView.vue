@@ -29,6 +29,7 @@ const fileStore = useFileStore()
 const { $gettext } = useGettext()
 const router = useRouter()
 const selectedRowKeys = ref<any>([])
+const keyword = ref('')
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -316,12 +317,14 @@ const deleteModel = ref({
 })
 
 const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => website.list(type.value, page, pageSize),
+  (page, pageSize) => website.list(type.value, page, pageSize, keyword.value),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
+    watchingStates: [type, keyword],
+    debounce: [0, 300],
   },
 )
 
@@ -389,10 +392,6 @@ const bulkDelete = async () => {
   window.$message.success($gettext('Deleted successfully'))
 }
 
-watch(type, () => {
-  refresh()
-})
-
 onMounted(() => {
   refresh()
   window.$bus.on('website:refresh', refresh)
@@ -401,29 +400,32 @@ onMounted(() => {
 
 <template>
   <n-flex vertical>
-    <n-flex>
-      <n-button type="primary" @click="createModal = true">
-        {{ $gettext('Create Website') }}
-      </n-button>
-      <n-button type="primary" @click="bulkCreateModal = true">
-        {{ $gettext('Bulk Create Website') }}
-      </n-button>
-      <ConfirmDialog
-        type="delete"
-        :countdown="5"
-        :content="
-          $gettext(
-            'This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?',
-          )
-        "
-        @confirm="bulkDelete"
-      >
-        <template #trigger>
-          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
-            {{ $gettext('Delete') }}
-          </n-button>
-        </template>
-      </ConfirmDialog>
+    <n-flex justify="space-between">
+      <n-flex>
+        <n-button type="primary" @click="createModal = true">
+          {{ $gettext('Create Website') }}
+        </n-button>
+        <n-button type="primary" @click="bulkCreateModal = true">
+          {{ $gettext('Bulk Create Website') }}
+        </n-button>
+        <ConfirmDialog
+          type="delete"
+          :countdown="5"
+          :content="
+            $gettext(
+              'This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?',
+            )
+          "
+          @confirm="bulkDelete"
+        >
+          <template #trigger>
+            <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+              {{ $gettext('Delete') }}
+            </n-button>
+          </template>
+        </ConfirmDialog>
+      </n-flex>
+      <n-input v-model:value="keyword" :placeholder="$gettext('Search')" clearable class="!w-60" />
     </n-flex>
     <n-data-table
       striped

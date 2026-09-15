@@ -1,18 +1,18 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'toolbox-migration'
+  name: 'toolbox-migration',
 })
 
+import { useRequest } from 'alova/client'
 import type { DataTableColumns } from 'naive-ui'
 import { NButton, NInput, NTag, NText } from 'naive-ui'
-import { useRequest } from 'alova/client'
 import { useGettext } from 'vue3-gettext'
 
 import migration, {
   type MigrationConnection,
   type MigrationPanel,
   type MigrationResource,
-  type MigrationResult
+  type MigrationResult,
 } from '@/api/panel/toolbox-migration'
 import ws from '@/api/ws'
 
@@ -25,7 +25,7 @@ const connection = ref<MigrationConnection>({
   url: '',
   token_id: 1,
   token: '',
-  api_key: ''
+  api_key: '',
 })
 
 const source = ref<Record<string, any> | null>(null)
@@ -51,22 +51,23 @@ const panels = computed(() => [
   {
     value: 'acepanel' as MigrationPanel,
     title: $gettext('AcePanel → AcePanel'),
-    description: $gettext('Push websites, databases, users and projects to another AcePanel.')
+    description: $gettext('Push websites, databases, users and projects to another AcePanel.'),
   },
   {
     value: 'baota' as MigrationPanel,
     title: $gettext('BaoTa → AcePanel'),
-    description: $gettext('Pull websites, databases and projects from BT Panel.')
+    description: $gettext('Pull websites, databases and projects from BT Panel.'),
   },
   {
     value: 'onepanel' as MigrationPanel,
     title: $gettext('1Panel → AcePanel'),
-    description: $gettext('Pull websites and databases from 1Panel.')
-  }
+    description: $gettext('Pull websites and databases from 1Panel.'),
+  },
 ])
 
 const currentDescription = computed(
-  () => panels.value.find((panel) => panel.value === connection.value.source_panel)?.description ?? ''
+  () =>
+    panels.value.find((panel) => panel.value === connection.value.source_panel)?.description ?? '',
 )
 
 const isPush = computed(() => connection.value.source_panel === 'acepanel')
@@ -75,7 +76,7 @@ const typeLabels = computed<Record<string, string>>(() => ({
   website: $gettext('Website'),
   database: $gettext('Database'),
   database_user: $gettext('Database User'),
-  project: $gettext('Project')
+  project: $gettext('Project'),
 }))
 
 const statusLabels = computed<Record<string, string>>(() => ({
@@ -84,26 +85,27 @@ const statusLabels = computed<Record<string, string>>(() => ({
   success: $gettext('Success'),
   partial: $gettext('Completed with warnings'),
   failed: $gettext('Failed'),
-  skipped: $gettext('Skipped')
+  skipped: $gettext('Skipped'),
 }))
 
 const stageLabels = computed<Record<string, string>>(() => ({
   backup: $gettext('Creating backup'),
   transfer: $gettext('Transferring'),
   import: $gettext('Importing'),
-  done: $gettext('Done')
+  done: $gettext('Done'),
 }))
 
 const blockedOf = (item: MigrationResource) => [
   ...item.blockers,
   ...item.depends_on
     .filter((key) => !selected.value.includes(key))
-    .map(() => $gettext('a required dependency was not selected'))
+    .map(() => $gettext('a required dependency was not selected')),
 ]
 
 const selectedBlocked = computed(
-  () => resources.value.filter((item) => selected.value.includes(item.key) && blockedOf(item).length)
-    .length
+  () =>
+    resources.value.filter((item) => selected.value.includes(item.key) && blockedOf(item).length)
+      .length,
 )
 
 const stats = computed(() => {
@@ -126,7 +128,7 @@ const columns = computed<DataTableColumns<MigrationResource>>(() => [
     title: $gettext('Type'),
     key: 'type',
     width: 120,
-    render: (row) => typeLabels.value[row.type] ?? row.type
+    render: (row) => typeLabels.value[row.type] ?? row.type,
   },
   {
     title: $gettext('Name'),
@@ -135,25 +137,23 @@ const columns = computed<DataTableColumns<MigrationResource>>(() => [
     render: (row) =>
       h('div', null, [
         h('div', null, row.name),
-        row.subtype ? h(NText, { depth: 3, style: 'font-size: 12px' }, () => row.subtype) : null
-      ])
+        row.subtype ? h(NText, { depth: 3, style: 'font-size: 12px' }, () => row.subtype) : null,
+      ]),
   },
   {
     title: $gettext('Status'),
     key: 'status',
     width: 100,
     render: (row) =>
-      h(
-        NTag,
-        { type: row.status === 'running' ? 'success' : 'default', size: 'small' },
-        () => (row.status === 'running' ? $gettext('Running') : $gettext('Stopped'))
-      )
+      h(NTag, { type: row.status === 'running' ? 'success' : 'default', size: 'small' }, () =>
+        row.status === 'running' ? $gettext('Running') : $gettext('Stopped'),
+      ),
   },
   {
     title: $gettext('Size'),
     key: 'size',
     width: 100,
-    render: (row) => (row.size > 0 ? formatSize(row.size) : '—')
+    render: (row) => (row.size > 0 ? formatSize(row.size) : '—'),
   },
   {
     title: $gettext('Target'),
@@ -166,17 +166,17 @@ const columns = computed<DataTableColumns<MigrationResource>>(() => [
           size: 'small',
           value: targetPaths.value[row.key] ?? row.target_path,
           placeholder: $gettext('Target directory'),
-          onUpdateValue: (value: string) => (targetPaths.value[row.key] = value)
+          onUpdateValue: (value: string) => (targetPaths.value[row.key] = value),
         }),
         h(NInput, {
           size: 'small',
           style: 'width: 120px',
           value: targetUsers.value[row.key] ?? '',
           placeholder: $gettext('Run as'),
-          onUpdateValue: (value: string) => (targetUsers.value[row.key] = value)
-        })
+          onUpdateValue: (value: string) => (targetUsers.value[row.key] = value),
+        }),
       ])
-    }
+    },
   },
   {
     title: $gettext('Notes'),
@@ -185,16 +185,18 @@ const columns = computed<DataTableColumns<MigrationResource>>(() => [
     render: (row) => {
       const notes = [
         ...blockedOf(row).map((text) => ({ type: 'error' as const, text })),
-        ...row.warnings.map((text) => ({ type: 'warning' as const, text }))
+        ...row.warnings.map((text) => ({ type: 'warning' as const, text })),
       ]
       if (!notes.length) return '—'
       return h(
         'div',
         { style: 'display: flex; flex-direction: column; gap: 4px' },
-        notes.map((note) => h(NText, { type: note.type, style: 'font-size: 12px' }, () => note.text))
+        notes.map((note) =>
+          h(NText, { type: note.type, style: 'font-size: 12px' }, () => note.text),
+        ),
       )
-    }
-  }
+    },
+  },
 ])
 
 const resultColumns = computed<DataTableColumns<MigrationResult>>(() => [
@@ -202,7 +204,7 @@ const resultColumns = computed<DataTableColumns<MigrationResult>>(() => [
     title: $gettext('Type'),
     key: 'type',
     width: 120,
-    render: (row) => typeLabels.value[row.type] ?? row.type
+    render: (row) => typeLabels.value[row.type] ?? row.type,
   },
   { title: $gettext('Name'), key: 'name', minWidth: 180 },
   {
@@ -210,19 +212,23 @@ const resultColumns = computed<DataTableColumns<MigrationResult>>(() => [
     key: 'status',
     width: 160,
     render: (row) =>
-      h(NTag, { type: statusType(row.status), size: 'small' }, () => statusLabels.value[row.status])
+      h(
+        NTag,
+        { type: statusType(row.status), size: 'small' },
+        () => statusLabels.value[row.status],
+      ),
   },
   {
     title: $gettext('Stage'),
     key: 'stage',
     width: 140,
-    render: (row) => stageLabels.value[row.stage] ?? '—'
+    render: (row) => stageLabels.value[row.stage] ?? '—',
   },
   {
     title: $gettext('Duration'),
     key: 'duration',
     width: 100,
-    render: (row) => (row.duration > 0 ? `${row.duration.toFixed(1)}s` : '—')
+    render: (row) => (row.duration > 0 ? `${row.duration.toFixed(1)}s` : '—'),
   },
   {
     title: $gettext('Detail'),
@@ -231,16 +237,18 @@ const resultColumns = computed<DataTableColumns<MigrationResult>>(() => [
     render: (row) => {
       const lines = [
         ...(row.error ? [{ type: 'error' as const, text: row.error }] : []),
-        ...row.warnings.map((text) => ({ type: 'warning' as const, text }))
+        ...row.warnings.map((text) => ({ type: 'warning' as const, text })),
       ]
       if (!lines.length) return '—'
       return h(
         'div',
         { style: 'display: flex; flex-direction: column; gap: 4px' },
-        lines.map((line) => h(NText, { type: line.type, style: 'font-size: 12px' }, () => line.text))
+        lines.map((line) =>
+          h(NText, { type: line.type, style: 'font-size: 12px' }, () => line.text),
+        ),
       )
-    }
-  }
+    },
+  },
 ])
 
 const statusType = (status: string) => {
@@ -277,7 +285,7 @@ const timeLabel = computed(() => {
   const started = formatDate(startedAt.value)
   const end = endedAt.value ? new Date(endedAt.value).getTime() : now.value
   const elapsed = formatDuration(
-    Math.max(0, Math.round((end - new Date(startedAt.value).getTime()) / 1000))
+    Math.max(0, Math.round((end - new Date(startedAt.value).getTime()) / 1000)),
   )
   return endedAt.value
     ? `${started} — ${formatDate(endedAt.value)} (${elapsed})`
@@ -315,10 +323,10 @@ const handleItems = () => {
         ...item,
         blockers: item.blockers || [],
         warnings: item.warnings || [],
-        depends_on: item.depends_on || []
+        depends_on: item.depends_on || [],
       }))
       targetPaths.value = Object.fromEntries(
-        resources.value.map((item) => [item.key, item.target_path || ''])
+        resources.value.map((item) => [item.key, item.target_path || '']),
       )
       targetUsers.value = {}
       selected.value = []
@@ -334,7 +342,7 @@ const handleStart = () => {
   }
   if (selectedBlocked.value > 0 && !skipBlocked.value) {
     window.$message.error(
-      $gettext('The selection contains blocked resources. Resolve them or enable skipping first.')
+      $gettext('The selection contains blocked resources. Resolve them or enable skipping first.'),
     )
     return
   }
@@ -353,11 +361,11 @@ const handleStart = () => {
           items: selected.value.map((key) => ({
             key,
             target_path: targetPaths.value[key],
-            target_user: targetUsers.value[key]
+            target_user: targetUsers.value[key],
           })),
           skip_blocked: skipBlocked.value,
-          stop_source: stopSource.value
-        })
+          stop_source: stopSource.value,
+        }),
       )
         .onSuccess(() => {
           step.value = 2
@@ -365,7 +373,7 @@ const handleStart = () => {
           connectProgress()
         })
         .onComplete(() => (loading.value = false))
-    }
+    },
   })
 }
 
@@ -418,7 +426,13 @@ const handleReset = () => {
       useRequest(migration.reset()).onSuccess(() => {
         closeProgress()
         step.value = 0
-        connection.value = { source_panel: 'acepanel', url: '', token_id: 1, token: '', api_key: '' }
+        connection.value = {
+          source_panel: 'acepanel',
+          url: '',
+          token_id: 1,
+          token: '',
+          api_key: '',
+        }
         source.value = null
         resources.value = []
         selected.value = []
@@ -431,7 +445,7 @@ const handleReset = () => {
         startedAt.value = null
         endedAt.value = null
       })
-    }
+    },
   })
 }
 
@@ -465,7 +479,7 @@ watch(
       clock = setInterval(() => (now.value = Date.now()), 1000)
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 onUnmounted(() => {
@@ -479,7 +493,7 @@ watch(
     connection.value.url = ''
     connection.value.token = ''
     connection.value.api_key = ''
-  }
+  },
 )
 </script>
 
@@ -541,7 +555,7 @@ watch(
           {{
             isPush
               ? $gettext(
-                  'The target address must include the access entrance and allow this server address.'
+                  'The target address must include the access entrance and allow this server address.',
                 )
               : $gettext('The source panel API must be enabled and allow this server address.')
           }}

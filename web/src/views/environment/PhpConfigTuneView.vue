@@ -5,9 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
-import { phpPreset, type TuneProfile } from '@/utils/tunepreset'
-
 import php from '@/api/panel/environment/php'
+import { phpPreset, type TuneProfile } from '@/utils/tunepreset'
 
 const props = defineProps<{
   slug: number
@@ -266,357 +265,361 @@ const composeSizeValue = (num: number | null, unit: string): string => {
 <template>
   <n-flex vertical>
     <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
-    <n-tab-pane name="general" :tab="$gettext('General')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Common PHP general settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Short Tag (short_open_tag)')">
-            <n-select v-model:value="shortOpenTag" :options="onOffOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('Timezone (date.timezone)')">
-            <n-input v-model:value="dateTimezone" :placeholder="$gettext('e.g. Asia/Shanghai')" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Display Errors (display_errors)')">
-            <n-select v-model:value="displayErrors" :options="onOffOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('Error Reporting (error_reporting)')">
-            <n-input v-model:value="errorReporting" :placeholder="$gettext('e.g. E_ALL')" />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="disabled_functions" :tab="$gettext('Disabled Functions')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{
-            $gettext(
-              'Enter the PHP functions to disable, separated by commas. Common dangerous functions include: exec, shell_exec, system, passthru, proc_open, popen, etc.',
-            )
-          }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Disabled Functions')">
-            <n-input
-              v-model:value="disableFunctions"
-              type="textarea"
-              :rows="8"
-              :placeholder="$gettext('e.g. exec,shell_exec,system,passthru')"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="upload" :tab="$gettext('Upload Limits')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{
-            $gettext(
-              'Adjust PHP file upload limits. post_max_size should be greater than upload_max_filesize.',
-            )
-          }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Max Upload Size (upload_max_filesize)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="uploadMaxFilesizeNum"
-                :placeholder="$gettext('e.g. 50')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="uploadMaxFilesizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Max POST Size (post_max_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="postMaxSizeNum"
-                :placeholder="$gettext('e.g. 50')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select v-model:value="postMaxSizeUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Max File Uploads (max_file_uploads)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxFileUploads"
-              :placeholder="$gettext('e.g. 20')"
-              :min="0"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Memory Limit (memory_limit)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="memoryLimitNum"
-                :placeholder="$gettext('e.g. 256')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select v-model:value="memoryLimitUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="timeout" :tab="$gettext('Timeout Limits')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{
-            $gettext('Adjust PHP script timeout limits. Values are in seconds, -1 means no limit.')
-          }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Max Execution Time (max_execution_time)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxExecutionTime"
-              :placeholder="$gettext('e.g. 30')"
-              :min="-1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Input Time (max_input_time)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxInputTime"
-              :placeholder="$gettext('e.g. 60')"
-              :min="-1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Input Vars (max_input_vars)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxInputVars"
-              :placeholder="$gettext('e.g. 1000')"
-              :min="0"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="performance" :tab="$gettext('Performance Tuning')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{
-            $gettext('Adjust PHP-FPM process manager settings. These settings are in php-fpm.conf.')
-          }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Process Manager (pm)')">
-            <n-select v-model:value="pm" :options="pmOptions" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Children (pm.max_children)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="pmMaxChildren"
-              :placeholder="$gettext('e.g. 30')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item
-            v-if="pm === 'dynamic'"
-            :label="$gettext('Start Servers (pm.start_servers)')"
-          >
-            <n-input-number
-              class="w-full"
-              v-model:value="pmStartServers"
-              :placeholder="$gettext('e.g. 5')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item
-            v-if="pm === 'dynamic'"
-            :label="$gettext('Min Spare Servers (pm.min_spare_servers)')"
-          >
-            <n-input-number
-              class="w-full"
-              v-model:value="pmMinSpareServers"
-              :placeholder="$gettext('e.g. 3')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item
-            v-if="pm === 'dynamic'"
-            :label="$gettext('Max Spare Servers (pm.max_spare_servers)')"
-          >
-            <n-input-number
-              class="w-full"
-              v-model:value="pmMaxSpareServers"
-              :placeholder="$gettext('e.g. 10')"
-              :min="1"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="session" tab="Session">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{
-            $gettext(
-              'Adjust PHP session settings. When using redis or memcached, make sure the corresponding extension is installed and the service is running.',
-            )
-          }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Save Handler (session.save_handler)')">
-            <n-select v-model:value="sessionSaveHandler" :options="sessionHandlerOptions" />
-          </n-form-item>
-          <!-- files 模式：显示路径 -->
-          <n-form-item
-            v-if="sessionSaveHandler === 'files'"
-            :label="$gettext('Save Path (session.save_path)')"
-          >
-            <n-input v-model:value="sessionSavePath" :placeholder="$gettext('e.g. /tmp')" />
-          </n-form-item>
-          <!-- redis 模式：显示主机、端口、密码 -->
-          <template v-if="sessionSaveHandler === 'redis'">
-            <n-form-item :label="$gettext('Redis Host')">
-              <n-input v-model:value="sessionRedisHost" placeholder="127.0.0.1" />
+      <n-tab-pane name="general" :tab="$gettext('General')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Common PHP general settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Short Tag (short_open_tag)')">
+              <n-select v-model:value="shortOpenTag" :options="onOffOptions" clearable />
             </n-form-item>
-            <n-form-item :label="$gettext('Redis Port')">
-              <n-input v-model:value="sessionRedisPort" placeholder="6379" />
+            <n-form-item :label="$gettext('Timezone (date.timezone)')">
+              <n-input v-model:value="dateTimezone" :placeholder="$gettext('e.g. Asia/Shanghai')" />
             </n-form-item>
-            <n-form-item :label="$gettext('Redis Password')">
+            <n-form-item :label="$gettext('Display Errors (display_errors)')">
+              <n-select v-model:value="displayErrors" :options="onOffOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Error Reporting (error_reporting)')">
+              <n-input v-model:value="errorReporting" :placeholder="$gettext('e.g. E_ALL')" />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="disabled_functions" :tab="$gettext('Disabled Functions')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'Enter the PHP functions to disable, separated by commas. Common dangerous functions include: exec, shell_exec, system, passthru, proc_open, popen, etc.',
+              )
+            }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Disabled Functions')">
               <n-input
-                v-model:value="sessionRedisPassword"
-                type="password"
-                show-password-on="click"
-                :placeholder="$gettext('Leave empty if no password')"
+                v-model:value="disableFunctions"
+                type="textarea"
+                :rows="8"
+                :placeholder="$gettext('e.g. exec,shell_exec,system,passthru')"
               />
             </n-form-item>
-          </template>
-          <!-- memcached 模式：显示主机、端口 -->
-          <template v-if="sessionSaveHandler === 'memcached'">
-            <n-form-item :label="$gettext('Memcached Host')">
-              <n-input v-model:value="sessionMemcachedHost" placeholder="127.0.0.1" />
-            </n-form-item>
-            <n-form-item :label="$gettext('Memcached Port')">
-              <n-input v-model:value="sessionMemcachedPort" placeholder="11211" />
-            </n-form-item>
-          </template>
-          <n-form-item :label="$gettext('GC Max Lifetime (session.gc_maxlifetime)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="sessionGcMaxlifetime"
-              :placeholder="$gettext('e.g. 1440 (seconds)')"
-              :min="0"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Cookie Lifetime (session.cookie_lifetime)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="sessionCookieLifetime"
-              :placeholder="$gettext('e.g. 0 (until browser closes)')"
-              :min="0"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-          <ConfirmDialog
-            type="danger"
-            :content="$gettext('Are you sure you want to clean all session files?')"
-            @confirm="handleCleanSession"
-          >
-            <template #trigger>
-              <n-button
-                type="warning"
-                :loading="cleanSessionLoading"
-                :disabled="cleanSessionLoading"
-              >
-                {{ $gettext('Clean Session Files') }}
-              </n-button>
-            </template>
-          </ConfirmDialog>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
+      </n-tab-pane>
+      <n-tab-pane name="upload" :tab="$gettext('Upload Limits')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'Adjust PHP file upload limits. post_max_size should be greater than upload_max_filesize.',
+              )
+            }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Max Upload Size (upload_max_filesize)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="uploadMaxFilesizeNum"
+                  :placeholder="$gettext('e.g. 50')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="uploadMaxFilesizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Max POST Size (post_max_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="postMaxSizeNum"
+                  :placeholder="$gettext('e.g. 50')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select v-model:value="postMaxSizeUnit" :options="sizeUnitOptions" class="w-20" />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Max File Uploads (max_file_uploads)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxFileUploads"
+                :placeholder="$gettext('e.g. 20')"
+                :min="0"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Memory Limit (memory_limit)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="memoryLimitNum"
+                  :placeholder="$gettext('e.g. 256')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select v-model:value="memoryLimitUnit" :options="sizeUnitOptions" class="w-20" />
+              </n-input-group>
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="timeout" :tab="$gettext('Timeout Limits')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'Adjust PHP script timeout limits. Values are in seconds, -1 means no limit.',
+              )
+            }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Max Execution Time (max_execution_time)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxExecutionTime"
+                :placeholder="$gettext('e.g. 30')"
+                :min="-1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Input Time (max_input_time)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxInputTime"
+                :placeholder="$gettext('e.g. 60')"
+                :min="-1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Input Vars (max_input_vars)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxInputVars"
+                :placeholder="$gettext('e.g. 1000')"
+                :min="0"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="performance" :tab="$gettext('Performance Tuning')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'Adjust PHP-FPM process manager settings. These settings are in php-fpm.conf.',
+              )
+            }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Process Manager (pm)')">
+              <n-select v-model:value="pm" :options="pmOptions" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Children (pm.max_children)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="pmMaxChildren"
+                :placeholder="$gettext('e.g. 30')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item
+              v-if="pm === 'dynamic'"
+              :label="$gettext('Start Servers (pm.start_servers)')"
+            >
+              <n-input-number
+                class="w-full"
+                v-model:value="pmStartServers"
+                :placeholder="$gettext('e.g. 5')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item
+              v-if="pm === 'dynamic'"
+              :label="$gettext('Min Spare Servers (pm.min_spare_servers)')"
+            >
+              <n-input-number
+                class="w-full"
+                v-model:value="pmMinSpareServers"
+                :placeholder="$gettext('e.g. 3')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item
+              v-if="pm === 'dynamic'"
+              :label="$gettext('Max Spare Servers (pm.max_spare_servers)')"
+            >
+              <n-input-number
+                class="w-full"
+                v-model:value="pmMaxSpareServers"
+                :placeholder="$gettext('e.g. 10')"
+                :min="1"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="session" tab="Session">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'Adjust PHP session settings. When using redis or memcached, make sure the corresponding extension is installed and the service is running.',
+              )
+            }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Save Handler (session.save_handler)')">
+              <n-select v-model:value="sessionSaveHandler" :options="sessionHandlerOptions" />
+            </n-form-item>
+            <!-- files 模式：显示路径 -->
+            <n-form-item
+              v-if="sessionSaveHandler === 'files'"
+              :label="$gettext('Save Path (session.save_path)')"
+            >
+              <n-input v-model:value="sessionSavePath" :placeholder="$gettext('e.g. /tmp')" />
+            </n-form-item>
+            <!-- redis 模式：显示主机、端口、密码 -->
+            <template v-if="sessionSaveHandler === 'redis'">
+              <n-form-item :label="$gettext('Redis Host')">
+                <n-input v-model:value="sessionRedisHost" placeholder="127.0.0.1" />
+              </n-form-item>
+              <n-form-item :label="$gettext('Redis Port')">
+                <n-input v-model:value="sessionRedisPort" placeholder="6379" />
+              </n-form-item>
+              <n-form-item :label="$gettext('Redis Password')">
+                <n-input
+                  v-model:value="sessionRedisPassword"
+                  type="password"
+                  show-password-on="click"
+                  :placeholder="$gettext('Leave empty if no password')"
+                />
+              </n-form-item>
+            </template>
+            <!-- memcached 模式：显示主机、端口 -->
+            <template v-if="sessionSaveHandler === 'memcached'">
+              <n-form-item :label="$gettext('Memcached Host')">
+                <n-input v-model:value="sessionMemcachedHost" placeholder="127.0.0.1" />
+              </n-form-item>
+              <n-form-item :label="$gettext('Memcached Port')">
+                <n-input v-model:value="sessionMemcachedPort" placeholder="11211" />
+              </n-form-item>
+            </template>
+            <n-form-item :label="$gettext('GC Max Lifetime (session.gc_maxlifetime)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="sessionGcMaxlifetime"
+                :placeholder="$gettext('e.g. 1440 (seconds)')"
+                :min="0"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Cookie Lifetime (session.cookie_lifetime)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="sessionCookieLifetime"
+                :placeholder="$gettext('e.g. 0 (until browser closes)')"
+                :min="0"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+            <ConfirmDialog
+              type="danger"
+              :content="$gettext('Are you sure you want to clean all session files?')"
+              @confirm="handleCleanSession"
+            >
+              <template #trigger>
+                <n-button
+                  type="warning"
+                  :loading="cleanSessionLoading"
+                  :disabled="cleanSessionLoading"
+                >
+                  {{ $gettext('Clean Session Files') }}
+                </n-button>
+              </template>
+            </ConfirmDialog>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
     </n-tabs>
     <tune-preset-modal
       v-model:show="showPresetModal"

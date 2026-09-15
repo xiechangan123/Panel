@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"strings"
 
 	"github.com/leonelquinteros/gotext"
 
@@ -58,26 +59,30 @@ func NewDatabaseUsecase(databaseUserUsecase *DatabaseUserUsecase, t *gotext.Loca
 	}
 }
 
-func (uc *DatabaseUsecase) List(ctx context.Context, page, limit uint, typ string) ([]*Database, int64, error) {
+// List 按名称或备注关键字筛选数据库，关键字为空时返回全部
+func (uc *DatabaseUsecase) List(ctx context.Context, page, limit uint, typ, keyword string) ([]*Database, int64, error) {
 	servers, err := uc.repo.ListServers(typ)
 	if err != nil {
 		return nil, 0, err
 	}
 
+	keyword = strings.ToLower(keyword)
 	database := make([]*Database, 0)
 	for _, server := range servers {
 		databases, err := uc.repo.DatabasesOf(ctx, server)
 		if err != nil {
 			continue
 		}
-		database = append(database, databases...)
+		for _, item := range databases {
+			if strings.Contains(strings.ToLower(item.Name), keyword) || strings.Contains(strings.ToLower(item.Comment), keyword) {
+				database = append(database, item)
+			}
+		}
 	}
 
-	if len(database) < int((page-1)*limit) {
-		return []*Database{}, int64(len(database)), nil
-	}
-
-	return database[(page-1)*limit:], int64(len(database)), nil
+	start := min(int((page-1)*limit), len(database))
+	end := min(start+int(limit), len(database))
+	return database[start:end], int64(len(database)), nil
 }
 
 func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCreate) error {

@@ -231,17 +231,19 @@ func (r *websiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
 	return r.Get(website.ID)
 }
 
-func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64, error) {
+func (r *websiteRepo) List(typ, keyword string, page, limit uint) ([]*biz.Website, int64, error) {
 	websites := make([]*biz.Website, 0)
 	var total int64
 
-	if err := r.db.Model(&biz.Website{}).Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
-	query := r.db
+	query := r.db.Model(&biz.Website{})
 	if typ != "" && typ != "all" {
 		query = query.Where("type = ?", typ)
+	}
+	if keyword != "" {
+		query = query.Where("name LIKE ? OR remark LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+	}
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
 	}
 	if err := query.Order("id DESC").Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&websites).Error; err != nil {
 		return nil, 0, err

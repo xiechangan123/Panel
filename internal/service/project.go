@@ -24,14 +24,13 @@ func NewProjectService(projectUsecase *biz.ProjectUsecase, settingUsecase *biz.S
 }
 
 func (s *ProjectService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+	req, err := Bind[request.ProjectList](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	typ := types.ProjectType(r.URL.Query().Get("type"))
-	projects, total, err := s.projectRepo.List(r.Context(), typ, req.Page, req.Limit)
+	projects, total, err := s.projectRepo.List(r.Context(), types.ProjectType(req.Type), req.Keyword, req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

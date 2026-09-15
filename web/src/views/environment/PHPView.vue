@@ -89,7 +89,12 @@ const formatBytes = (bytes: number) => {
 const processColumns: any = [
   { title: 'PID', key: 'pid', width: 90 },
   { title: $gettext('State'), key: 'state', width: 130, ellipsis: { tooltip: true } },
-  { title: $gettext('Requests'), key: 'requests', width: 100, sorter: (a: any, b: any) => a.requests - b.requests },
+  {
+    title: $gettext('Requests'),
+    key: 'requests',
+    width: 100,
+    sorter: (a: any, b: any) => a.requests - b.requests,
+  },
   { title: $gettext('Method'), key: 'method', width: 90 },
   { title: 'URI', key: 'uri', minWidth: 250, ellipsis: { tooltip: true } },
   {

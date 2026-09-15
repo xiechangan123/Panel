@@ -19,6 +19,7 @@ import ContainerInfoModal from '@/views/container/ContainerInfoModal.vue'
 
 const { $gettext } = useGettext()
 
+const keyword = ref('')
 const logModal = ref(false)
 const logId = ref('')
 const infoModal = ref(false)
@@ -272,12 +273,14 @@ const columns: any = [
 ]
 
 const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => container.containerList(page, pageSize),
+  (page, pageSize) => container.containerList(page, pageSize, keyword.value),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
+    watchingStates: [keyword],
+    debounce: [300],
   },
 )
 
@@ -584,42 +587,45 @@ onUnmounted(() => {
 
 <template>
   <n-flex vertical :size="20">
-    <n-flex>
-      <n-button type="primary" @click="containerCreateModal = true">
-        {{ $gettext('Create Container') }}
-      </n-button>
-      <n-button
-        type="primary"
-        :loading="pruneLoading"
-        :disabled="pruneLoading"
-        @click="handlePrune"
-        ghost
-      >
-        {{ $gettext('Cleanup Containers') }}
-      </n-button>
-      <n-button-group>
-        <n-button @click="bulkStart" :disabled="selectedRowKeys.length === 0" ghost>
-          {{ $gettext('Start') }}
+    <n-flex justify="space-between">
+      <n-flex>
+        <n-button type="primary" @click="containerCreateModal = true">
+          {{ $gettext('Create Container') }}
         </n-button>
-        <n-button @click="bulkStop" :disabled="selectedRowKeys.length === 0" ghost>
-          {{ $gettext('Stop') }}
+        <n-button
+          type="primary"
+          :loading="pruneLoading"
+          :disabled="pruneLoading"
+          @click="handlePrune"
+          ghost
+        >
+          {{ $gettext('Cleanup Containers') }}
         </n-button>
-        <n-button @click="bulkRestart" :disabled="selectedRowKeys.length === 0" ghost>
-          {{ $gettext('Restart') }}
-        </n-button>
-        <n-button @click="bulkForceStop" :disabled="selectedRowKeys.length === 0" ghost>
-          {{ $gettext('Force Stop') }}
-        </n-button>
-        <n-button @click="bulkPause" :disabled="selectedRowKeys.length === 0" ghost>
-          {{ $gettext('Pause') }}
-        </n-button>
-        <n-button @click="bulkUnpause" :disabled="selectedRowKeys.length === 0" ghost>
-          {{ $gettext('Resume') }}
-        </n-button>
-        <n-button @click="bulkDelete" :disabled="selectedRowKeys.length === 0" ghost>
-          {{ $gettext('Delete') }}
-        </n-button>
-      </n-button-group>
+        <n-button-group>
+          <n-button @click="bulkStart" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Start') }}
+          </n-button>
+          <n-button @click="bulkStop" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Stop') }}
+          </n-button>
+          <n-button @click="bulkRestart" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Restart') }}
+          </n-button>
+          <n-button @click="bulkForceStop" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Force Stop') }}
+          </n-button>
+          <n-button @click="bulkPause" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Pause') }}
+          </n-button>
+          <n-button @click="bulkUnpause" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Resume') }}
+          </n-button>
+          <n-button @click="bulkDelete" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Delete') }}
+          </n-button>
+        </n-button-group>
+      </n-flex>
+      <n-input v-model:value="keyword" :placeholder="$gettext('Search')" clearable class="!w-60" />
     </n-flex>
     <n-data-table
       striped

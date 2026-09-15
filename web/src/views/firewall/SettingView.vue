@@ -20,6 +20,7 @@ useRequest(safe.pingStatus).onSuccess(({ data }) => {
 const handleFirewallStatus = () => {
   useRequest(firewall.updateStatus(model.value.firewallStatus)).onSuccess(() => {
     window.$message.success($gettext('Settings saved successfully'))
+    window.$bus.emit('firewall:refresh')
   })
 }
 

@@ -47,11 +47,11 @@ func (uc *ToolboxMigrationUsecase) probeRemote(ctx context.Context, conn *reques
 
 // localItems 列出本地可推送到目标面板的资源
 func (uc *ToolboxMigrationUsecase) localItems(ctx context.Context) ([]types.MigrationItem, error) {
-	websites, _, err := uc.website.List("all", 1, 10000)
+	websites, _, err := uc.website.List("all", "", 1, 10000)
 	if err != nil {
 		return nil, err
 	}
-	databases, _, err := uc.database.List(ctx, 1, 10000, "")
+	databases, _, err := uc.database.List(ctx, 1, 10000, "", "")
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (uc *ToolboxMigrationUsecase) localItems(ctx context.Context) ([]types.Migr
 	if err != nil {
 		return nil, err
 	}
-	projects, _, err := uc.project.List(ctx, "", 1, 10000)
+	projects, _, err := uc.project.List(ctx, "", "", 1, 10000)
 	if err != nil {
 		return nil, err
 	}

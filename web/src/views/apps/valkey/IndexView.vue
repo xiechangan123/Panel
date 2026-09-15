@@ -8,10 +8,9 @@ import { useGettext } from 'vue3-gettext'
 
 import valkey from '@/api/apps/valkey'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
-
-import ValkeyConfigTuneView from './ValkeyConfigTuneView.vue'
 import RedisPerformanceView from '@/views/apps/redis/RedisPerformanceView.vue'
 
+import ValkeyConfigTuneView from './ValkeyConfigTuneView.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')

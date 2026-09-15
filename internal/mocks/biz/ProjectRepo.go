@@ -35,7 +35,7 @@ var _ biz.ProjectRepo = &ProjectRepo{}
 //			GetEntityFunc: func(id uint) (*biz.Project, error) {
 //				panic("mock out the GetEntity method")
 //			},
-//			ListFunc: func(typ types.ProjectType, page uint, limit uint) ([]*biz.Project, int64, error) {
+//			ListFunc: func(typ types.ProjectType, keyword string, page uint, limit uint) ([]*biz.Project, int64, error) {
 //				panic("mock out the List method")
 //			},
 //			NameExistsFunc: func(name string) (bool, error) {
@@ -76,7 +76,7 @@ type ProjectRepo struct {
 	GetEntityFunc func(id uint) (*biz.Project, error)
 
 	// ListFunc mocks the List method.
-	ListFunc func(typ types.ProjectType, page uint, limit uint) ([]*biz.Project, int64, error)
+	ListFunc func(typ types.ProjectType, keyword string, page uint, limit uint) ([]*biz.Project, int64, error)
 
 	// NameExistsFunc mocks the NameExists method.
 	NameExistsFunc func(name string) (bool, error)
@@ -124,6 +124,8 @@ type ProjectRepo struct {
 		List []struct {
 			// Typ is the typ argument value.
 			Typ types.ProjectType
+			// Keyword is the keyword argument value.
+			Keyword string
 			// Page is the page argument value.
 			Page uint
 			// Limit is the limit argument value.
@@ -313,23 +315,25 @@ func (mock *ProjectRepo) GetEntityCalls() []struct {
 }
 
 // List calls ListFunc.
-func (mock *ProjectRepo) List(typ types.ProjectType, page uint, limit uint) ([]*biz.Project, int64, error) {
+func (mock *ProjectRepo) List(typ types.ProjectType, keyword string, page uint, limit uint) ([]*biz.Project, int64, error) {
 	if mock.ListFunc == nil {
 		panic("ProjectRepo.ListFunc: method is nil but ProjectRepo.List was just called")
 	}
 	callInfo := struct {
-		Typ   types.ProjectType
-		Page  uint
-		Limit uint
+		Typ     types.ProjectType
+		Keyword string
+		Page    uint
+		Limit   uint
 	}{
-		Typ:   typ,
-		Page:  page,
-		Limit: limit,
+		Typ:     typ,
+		Keyword: keyword,
+		Page:    page,
+		Limit:   limit,
 	}
 	mock.lockList.Lock()
 	mock.calls.List = append(mock.calls.List, callInfo)
 	mock.lockList.Unlock()
-	return mock.ListFunc(typ, page, limit)
+	return mock.ListFunc(typ, keyword, page, limit)
 }
 
 // ListCalls gets all the calls that were made to List.
@@ -337,14 +341,16 @@ func (mock *ProjectRepo) List(typ types.ProjectType, page uint, limit uint) ([]*
 //
 //	len(mockedProjectRepo.ListCalls())
 func (mock *ProjectRepo) ListCalls() []struct {
-	Typ   types.ProjectType
-	Page  uint
-	Limit uint
+	Typ     types.ProjectType
+	Keyword string
+	Page    uint
+	Limit   uint
 } {
 	var calls []struct {
-		Typ   types.ProjectType
-		Page  uint
-		Limit uint
+		Typ     types.ProjectType
+		Keyword string
+		Page    uint
+		Limit   uint
 	}
 	mock.lockList.RLock()
 	calls = mock.calls.List

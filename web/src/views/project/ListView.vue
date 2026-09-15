@@ -20,6 +20,7 @@ const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
 const router = useRouter()
 const selectedRowKeys = ref<any>([])
+const keyword = ref('')
 
 const typeMap: Record<string, string> = {
   general: $gettext('General'),
@@ -201,12 +202,14 @@ const columns: any = [
 ]
 
 const { loading, data, page, total, pageSize, refresh } = usePagination(
-  (page, pageSize) => project.list(type.value, page, pageSize),
+  (page, pageSize) => project.list(type.value, page, pageSize, keyword.value),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
+    watchingStates: [type, keyword],
+    debounce: [0, 300],
   },
 )
 
@@ -282,30 +285,29 @@ onMounted(() => {
   refresh()
   window.$bus.on('project:refresh', refresh)
 })
-
-watch(type, () => {
-  refresh()
-})
 </script>
 
 <template>
   <n-flex vertical>
-    <n-flex>
-      <n-button type="primary" @click="createModal = true">
-        {{ $gettext('Create Project') }}
-      </n-button>
-      <ConfirmDialog
-        type="delete"
-        :countdown="5"
-        :content="$gettext('Are you sure you want to delete the selected projects?')"
-        @confirm="bulkDelete"
-      >
-        <template #trigger>
-          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
-            {{ $gettext('Delete') }}
-          </n-button>
-        </template>
-      </ConfirmDialog>
+    <n-flex justify="space-between">
+      <n-flex>
+        <n-button type="primary" @click="createModal = true">
+          {{ $gettext('Create Project') }}
+        </n-button>
+        <ConfirmDialog
+          type="delete"
+          :countdown="5"
+          :content="$gettext('Are you sure you want to delete the selected projects?')"
+          @confirm="bulkDelete"
+        >
+          <template #trigger>
+            <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+              {{ $gettext('Delete') }}
+            </n-button>
+          </template>
+        </ConfirmDialog>
+      </n-flex>
+      <n-input v-model:value="keyword" :placeholder="$gettext('Search')" clearable class="!w-60" />
     </n-flex>
     <n-data-table
       striped

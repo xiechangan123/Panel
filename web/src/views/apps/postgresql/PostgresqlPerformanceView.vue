@@ -97,9 +97,24 @@ const sessionColumns: any = [
 
 const topSQLColumns: any = [
   { title: $gettext('Database'), key: 'database', width: 120, ellipsis: { tooltip: true } },
-  { title: $gettext('Calls'), key: 'calls', width: 100, sorter: (a: any, b: any) => a.calls - b.calls },
-  { title: $gettext('Total Time (ms)'), key: 'total_ms', width: 150, sorter: (a: any, b: any) => a.total_ms - b.total_ms },
-  { title: $gettext('Mean Time (ms)'), key: 'mean_ms', width: 150, sorter: (a: any, b: any) => a.mean_ms - b.mean_ms },
+  {
+    title: $gettext('Calls'),
+    key: 'calls',
+    width: 100,
+    sorter: (a: any, b: any) => a.calls - b.calls,
+  },
+  {
+    title: $gettext('Total Time (ms)'),
+    key: 'total_ms',
+    width: 150,
+    sorter: (a: any, b: any) => a.total_ms - b.total_ms,
+  },
+  {
+    title: $gettext('Mean Time (ms)'),
+    key: 'mean_ms',
+    width: 150,
+    sorter: (a: any, b: any) => a.mean_ms - b.mean_ms,
+  },
   { title: $gettext('Rows'), key: 'rows', width: 100, sorter: (a: any, b: any) => a.rows - b.rows },
   {
     title: $gettext('Cache Hit Rate'),
@@ -173,9 +188,7 @@ const handleResetTopSQL = async () => {
     <n-tab-pane name="top-sql" :tab="'Top SQL'">
       <n-flex vertical>
         <n-alert v-if="!topSQL.enabled && topSQL.pending_restart" type="warning">
-          {{
-            $gettext('pg_stat_statements is configured, restart PostgreSQL to take effect.')
-          }}
+          {{ $gettext('pg_stat_statements is configured, restart PostgreSQL to take effect.') }}
         </n-alert>
         <template v-else-if="!topSQL.enabled">
           <n-alert type="info">

@@ -15,7 +15,7 @@ func ProjectRoutes(projectService *service.ProjectService) Endpoints {
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/project", Handler: svc.List,
 			Summary: "项目列表", Tags: []string{"项目"},
-			Document: Describe[request.Paginate, service.Envelope[service.Page[*types.ProjectDetail]]]()},
+			Document: Describe[request.ProjectList, service.Envelope[service.Page[*types.ProjectDetail]]]()},
 		{Method: http.MethodPost, Path: "/api/project", Handler: svc.Create,
 			Summary: "创建项目", Tags: []string{"项目"},
 			Document: Describe[request.ProjectCreate, service.Envelope[types.ProjectDetail]]()},

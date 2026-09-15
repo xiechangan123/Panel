@@ -5,9 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
-import { kbToPair, postgresqlPreset, type TuneProfile } from '@/utils/tunepreset'
-
 import postgresql from '@/api/apps/postgresql'
+import { kbToPair, postgresqlPreset, type TuneProfile } from '@/utils/tunepreset'
 
 const { $gettext } = useGettext()
 const currentTab = ref('connection')
@@ -208,313 +207,319 @@ const handleSave = () => {
 <template>
   <n-flex vertical>
     <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
-    <n-tab-pane name="connection" :tab="$gettext('Connection')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('PostgreSQL connection and authentication settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Listen Addresses (listen_addresses)')">
-            <n-input
-              v-model:value="listenAddresses"
-              :placeholder="$gettext('e.g. localhost or *')"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Port (port)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="port"
-              :placeholder="$gettext('e.g. 5432')"
-              :min="1"
-              :max="65535"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Connections (max_connections)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxConnections"
-              :placeholder="$gettext('e.g. 200')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item
-            :label="$gettext('Superuser Reserved Connections (superuser_reserved_connections)')"
-          >
-            <n-input-number
-              class="w-full"
-              v-model:value="superuserReservedConnections"
-              :placeholder="$gettext('e.g. 3')"
-              :min="0"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      <n-tab-pane name="connection" :tab="$gettext('Connection')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('PostgreSQL connection and authentication settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Listen Addresses (listen_addresses)')">
+              <n-input
+                v-model:value="listenAddresses"
+                :placeholder="$gettext('e.g. localhost or *')"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Port (port)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="port"
+                :placeholder="$gettext('e.g. 5432')"
+                :min="1"
+                :max="65535"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Connections (max_connections)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxConnections"
+                :placeholder="$gettext('e.g. 200')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item
+              :label="$gettext('Superuser Reserved Connections (superuser_reserved_connections)')"
+            >
+              <n-input-number
+                class="w-full"
+                v-model:value="superuserReservedConnections"
+                :placeholder="$gettext('e.g. 3')"
+                :min="0"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="memory" :tab="$gettext('Memory')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('PostgreSQL memory allocation settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Shared Buffers (shared_buffers)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="sharedBuffersNum"
-                :placeholder="$gettext('e.g. 256')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select v-model:value="sharedBuffersUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Work Mem (work_mem)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="workMemNum"
-                :placeholder="$gettext('e.g. 1260')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select v-model:value="workMemUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Maintenance Work Mem (maintenance_work_mem)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="maintenanceWorkMemNum"
-                :placeholder="$gettext('e.g. 64')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="maintenanceWorkMemUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Effective Cache Size (effective_cache_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="effectiveCacheSizeNum"
-                :placeholder="$gettext('e.g. 768')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="effectiveCacheSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Huge Pages (huge_pages)')">
-            <n-select v-model:value="hugePages" :options="hugePagesOptions" clearable />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      </n-tab-pane>
+      <n-tab-pane name="memory" :tab="$gettext('Memory')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('PostgreSQL memory allocation settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Shared Buffers (shared_buffers)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="sharedBuffersNum"
+                  :placeholder="$gettext('e.g. 256')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="sharedBuffersUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Work Mem (work_mem)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="workMemNum"
+                  :placeholder="$gettext('e.g. 1260')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select v-model:value="workMemUnit" :options="sizeUnitOptions" class="w-20" />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Maintenance Work Mem (maintenance_work_mem)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="maintenanceWorkMemNum"
+                  :placeholder="$gettext('e.g. 64')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="maintenanceWorkMemUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Effective Cache Size (effective_cache_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="effectiveCacheSizeNum"
+                  :placeholder="$gettext('e.g. 768')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="effectiveCacheSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Huge Pages (huge_pages)')">
+              <n-select v-model:value="hugePages" :options="hugePagesOptions" clearable />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="wal" tab="WAL">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Write-Ahead Logging (WAL) settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('WAL Level (wal_level)')">
-            <n-select v-model:value="walLevel" :options="walLevelOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('WAL Buffers (wal_buffers)')">
-            <n-input-group>
+      </n-tab-pane>
+      <n-tab-pane name="wal" tab="WAL">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Write-Ahead Logging (WAL) settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('WAL Level (wal_level)')">
+              <n-select v-model:value="walLevel" :options="walLevelOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('WAL Buffers (wal_buffers)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="walBuffersNum"
+                  :placeholder="$gettext('e.g. 7864')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select v-model:value="walBuffersUnit" :options="sizeUnitOptions" class="w-20" />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Max WAL Size (max_wal_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="maxWalSizeNum"
+                  :placeholder="$gettext('e.g. 4')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select v-model:value="maxWalSizeUnit" :options="sizeUnitOptions" class="w-20" />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Min WAL Size (min_wal_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="minWalSizeNum"
+                  :placeholder="$gettext('e.g. 1')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select v-model:value="minWalSizeUnit" :options="sizeUnitOptions" class="w-20" />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item
+              :label="$gettext('Checkpoint Completion Target (checkpoint_completion_target)')"
+            >
+              <n-input
+                v-model:value="checkpointCompletionTarget"
+                :placeholder="$gettext('e.g. 0.9')"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="query" :tab="$gettext('Query Optimization')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Query planner and optimization settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Default Statistics Target (default_statistics_target)')">
               <n-input-number
                 class="w-full"
-                v-model:value="walBuffersNum"
-                :placeholder="$gettext('e.g. 7864')"
-                :min="0"
-                style="flex: 1"
+                v-model:value="defaultStatisticsTarget"
+                :placeholder="$gettext('e.g. 100')"
+                :min="1"
               />
-              <n-select v-model:value="walBuffersUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Max WAL Size (max_wal_size)')">
-            <n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Random Page Cost (random_page_cost)')">
+              <n-input v-model:value="randomPageCost" :placeholder="$gettext('e.g. 1.1')" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Effective IO Concurrency (effective_io_concurrency)')">
               <n-input-number
                 class="w-full"
-                v-model:value="maxWalSizeNum"
-                :placeholder="$gettext('e.g. 4')"
+                v-model:value="effectiveIoConcurrency"
+                :placeholder="$gettext('e.g. 200')"
                 :min="0"
-                style="flex: 1"
               />
-              <n-select v-model:value="maxWalSizeUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Min WAL Size (min_wal_size)')">
-            <n-input-group>
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="logging" :tab="$gettext('Logging')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('PostgreSQL logging settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Log Destination (log_destination)')">
+              <n-input v-model:value="logDestination" :placeholder="$gettext('e.g. stderr')" />
+            </n-form-item>
+            <n-form-item
+              :label="$gettext('Log Min Duration Statement (log_min_duration_statement)')"
+            >
               <n-input-number
                 class="w-full"
-                v-model:value="minWalSizeNum"
-                :placeholder="$gettext('e.g. 1')"
-                :min="0"
-                style="flex: 1"
+                v-model:value="logMinDurationStatement"
+                :placeholder="$gettext('e.g. -1 (disabled) or milliseconds')"
+                :min="-1"
               />
-              <n-select v-model:value="minWalSizeUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item
-            :label="$gettext('Checkpoint Completion Target (checkpoint_completion_target)')"
-          >
-            <n-input
-              v-model:value="checkpointCompletionTarget"
-              :placeholder="$gettext('e.g. 0.9')"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+            </n-form-item>
+            <n-form-item :label="$gettext('Log Timezone (log_timezone)')">
+              <n-input v-model:value="logTimezone" :placeholder="$gettext('e.g. Asia/Shanghai')" />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="query" :tab="$gettext('Query Optimization')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Query planner and optimization settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Default Statistics Target (default_statistics_target)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="defaultStatisticsTarget"
-              :placeholder="$gettext('e.g. 100')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Random Page Cost (random_page_cost)')">
-            <n-input v-model:value="randomPageCost" :placeholder="$gettext('e.g. 1.1')" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Effective IO Concurrency (effective_io_concurrency)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="effectiveIoConcurrency"
-              :placeholder="$gettext('e.g. 200')"
-              :min="0"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      </n-tab-pane>
+      <n-tab-pane name="io" tab="IO">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('IO method settings. Requires PostgreSQL restart to take effect.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('IO Method (io_method)')">
+              <n-select v-model:value="ioMethod" :options="ioMethodOptions" clearable />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="logging" :tab="$gettext('Logging')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('PostgreSQL logging settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Log Destination (log_destination)')">
-            <n-input v-model:value="logDestination" :placeholder="$gettext('e.g. stderr')" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Log Min Duration Statement (log_min_duration_statement)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="logMinDurationStatement"
-              :placeholder="$gettext('e.g. -1 (disabled) or milliseconds')"
-              :min="-1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Log Timezone (log_timezone)')">
-            <n-input v-model:value="logTimezone" :placeholder="$gettext('e.g. Asia/Shanghai')" />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="io" tab="IO">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('IO method settings. Requires PostgreSQL restart to take effect.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('IO Method (io_method)')">
-            <n-select v-model:value="ioMethod" :options="ioMethodOptions" clearable />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
+      </n-tab-pane>
     </n-tabs>
     <tune-preset-modal
       v-model:show="showPresetModal"

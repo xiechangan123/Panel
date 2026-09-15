@@ -26,7 +26,7 @@ type Project struct {
 
 type ProjectRepo interface {
 	Count() (int64, error)
-	List(typ types.ProjectType, page, limit uint) ([]*Project, int64, error)
+	List(typ types.ProjectType, keyword string, page, limit uint) ([]*Project, int64, error)
 	GetEntity(id uint) (*Project, error)
 	ParseDetail(ctx context.Context, project *Project) (*types.ProjectDetail, error)
 	NameExists(name string) (bool, error)
@@ -56,8 +56,8 @@ func (uc *ProjectUsecase) Count() (int64, error) {
 	return uc.repo.Count()
 }
 
-func (uc *ProjectUsecase) List(ctx context.Context, typ types.ProjectType, page, limit uint) ([]*types.ProjectDetail, int64, error) {
-	projects, total, err := uc.repo.List(typ, page, limit)
+func (uc *ProjectUsecase) List(ctx context.Context, typ types.ProjectType, keyword string, page, limit uint) ([]*types.ProjectDetail, int64, error) {
+	projects, total, err := uc.repo.List(typ, keyword, page, limit)
 	if err != nil {
 		return nil, 0, err
 	}

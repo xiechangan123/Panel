@@ -2,8 +2,8 @@ import { http } from '@/utils'
 
 export default {
   // 获取数据库列表
-  list: (page: number, limit: number, type?: string) =>
-    http.Get(`/database`, { params: { page, limit, type } }),
+  list: (page: number, limit: number, type?: string, keyword?: string) =>
+    http.Get(`/database`, { params: { page, limit, type, keyword } }),
   // 创建数据库
   create: (data: any) => http.Post(`/database`, data),
   // 删除数据库

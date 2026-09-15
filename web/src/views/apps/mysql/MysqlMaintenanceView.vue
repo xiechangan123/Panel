@@ -87,7 +87,12 @@ const tableColumns: any = [
   { title: $gettext('Table'), key: 'table', minWidth: 150, ellipsis: { tooltip: true } },
   { title: $gettext('Engine'), key: 'engine', width: 100 },
   { title: $gettext('Rows'), key: 'rows', width: 110, sorter: (a: any, b: any) => a.rows - b.rows },
-  { title: $gettext('Size'), key: 'size', width: 100, sorter: (a: any, b: any) => a.size_bytes - b.size_bytes },
+  {
+    title: $gettext('Size'),
+    key: 'size',
+    width: 100,
+    sorter: (a: any, b: any) => a.size_bytes - b.size_bytes,
+  },
   {
     title: $gettext('Fragment Rate'),
     key: 'fragment_rate',
@@ -105,27 +110,40 @@ const tableColumns: any = [
     width: 230,
     render(row: any) {
       const rowTables = [{ database: row.database, table: row.table }]
-      return h(NSpace, { size: 'small', wrap: false }, {
-        default: () => [
-          h(
-            NButton,
-            { size: 'small', type: 'warning', onClick: () => handleMaintenance(rowTables, 'optimize') },
-            { default: () => 'OPTIMIZE' },
-          ),
-          h(
-            NButton,
-            { size: 'small', onClick: () => handleMaintenance(rowTables, 'analyze') },
-            { default: () => 'ANALYZE' },
-          ),
-        ],
-      })
+      return h(
+        NSpace,
+        { size: 'small', wrap: false },
+        {
+          default: () => [
+            h(
+              NButton,
+              {
+                size: 'small',
+                type: 'warning',
+                onClick: () => handleMaintenance(rowTables, 'optimize'),
+              },
+              { default: () => 'OPTIMIZE' },
+            ),
+            h(
+              NButton,
+              { size: 'small', onClick: () => handleMaintenance(rowTables, 'analyze') },
+              { default: () => 'ANALYZE' },
+            ),
+          ],
+        },
+      )
     },
   },
 ]
 
 const binlogColumns: any = [
   { title: $gettext('File'), key: 'name', minWidth: 200 },
-  { title: $gettext('Size'), key: 'size', width: 120, sorter: (a: any, b: any) => a.size_bytes - b.size_bytes },
+  {
+    title: $gettext('Size'),
+    key: 'size',
+    width: 120,
+    sorter: (a: any, b: any) => a.size_bytes - b.size_bytes,
+  },
   {
     title: $gettext('Actions'),
     key: 'actions',
@@ -219,7 +237,11 @@ const replicationRunning = (value: string) => {
           <n-card>
             <n-flex>
               <n-statistic :label="$gettext('File Count')" :value="binlog.items.length" />
-              <n-statistic class="ml-40" :label="$gettext('Total Size')" :value="binlog.total_size" />
+              <n-statistic
+                class="ml-40"
+                :label="$gettext('Total Size')"
+                :value="binlog.total_size"
+              />
             </n-flex>
           </n-card>
           <n-data-table
@@ -256,7 +278,11 @@ const replicationRunning = (value: string) => {
             <n-descriptions-item :label="$gettext('SQL Thread')">
               <component :is="replicationRunning(replication.sql_running)" />
             </n-descriptions-item>
-            <n-descriptions-item v-if="replication.last_error" :label="$gettext('Last Error')" :span="2">
+            <n-descriptions-item
+              v-if="replication.last_error"
+              :label="$gettext('Last Error')"
+              :span="2"
+            >
               {{ replication.last_error }}
             </n-descriptions-item>
           </n-descriptions>

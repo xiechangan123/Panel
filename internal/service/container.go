@@ -21,9 +21,10 @@ func NewContainerService(containerUsecase *biz.ContainerUsecase) *ContainerServi
 }
 
 func (s *ContainerService) List(w http.ResponseWriter, r *http.Request) {
-	containers, err := s.containerRepo.ListAll(r.Context())
+	containers, err := s.containerRepo.List(r.Context(), r.URL.Query().Get("keyword"))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
+		return
 	}
 
 	paged, total := Paginate(r, containers)
@@ -31,19 +32,6 @@ func (s *ContainerService) List(w http.ResponseWriter, r *http.Request) {
 	Success(w, chix.M{
 		"total": total,
 		"items": paged,
-	})
-}
-
-func (s *ContainerService) Search(w http.ResponseWriter, r *http.Request) {
-	containers, err := s.containerRepo.ListByName(r.Context(), r.FormValue("name"))
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, chix.M{
-		"total": len(containers),
-		"items": containers,
 	})
 }
 

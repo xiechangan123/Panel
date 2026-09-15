@@ -62,5 +62,5 @@ export default {
     stop_source: boolean
   }): any => http.Post('/toolbox_migration/start', data),
   reset: (): any => http.Post('/toolbox_migration/reset'),
-  logUrl: '/api/toolbox_migration/log'
+  logUrl: '/api/toolbox_migration/log',
 }

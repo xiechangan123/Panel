@@ -2,7 +2,8 @@ package request
 
 type DatabaseList struct {
 	Paginate
-	Type string `form:"type" json:"type" query:"type"`
+	Type    string `form:"type" json:"type" query:"type"`
+	Keyword string `form:"keyword" json:"keyword" query:"keyword"`
 }
 
 type DatabaseCreate struct {

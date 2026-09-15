@@ -3,7 +3,6 @@ import type { DataTableColumns } from 'naive-ui'
 import { NButton, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import ListInput from '@/components/common/ListInput.vue'
 import toolboxNetwork, {
   type NetworkFamilyConfig,
   type NetworkInterface,
@@ -11,6 +10,7 @@ import toolboxNetwork, {
   type NetworkInterfaceState,
   type NetworkInterfaces,
 } from '@/api/panel/toolbox-network'
+import ListInput from '@/components/common/ListInput.vue'
 
 const { $gettext } = useGettext()
 const result = ref<NetworkInterfaces>({ manager: 'unsupported', items: [], pending: false })
@@ -250,12 +250,12 @@ const loadInterfaces = () => {
 // 自动获取时配置文件里没有这些值，回填当前生效状态，切换为手动时无需另行查询
 const fillFamily = (
   config: NetworkFamilyConfig,
-  current: NetworkInterfaceState
+  current: NetworkInterfaceState,
 ): NetworkFamilyConfig => ({
   ...config,
   addresses: config.addresses.length ? [...config.addresses] : [...current.addresses],
   gateway: config.gateway || current.gateway,
-  dns: config.dns.length ? [...config.dns] : [...current.dns]
+  dns: config.dns.length ? [...config.dns] : [...current.dns],
 })
 
 const openConfig = (item: NetworkInterface) => {
@@ -263,7 +263,7 @@ const openConfig = (item: NetworkInterface) => {
     name: item.name,
     mtu: item.configured_mtu || item.current_mtu,
     ipv4: fillFamily(item.ipv4, item.current_ipv4),
-    ipv6: fillFamily(item.ipv6, item.current_ipv6)
+    ipv6: fillFamily(item.ipv6, item.current_ipv6),
   }
   showModal.value = true
 }
@@ -292,7 +292,7 @@ const saveConfig = () => {
   window.$dialog.warning({
     title: $gettext('Confirm Network Configuration Change'),
     content: $gettext(
-      'Changing the primary IP address, gateway, or automatic address assignment may interrupt the panel connection. The change will be rolled back automatically unless you confirm it afterwards. Continue?'
+      'Changing the primary IP address, gateway, or automatic address assignment may interrupt the panel connection. The change will be rolled back automatically unless you confirm it afterwards. Continue?',
     ),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
@@ -307,7 +307,7 @@ const saveConfig = () => {
         .onComplete(() => {
           saving.value = false
         })
-    }
+    },
   })
 }
 
@@ -323,7 +323,7 @@ loadInterfaces()
             countdown > 0
               ? $gettext(
                   'Network configuration changed. Confirm within %{ seconds }s to keep it, otherwise it will be rolled back automatically.',
-                  { seconds: String(countdown) }
+                  { seconds: String(countdown) },
                 )
               : $gettext('A network configuration change is waiting for confirmation.')
           }}

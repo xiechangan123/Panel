@@ -45,7 +45,7 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //			GetRewritesFunc: func() (map[string]string, error) {
 //				panic("mock out the GetRewrites method")
 //			},
-//			ListFunc: func(typ string, page uint, limit uint) ([]*biz.Website, int64, error) {
+//			ListFunc: func(typ string, keyword string, page uint, limit uint) ([]*biz.Website, int64, error) {
 //				panic("mock out the List method")
 //			},
 //			RebuildFunc: func(ctx context.Context, website *biz.Website) (bool, []string, error) {
@@ -110,7 +110,7 @@ type WebsiteRepo struct {
 	GetRewritesFunc func() (map[string]string, error)
 
 	// ListFunc mocks the List method.
-	ListFunc func(typ string, page uint, limit uint) ([]*biz.Website, int64, error)
+	ListFunc func(typ string, keyword string, page uint, limit uint) ([]*biz.Website, int64, error)
 
 	// RebuildFunc mocks the Rebuild method.
 	RebuildFunc func(ctx context.Context, website *biz.Website) (bool, []string, error)
@@ -184,6 +184,8 @@ type WebsiteRepo struct {
 		List []struct {
 			// Typ is the typ argument value.
 			Typ string
+			// Keyword is the keyword argument value.
+			Keyword string
 			// Page is the page argument value.
 			Page uint
 			// Limit is the limit argument value.
@@ -509,23 +511,25 @@ func (mock *WebsiteRepo) GetRewritesCalls() []struct {
 }
 
 // List calls ListFunc.
-func (mock *WebsiteRepo) List(typ string, page uint, limit uint) ([]*biz.Website, int64, error) {
+func (mock *WebsiteRepo) List(typ string, keyword string, page uint, limit uint) ([]*biz.Website, int64, error) {
 	if mock.ListFunc == nil {
 		panic("WebsiteRepo.ListFunc: method is nil but WebsiteRepo.List was just called")
 	}
 	callInfo := struct {
-		Typ   string
-		Page  uint
-		Limit uint
+		Typ     string
+		Keyword string
+		Page    uint
+		Limit   uint
 	}{
-		Typ:   typ,
-		Page:  page,
-		Limit: limit,
+		Typ:     typ,
+		Keyword: keyword,
+		Page:    page,
+		Limit:   limit,
 	}
 	mock.lockList.Lock()
 	mock.calls.List = append(mock.calls.List, callInfo)
 	mock.lockList.Unlock()
-	return mock.ListFunc(typ, page, limit)
+	return mock.ListFunc(typ, keyword, page, limit)
 }
 
 // ListCalls gets all the calls that were made to List.
@@ -533,14 +537,16 @@ func (mock *WebsiteRepo) List(typ string, page uint, limit uint) ([]*biz.Website
 //
 //	len(mockedWebsiteRepo.ListCalls())
 func (mock *WebsiteRepo) ListCalls() []struct {
-	Typ   string
-	Page  uint
-	Limit uint
+	Typ     string
+	Keyword string
+	Page    uint
+	Limit   uint
 } {
 	var calls []struct {
-		Typ   string
-		Page  uint
-		Limit uint
+		Typ     string
+		Keyword string
+		Page    uint
+		Limit   uint
 	}
 	mock.lockList.RLock()
 	calls = mock.calls.List

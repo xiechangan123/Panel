@@ -25,8 +25,8 @@ import (
 func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []types.MigrationItem) {
 	websitePath, _ := uc.setting.Get(SettingKeyWebsitePath, filepath.Join(app.Root, "sites"))
 	projectPath, _ := uc.setting.Get(SettingKeyProjectPath, filepath.Join(app.Root, "projects"))
-	projects, _, _ := uc.project.List(ctx, "", 1, 10000)
-	databases, _, _ := uc.database.List(ctx, 1, 10000, "")
+	projects, _, _ := uc.project.List(ctx, "", "", 1, 10000)
+	databases, _, _ := uc.database.List(ctx, 1, 10000, "", "")
 	servers, _, _ := uc.databaseServer.List(ctx, 1, 10000, "")
 
 	for i := range items {

@@ -55,7 +55,11 @@ const columns: any = [
     width: 150,
     render(row: any) {
       if (!row.installed) {
-        return h(NTag, { type: 'default', size: 'small' }, { default: () => $gettext('Not Installed') })
+        return h(
+          NTag,
+          { type: 'default', size: 'small' },
+          { default: () => $gettext('Not Installed') },
+        )
       }
       const label = row.installed_version
         ? `${$gettext('Installed')} (${row.installed_version})`
@@ -88,57 +92,61 @@ const columns: any = [
           { default: () => $gettext('Install') },
         )
       }
-      return h(NSpace, { size: 'small', wrap: false }, {
-        default: () => [
-          h(
-            NButton,
-            {
-              size: 'small',
-              type: 'primary',
-              onClick: () => handleOpenEnable(row),
-            },
-            { default: () => $gettext('Enable') },
-          ),
-          h(
-            NButton,
-            {
-              size: 'small',
-              onClick: async () => {
-                const ok = await confirmAction({
-                  type: 'info',
-                  title: $gettext('Confirm Reinstall'),
-                  content: $gettext(
-                    'Reinstalling will recompile %{ name } to the latest version provided by the panel. Are you sure?',
-                    { name: row.name },
-                  ),
-                })
-                if (ok) handleInstall(row.slug)
+      return h(
+        NSpace,
+        { size: 'small', wrap: false },
+        {
+          default: () => [
+            h(
+              NButton,
+              {
+                size: 'small',
+                type: 'primary',
+                onClick: () => handleOpenEnable(row),
               },
-            },
-            { default: () => $gettext('Reinstall') },
-          ),
-          h(
-            NButton,
-            {
-              size: 'small',
-              type: 'error',
-              onClick: async () => {
-                const ok = await confirmDelete({
-                  title: $gettext('Confirm Uninstall'),
-                  content: $gettext(
-                    'Please make sure the extension %{ ext_name } has been dropped (DROP EXTENSION) in all databases that use it, otherwise those databases will fail to load it. Are you sure you want to uninstall %{ name }?',
-                    { name: row.name, ext_name: row.ext_name },
-                  ),
-                  positiveText: $gettext('Uninstall'),
-                  countdown: 5,
-                })
-                if (ok) handleUninstall(row.slug)
+              { default: () => $gettext('Enable') },
+            ),
+            h(
+              NButton,
+              {
+                size: 'small',
+                onClick: async () => {
+                  const ok = await confirmAction({
+                    type: 'info',
+                    title: $gettext('Confirm Reinstall'),
+                    content: $gettext(
+                      'Reinstalling will recompile %{ name } to the latest version provided by the panel. Are you sure?',
+                      { name: row.name },
+                    ),
+                  })
+                  if (ok) handleInstall(row.slug)
+                },
               },
-            },
-            { default: () => $gettext('Uninstall') },
-          ),
-        ],
-      })
+              { default: () => $gettext('Reinstall') },
+            ),
+            h(
+              NButton,
+              {
+                size: 'small',
+                type: 'error',
+                onClick: async () => {
+                  const ok = await confirmDelete({
+                    title: $gettext('Confirm Uninstall'),
+                    content: $gettext(
+                      'Please make sure the extension %{ ext_name } has been dropped (DROP EXTENSION) in all databases that use it, otherwise those databases will fail to load it. Are you sure you want to uninstall %{ name }?',
+                      { name: row.name, ext_name: row.ext_name },
+                    ),
+                    positiveText: $gettext('Uninstall'),
+                    countdown: 5,
+                  })
+                  if (ok) handleUninstall(row.slug)
+                },
+              },
+              { default: () => $gettext('Uninstall') },
+            ),
+          ],
+        },
+      )
     },
   },
 ]

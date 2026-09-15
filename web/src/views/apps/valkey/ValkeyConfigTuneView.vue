@@ -5,9 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
-import { mbToPair, redisPreset, type TuneProfile } from '@/utils/tunepreset'
-
 import valkey from '@/api/apps/valkey'
+import { mbToPair, redisPreset, type TuneProfile } from '@/utils/tunepreset'
 
 const { $gettext } = useGettext()
 const currentTab = ref('general')
@@ -130,137 +129,141 @@ const handleSave = () => {
 <template>
   <n-flex vertical>
     <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
-    <n-tab-pane name="general" :tab="$gettext('General')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Common Valkey general settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Bind (bind)')">
-            <n-input v-model:value="bind" :placeholder="$gettext('e.g. 127.0.0.1')" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Port (port)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="port"
-              :placeholder="$gettext('e.g. 6379')"
-              :min="1"
-              :max="65535"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Databases (databases)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="databases"
-              :placeholder="$gettext('e.g. 16')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Password (requirepass)')">
-            <n-input
-              v-model:value="requirepass"
-              type="password"
-              show-password-on="click"
-              :placeholder="$gettext('Leave empty for no password')"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Timeout (timeout)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="timeout"
-              :placeholder="$gettext('e.g. 0 (disabled) or seconds')"
-              :min="0"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('TCP Keepalive (tcp-keepalive)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="tcpKeepalive"
-              :placeholder="$gettext('e.g. 300')"
-              :min="0"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="memory" :tab="$gettext('Memory')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Valkey memory management settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Max Memory (maxmemory)')">
-            <n-input-group>
+      <n-tab-pane name="general" :tab="$gettext('General')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Common Valkey general settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Bind (bind)')">
+              <n-input v-model:value="bind" :placeholder="$gettext('e.g. 127.0.0.1')" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Port (port)')">
               <n-input-number
                 class="w-full"
-                v-model:value="maxmemoryNum"
-                :placeholder="$gettext('e.g. 256')"
-                :min="0"
-                style="flex: 1"
+                v-model:value="port"
+                :placeholder="$gettext('e.g. 6379')"
+                :min="1"
+                :max="65535"
               />
-              <n-select v-model:value="maxmemoryUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Maxmemory Policy (maxmemory-policy)')">
-            <n-select v-model:value="maxmemoryPolicy" :options="maxmemoryPolicyOptions" clearable />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+            </n-form-item>
+            <n-form-item :label="$gettext('Databases (databases)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="databases"
+                :placeholder="$gettext('e.g. 16')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Password (requirepass)')">
+              <n-input
+                v-model:value="requirepass"
+                type="password"
+                show-password-on="click"
+                :placeholder="$gettext('Leave empty for no password')"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Timeout (timeout)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="timeout"
+                :placeholder="$gettext('e.g. 0 (disabled) or seconds')"
+                :min="0"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('TCP Keepalive (tcp-keepalive)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="tcpKeepalive"
+                :placeholder="$gettext('e.g. 300')"
+                :min="0"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="persistence" :tab="$gettext('Persistence')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Valkey AOF persistence settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Append Only (appendonly)')">
-            <n-select v-model:value="appendonly" :options="yesNoOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('Append Fsync (appendfsync)')">
-            <n-select v-model:value="appendfsync" :options="appendfsyncOptions" clearable />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      </n-tab-pane>
+      <n-tab-pane name="memory" :tab="$gettext('Memory')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Valkey memory management settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Max Memory (maxmemory)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="maxmemoryNum"
+                  :placeholder="$gettext('e.g. 256')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select v-model:value="maxmemoryUnit" :options="sizeUnitOptions" class="w-20" />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Maxmemory Policy (maxmemory-policy)')">
+              <n-select
+                v-model:value="maxmemoryPolicy"
+                :options="maxmemoryPolicyOptions"
+                clearable
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
+      </n-tab-pane>
+      <n-tab-pane name="persistence" :tab="$gettext('Persistence')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Valkey AOF persistence settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Append Only (appendonly)')">
+              <n-select v-model:value="appendonly" :options="yesNoOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Append Fsync (appendfsync)')">
+              <n-select v-model:value="appendfsync" :options="appendfsyncOptions" clearable />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
     </n-tabs>
     <tune-preset-modal
       v-model:show="showPresetModal"

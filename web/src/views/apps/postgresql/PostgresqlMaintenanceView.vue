@@ -51,7 +51,10 @@ const { data: wal, send: refreshWal } = useRequest(postgresql.wal, {
   },
 })
 
-const handleMaintenance = async (tables: { schema: string; table: string }[], operation: string) => {
+const handleMaintenance = async (
+  tables: { schema: string; table: string }[],
+  operation: string,
+) => {
   const target =
     tables.length === 1
       ? `${tables[0]!.schema}.${tables[0]!.table}`
@@ -95,9 +98,24 @@ const bloatColumns: any = [
   { type: 'selection' },
   { title: $gettext('Schema'), key: 'schema', width: 110, ellipsis: { tooltip: true } },
   { title: $gettext('Table'), key: 'table', minWidth: 150, ellipsis: { tooltip: true } },
-  { title: $gettext('Size'), key: 'size', width: 100, sorter: (a: any, b: any) => a.size_bytes - b.size_bytes },
-  { title: $gettext('Live Tuples'), key: 'live_tuples', width: 120, sorter: (a: any, b: any) => a.live_tuples - b.live_tuples },
-  { title: $gettext('Dead Tuples'), key: 'dead_tuples', width: 130, sorter: (a: any, b: any) => a.dead_tuples - b.dead_tuples },
+  {
+    title: $gettext('Size'),
+    key: 'size',
+    width: 100,
+    sorter: (a: any, b: any) => a.size_bytes - b.size_bytes,
+  },
+  {
+    title: $gettext('Live Tuples'),
+    key: 'live_tuples',
+    width: 120,
+    sorter: (a: any, b: any) => a.live_tuples - b.live_tuples,
+  },
+  {
+    title: $gettext('Dead Tuples'),
+    key: 'dead_tuples',
+    width: 130,
+    sorter: (a: any, b: any) => a.dead_tuples - b.dead_tuples,
+  },
   {
     title: $gettext('Dead Rate'),
     key: 'dead_rate',
@@ -113,7 +131,9 @@ const bloatColumns: any = [
     key: 'last_vacuum',
     width: 150,
     sorter: (a: any, b: any) =>
-      (a.last_vacuum || a.last_autovacuum || '').localeCompare(b.last_vacuum || b.last_autovacuum || ''),
+      (a.last_vacuum || a.last_autovacuum || '').localeCompare(
+        b.last_vacuum || b.last_autovacuum || '',
+      ),
     render: (row: any) => row.last_vacuum || row.last_autovacuum || '-',
   },
   {
@@ -121,7 +141,9 @@ const bloatColumns: any = [
     key: 'last_analyze',
     width: 150,
     sorter: (a: any, b: any) =>
-      (a.last_analyze || a.last_autoanalyze || '').localeCompare(b.last_analyze || b.last_autoanalyze || ''),
+      (a.last_analyze || a.last_autoanalyze || '').localeCompare(
+        b.last_analyze || b.last_autoanalyze || '',
+      ),
     render: (row: any) => row.last_analyze || row.last_autoanalyze || '-',
   },
   {
@@ -138,7 +160,11 @@ const bloatColumns: any = [
         ),
         h(
           NButton,
-          { size: 'small', type: 'error', onClick: () => handleMaintenance(rowTables, 'vacuum_full') },
+          {
+            size: 'small',
+            type: 'error',
+            onClick: () => handleMaintenance(rowTables, 'vacuum_full'),
+          },
           { default: () => 'VACUUM FULL' },
         ),
         h(
@@ -151,7 +177,11 @@ const bloatColumns: any = [
         buttons.push(
           h(
             NButton,
-            { size: 'small', type: 'warning', onClick: () => handleMaintenance(rowTables, 'repack') },
+            {
+              size: 'small',
+              type: 'warning',
+              onClick: () => handleMaintenance(rowTables, 'repack'),
+            },
             { default: () => 'REPACK' },
           ),
         )

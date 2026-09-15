@@ -192,266 +192,274 @@ const handleSave = () => {
 <template>
   <n-flex vertical>
     <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
-    <n-tab-pane name="general" :tab="$gettext('General')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Common Nginx general settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Worker Processes (worker_processes)')">
-            <n-input
-              v-model:value="workerProcesses"
-              :placeholder="$gettext('e.g. auto or number')"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Worker Connections (worker_connections)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="workerConnections"
-              :placeholder="$gettext('e.g. 65535')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Keepalive Timeout (keepalive_timeout)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="keepaliveTimeout"
-              :placeholder="$gettext('e.g. 60')"
-              :min="0"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Client Max Body Size (client_max_body_size)')">
-            <n-input-group>
+      <n-tab-pane name="general" :tab="$gettext('General')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Common Nginx general settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Worker Processes (worker_processes)')">
+              <n-input
+                v-model:value="workerProcesses"
+                :placeholder="$gettext('e.g. auto or number')"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Worker Connections (worker_connections)')">
               <n-input-number
                 class="w-full"
-                v-model:value="clientMaxBodySizeNum"
-                :placeholder="$gettext('e.g. 200')"
-                :min="0"
-                style="flex: 1"
+                v-model:value="workerConnections"
+                :placeholder="$gettext('e.g. 65535')"
+                :min="1"
               />
-              <n-select
-                v-model:value="clientMaxBodySizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Client Body Buffer Size (client_body_buffer_size)')">
-            <n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Keepalive Timeout (keepalive_timeout)')">
               <n-input-number
                 class="w-full"
-                v-model:value="clientBodyBufferSizeNum"
-                :placeholder="$gettext('e.g. 10')"
+                v-model:value="keepaliveTimeout"
+                :placeholder="$gettext('e.g. 60')"
                 :min="0"
-                style="flex: 1"
               />
-              <n-select
-                v-model:value="clientBodyBufferSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Client Header Buffer Size (client_header_buffer_size)')">
-            <n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Client Max Body Size (client_max_body_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="clientMaxBodySizeNum"
+                  :placeholder="$gettext('e.g. 200')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="clientMaxBodySizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Client Body Buffer Size (client_body_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="clientBodyBufferSizeNum"
+                  :placeholder="$gettext('e.g. 10')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="clientBodyBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Client Header Buffer Size (client_header_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="clientHeaderBufferSizeNum"
+                  :placeholder="$gettext('e.g. 32')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="clientHeaderBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item
+              :label="$gettext('Server Names Hash Bucket Size (server_names_hash_bucket_size)')"
+            >
               <n-input-number
                 class="w-full"
-                v-model:value="clientHeaderBufferSizeNum"
-                :placeholder="$gettext('e.g. 32')"
-                :min="0"
-                style="flex: 1"
+                v-model:value="serverNamesHashBucketSize"
+                :placeholder="$gettext('e.g. 512')"
+                :min="1"
               />
-              <n-select
-                v-model:value="clientHeaderBufferSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item
-            :label="$gettext('Server Names Hash Bucket Size (server_names_hash_bucket_size)')"
-          >
-            <n-input-number
-              class="w-full"
-              v-model:value="serverNamesHashBucketSize"
-              :placeholder="$gettext('e.g. 512')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Server Tokens (server_tokens)')">
-            <n-select v-model:value="serverTokens" :options="onOffOptions" clearable />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+            </n-form-item>
+            <n-form-item :label="$gettext('Server Tokens (server_tokens)')">
+              <n-select v-model:value="serverTokens" :options="onOffOptions" clearable />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="gzip" tab="Gzip">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{
-            $gettext(
-              'Gzip compression settings. Gzip is the most widely supported compression method.',
-            )
-          }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Gzip (gzip)')">
-            <n-select v-model:value="gzip" :options="onOffOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('Min Length (gzip_min_length)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="gzipMinLengthNum"
-                :placeholder="$gettext('e.g. 1')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select v-model:value="gzipMinLengthUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Compression Level (gzip_comp_level)')">
-            <n-input-number class="w-full" v-model:value="gzipCompLevel" :min="1" :max="9" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Types (gzip_types)')">
-            <n-input v-model:value="gzipTypes" :placeholder="$gettext('e.g. *')" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Vary (gzip_vary)')">
-            <n-select v-model:value="gzipVary" :options="onOffOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('Proxied (gzip_proxied)')">
-            <n-input v-model:value="gzipProxied" :placeholder="$gettext('e.g. any')" />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      </n-tab-pane>
+      <n-tab-pane name="gzip" tab="Gzip">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'Gzip compression settings. Gzip is the most widely supported compression method.',
+              )
+            }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Gzip (gzip)')">
+              <n-select v-model:value="gzip" :options="onOffOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Min Length (gzip_min_length)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="gzipMinLengthNum"
+                  :placeholder="$gettext('e.g. 1')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="gzipMinLengthUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Compression Level (gzip_comp_level)')">
+              <n-input-number class="w-full" v-model:value="gzipCompLevel" :min="1" :max="9" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Types (gzip_types)')">
+              <n-input v-model:value="gzipTypes" :placeholder="$gettext('e.g. *')" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Vary (gzip_vary)')">
+              <n-select v-model:value="gzipVary" :options="onOffOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Proxied (gzip_proxied)')">
+              <n-input v-model:value="gzipProxied" :placeholder="$gettext('e.g. any')" />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="brotli" tab="Brotli">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{
-            $gettext(
-              'Brotli compression settings. Brotli provides better compression ratio than Gzip.',
-            )
-          }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Brotli (brotli)')">
-            <n-select v-model:value="brotli" :options="onOffOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('Min Length (brotli_min_length)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="brotliMinLengthNum"
-                :placeholder="$gettext('e.g. 1')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="brotliMinLengthUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Compression Level (brotli_comp_level)')">
-            <n-input-number class="w-full" v-model:value="brotliCompLevel" :min="0" :max="11" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Types (brotli_types)')">
-            <n-input v-model:value="brotliTypes" :placeholder="$gettext('e.g. *')" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Static (brotli_static)')">
-            <n-select v-model:value="brotliStatic" :options="onOffAlwaysOptions" clearable />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      </n-tab-pane>
+      <n-tab-pane name="brotli" tab="Brotli">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'Brotli compression settings. Brotli provides better compression ratio than Gzip.',
+              )
+            }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Brotli (brotli)')">
+              <n-select v-model:value="brotli" :options="onOffOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Min Length (brotli_min_length)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="brotliMinLengthNum"
+                  :placeholder="$gettext('e.g. 1')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="brotliMinLengthUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Compression Level (brotli_comp_level)')">
+              <n-input-number class="w-full" v-model:value="brotliCompLevel" :min="0" :max="11" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Types (brotli_types)')">
+              <n-input v-model:value="brotliTypes" :placeholder="$gettext('e.g. *')" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Static (brotli_static)')">
+              <n-select v-model:value="brotliStatic" :options="onOffAlwaysOptions" clearable />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="zstd" tab="Zstd">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{
-            $gettext('Zstd compression settings. Zstd provides fast compression with high ratio.')
-          }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Zstd (zstd)')">
-            <n-select v-model:value="zstd" :options="onOffOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('Min Length (zstd_min_length)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="zstdMinLengthNum"
-                :placeholder="$gettext('e.g. 1')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select v-model:value="zstdMinLengthUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Compression Level (zstd_comp_level)')">
-            <n-input-number class="w-full" v-model:value="zstdCompLevel" :min="1" :max="22" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Types (zstd_types)')">
-            <n-input v-model:value="zstdTypes" :placeholder="$gettext('e.g. *')" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Static (zstd_static)')">
-            <n-select v-model:value="zstdStatic" :options="onOffAlwaysOptions" clearable />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      </n-tab-pane>
+      <n-tab-pane name="zstd" tab="Zstd">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext('Zstd compression settings. Zstd provides fast compression with high ratio.')
+            }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Zstd (zstd)')">
+              <n-select v-model:value="zstd" :options="onOffOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Min Length (zstd_min_length)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="zstdMinLengthNum"
+                  :placeholder="$gettext('e.g. 1')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="zstdMinLengthUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Compression Level (zstd_comp_level)')">
+              <n-input-number class="w-full" v-model:value="zstdCompLevel" :min="1" :max="22" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Types (zstd_types)')">
+              <n-input v-model:value="zstdTypes" :placeholder="$gettext('e.g. *')" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Static (zstd_static)')">
+              <n-select v-model:value="zstdStatic" :options="onOffAlwaysOptions" clearable />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
+      </n-tab-pane>
     </n-tabs>
     <tune-preset-modal
       v-model:show="showPresetModal"

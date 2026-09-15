@@ -49,18 +49,17 @@ func (uc *ContainerUsecase) ListAll(ctx context.Context) ([]types.Container, err
 	return uc.repo.ListAll(ctx, sock)
 }
 
-func (uc *ContainerUsecase) ListByName(ctx context.Context, name string) ([]types.Container, error) {
-	sock := containerSock(uc.setting)
-	containers, err := uc.repo.ListAll(ctx, sock)
+// List 按名称或镜像关键字筛选容器，关键字为空时返回全部
+func (uc *ContainerUsecase) List(ctx context.Context, keyword string) ([]types.Container, error) {
+	containers, err := uc.ListAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	containers = slices.DeleteFunc(containers, func(item types.Container) bool {
-		return !strings.Contains(item.Name, name)
-	})
-
-	return containers, nil
+	keyword = strings.ToLower(keyword)
+	return slices.DeleteFunc(containers, func(item types.Container) bool {
+		return !strings.Contains(strings.ToLower(item.Name), keyword) && !strings.Contains(strings.ToLower(item.Image), keyword)
+	}), nil
 }
 
 func (uc *ContainerUsecase) Inspect(ctx context.Context, id string) (any, error) {

@@ -2,6 +2,12 @@ package request
 
 import "github.com/acepanel/panel/v3/pkg/types"
 
+type ProjectList struct {
+	Type    string `form:"type" json:"type" query:"type"`
+	Keyword string `form:"keyword" json:"keyword" query:"keyword"`
+	Paginate
+}
+
 type ProjectCreate struct {
 	Name         string            `form:"name" json:"name" validate:"required && regex:\"^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]{0,126}[A-Za-z0-9_-])$\""`
 	Type         types.ProjectType `form:"type" json:"type" validate:"required && in:general,php,java,go,python,nodejs,dotnet"`

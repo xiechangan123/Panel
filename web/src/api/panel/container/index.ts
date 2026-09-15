@@ -2,8 +2,8 @@ import { http } from '@/utils'
 
 export default {
   // 获取容器列表
-  containerList: (page: number, limit: number): any =>
-    http.Get('/container/container', { params: { page, limit } }),
+  containerList: (page: number, limit: number, keyword?: string): any =>
+    http.Get('/container/container', { params: { page, limit, keyword } }),
   // 获取容器详情
   containerInspect: (id: string): any => http.Get(`/container/container/${id}`),
   // 添加容器

@@ -247,383 +247,391 @@ const handleSave = () => {
 <template>
   <n-flex vertical>
     <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
-    <n-tab-pane name="general" :tab="$gettext('General')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('Common MySQL general settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Port (port)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="port"
-              :placeholder="$gettext('e.g. 3306')"
-              :min="1"
-              :max="65535"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Connections (max_connections)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxConnections"
-              :placeholder="$gettext('e.g. 50')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Connect Errors (max_connect_errors)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="maxConnectErrors"
-              :placeholder="$gettext('e.g. 100')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Default Storage Engine (default_storage_engine)')">
-            <n-select
-              v-model:value="defaultStorageEngine"
-              :options="storageEngineOptions"
-              clearable
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Table Open Cache (table_open_cache)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="tableOpenCache"
-              :placeholder="$gettext('e.g. 64')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Allowed Packet (max_allowed_packet)')">
-            <n-input-group>
+      <n-tab-pane name="general" :tab="$gettext('General')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Common MySQL general settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Port (port)')">
               <n-input-number
                 class="w-full"
-                v-model:value="maxAllowedPacketNum"
-                :placeholder="$gettext('e.g. 1')"
-                :min="0"
-                style="flex: 1"
+                v-model:value="port"
+                :placeholder="$gettext('e.g. 3306')"
+                :min="1"
+                :max="65535"
               />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Connections (max_connections)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxConnections"
+                :placeholder="$gettext('e.g. 50')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Connect Errors (max_connect_errors)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="maxConnectErrors"
+                :placeholder="$gettext('e.g. 100')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Default Storage Engine (default_storage_engine)')">
               <n-select
-                v-model:value="maxAllowedPacketUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
+                v-model:value="defaultStorageEngine"
+                :options="storageEngineOptions"
+                clearable
               />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Open Files Limit (open_files_limit)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="openFilesLimit"
-              :placeholder="$gettext('e.g. 65535')"
-              :min="1"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="performance" :tab="$gettext('Performance Tuning')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('MySQL performance buffer and cache settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Key Buffer Size (key_buffer_size)')">
-            <n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Table Open Cache (table_open_cache)')">
               <n-input-number
                 class="w-full"
-                v-model:value="keyBufferSizeNum"
-                :placeholder="$gettext('e.g. 8')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select v-model:value="keyBufferSizeUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Sort Buffer Size (sort_buffer_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="sortBufferSizeNum"
-                :placeholder="$gettext('e.g. 256')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="sortBufferSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Read Buffer Size (read_buffer_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="readBufferSizeNum"
-                :placeholder="$gettext('e.g. 256')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="readBufferSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Read Rnd Buffer Size (read_rnd_buffer_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="readRndBufferSizeNum"
-                :placeholder="$gettext('e.g. 256')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="readRndBufferSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Join Buffer Size (join_buffer_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="joinBufferSizeNum"
-                :placeholder="$gettext('e.g. 128')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="joinBufferSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Thread Cache Size (thread_cache_size)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="threadCacheSize"
-              :placeholder="$gettext('e.g. 16')"
-              :min="0"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Thread Stack (thread_stack)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="threadStackNum"
-                :placeholder="$gettext('e.g. 192')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select v-model:value="threadStackUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Tmp Table Size (tmp_table_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="tmpTableSizeNum"
-                :placeholder="$gettext('e.g. 16')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select v-model:value="tmpTableSizeUnit" :options="sizeUnitOptions" class="w-20" />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Heap Table Size (max_heap_table_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="maxHeapTableSizeNum"
-                :placeholder="$gettext('e.g. 16')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="maxHeapTableSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('MyISAM Sort Buffer Size (myisam_sort_buffer_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="myisamSortBufferSizeNum"
-                :placeholder="$gettext('e.g. 8')"
-                :min="0"
-                style="flex: 1"
-              />
-              <n-select
-                v-model:value="myisamSortBufferSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="innodb" tab="InnoDB">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('InnoDB storage engine settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Buffer Pool Size (innodb_buffer_pool_size)')">
-            <n-input-group>
-              <n-input-number
-                class="w-full"
-                v-model:value="innodbBufferPoolSizeNum"
+                v-model:value="tableOpenCache"
                 :placeholder="$gettext('e.g. 64')"
-                :min="0"
-                style="flex: 1"
+                :min="1"
               />
-              <n-select
-                v-model:value="innodbBufferPoolSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
-              />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item :label="$gettext('Log Buffer Size (innodb_log_buffer_size)')">
-            <n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Allowed Packet (max_allowed_packet)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="maxAllowedPacketNum"
+                  :placeholder="$gettext('e.g. 1')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="maxAllowedPacketUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Open Files Limit (open_files_limit)')">
               <n-input-number
                 class="w-full"
-                v-model:value="innodbLogBufferSizeNum"
+                v-model:value="openFilesLimit"
+                :placeholder="$gettext('e.g. 65535')"
+                :min="1"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="performance" :tab="$gettext('Performance Tuning')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('MySQL performance buffer and cache settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Key Buffer Size (key_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="keyBufferSizeNum"
+                  :placeholder="$gettext('e.g. 8')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="keyBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Sort Buffer Size (sort_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="sortBufferSizeNum"
+                  :placeholder="$gettext('e.g. 256')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="sortBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Read Buffer Size (read_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="readBufferSizeNum"
+                  :placeholder="$gettext('e.g. 256')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="readBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Read Rnd Buffer Size (read_rnd_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="readRndBufferSizeNum"
+                  :placeholder="$gettext('e.g. 256')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="readRndBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Join Buffer Size (join_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="joinBufferSizeNum"
+                  :placeholder="$gettext('e.g. 128')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="joinBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Thread Cache Size (thread_cache_size)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="threadCacheSize"
                 :placeholder="$gettext('e.g. 16')"
                 :min="0"
-                style="flex: 1"
               />
+            </n-form-item>
+            <n-form-item :label="$gettext('Thread Stack (thread_stack)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="threadStackNum"
+                  :placeholder="$gettext('e.g. 192')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select v-model:value="threadStackUnit" :options="sizeUnitOptions" class="w-20" />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Tmp Table Size (tmp_table_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="tmpTableSizeNum"
+                  :placeholder="$gettext('e.g. 16')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="tmpTableSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Heap Table Size (max_heap_table_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="maxHeapTableSizeNum"
+                  :placeholder="$gettext('e.g. 16')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="maxHeapTableSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('MyISAM Sort Buffer Size (myisam_sort_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="myisamSortBufferSizeNum"
+                  :placeholder="$gettext('e.g. 8')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="myisamSortBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="innodb" tab="InnoDB">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('InnoDB storage engine settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Buffer Pool Size (innodb_buffer_pool_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="innodbBufferPoolSizeNum"
+                  :placeholder="$gettext('e.g. 64')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="innodbBufferPoolSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item :label="$gettext('Log Buffer Size (innodb_log_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="innodbLogBufferSizeNum"
+                  :placeholder="$gettext('e.g. 16')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="innodbLogBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
+            </n-form-item>
+            <n-form-item
+              :label="$gettext('Flush Log At Trx Commit (innodb_flush_log_at_trx_commit)')"
+            >
               <n-select
-                v-model:value="innodbLogBufferSizeUnit"
-                :options="sizeUnitOptions"
-                class="w-20"
+                v-model:value="innodbFlushLogAtTrxCommit"
+                :options="flushLogOptions"
+                clearable
               />
-            </n-input-group>
-          </n-form-item>
-          <n-form-item
-            :label="$gettext('Flush Log At Trx Commit (innodb_flush_log_at_trx_commit)')"
-          >
-            <n-select
-              v-model:value="innodbFlushLogAtTrxCommit"
-              :options="flushLogOptions"
-              clearable
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Lock Wait Timeout (innodb_lock_wait_timeout)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="innodbLockWaitTimeout"
-              :placeholder="$gettext('e.g. 50')"
-              :min="0"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Max Dirty Pages Pct (innodb_max_dirty_pages_pct)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="innodbMaxDirtyPagesPct"
-              :placeholder="$gettext('e.g. 90')"
-              :min="0"
-              :max="100"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Read IO Threads (innodb_read_io_threads)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="innodbReadIoThreads"
-              :placeholder="$gettext('e.g. 1')"
-              :min="1"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Write IO Threads (innodb_write_io_threads)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="innodbWriteIoThreads"
-              :placeholder="$gettext('e.g. 1')"
-              :min="1"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+            </n-form-item>
+            <n-form-item :label="$gettext('Lock Wait Timeout (innodb_lock_wait_timeout)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="innodbLockWaitTimeout"
+                :placeholder="$gettext('e.g. 50')"
+                :min="0"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Dirty Pages Pct (innodb_max_dirty_pages_pct)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="innodbMaxDirtyPagesPct"
+                :placeholder="$gettext('e.g. 90')"
+                :min="0"
+                :max="100"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Read IO Threads (innodb_read_io_threads)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="innodbReadIoThreads"
+                :placeholder="$gettext('e.g. 1')"
+                :min="1"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Write IO Threads (innodb_write_io_threads)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="innodbWriteIoThreads"
+                :placeholder="$gettext('e.g. 1')"
+                :min="1"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
-    <n-tab-pane name="logging" :tab="$gettext('Logging')">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{ $gettext('MySQL logging settings.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item :label="$gettext('Slow Query Log (slow_query_log)')">
-            <n-select v-model:value="slowQueryLog" :options="slowQueryLogOptions" clearable />
-          </n-form-item>
-          <n-form-item :label="$gettext('Long Query Time (long_query_time)')">
-            <n-input-number
-              class="w-full"
-              v-model:value="longQueryTime"
-              :placeholder="$gettext('e.g. 3 (seconds)')"
-              :min="0"
-            />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="saveLoading"
-            :disabled="saveLoading"
-            @click="handleSave"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-          <n-button type="info" @click="showPresetModal = true">
-            {{ $gettext('Generate Recommended Configuration') }}
-          </n-button>
+      </n-tab-pane>
+      <n-tab-pane name="logging" :tab="$gettext('Logging')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('MySQL logging settings.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Slow Query Log (slow_query_log)')">
+              <n-select v-model:value="slowQueryLog" :options="slowQueryLogOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Long Query Time (long_query_time)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="longQueryTime"
+                :placeholder="$gettext('e.g. 3 (seconds)')"
+                :min="0"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
         </n-flex>
-      </n-flex>
-    </n-tab-pane>
+      </n-tab-pane>
     </n-tabs>
     <tune-preset-modal
       v-model:show="showPresetModal"

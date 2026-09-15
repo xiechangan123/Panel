@@ -91,7 +91,7 @@ func (s *WebsiteStatService) Overview(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 获取所有网站列表（用于站点选择器）
-	websites, _, err := s.websiteRepo.List("all", 1, 10000)
+	websites, _, err := s.websiteRepo.List("all", "", 1, 10000)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

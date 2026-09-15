@@ -52,7 +52,7 @@ type WebsiteRepo interface {
 	Count() (int64, error)
 	Get(id uint) (*types.WebsiteSetting, error)
 	GetByName(name string) (*types.WebsiteSetting, error)
-	List(typ string, page, limit uint) ([]*Website, int64, error)
+	List(typ, keyword string, page, limit uint) ([]*Website, int64, error)
 	Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error)
 	Update(ctx context.Context, req *request.WebsiteUpdate) (*Website, error)
 	SwitchType(ctx context.Context, req *request.WebsiteSwitchType) (*Website, error)
@@ -116,8 +116,8 @@ func (uc *WebsiteUsecase) GetByName(name string) (*types.WebsiteSetting, error) 
 	return uc.repo.GetByName(name)
 }
 
-func (uc *WebsiteUsecase) List(typ string, page, limit uint) ([]*Website, int64, error) {
-	return uc.repo.List(typ, page, limit)
+func (uc *WebsiteUsecase) List(typ, keyword string, page, limit uint) ([]*Website, int64, error) {
+	return uc.repo.List(typ, keyword, page, limit)
 }
 
 func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error) {

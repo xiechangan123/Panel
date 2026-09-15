@@ -15,6 +15,7 @@ type BusEvents = {
   'file:keyboard-resume': undefined
   'file:refresh': undefined
   'file:search': undefined
+  'firewall:refresh': undefined
   'project:refresh': undefined
   'ssh:refresh': undefined
   'task:refresh-cron': undefined

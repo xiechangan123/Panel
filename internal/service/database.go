@@ -26,7 +26,7 @@ func (s *DatabaseService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	databases, total, err := s.databaseRepo.List(r.Context(), req.Page, req.Limit, req.Type)
+	databases, total, err := s.databaseRepo.List(r.Context(), req.Page, req.Limit, req.Type, req.Keyword)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

@@ -44,13 +44,16 @@ func (r *projectRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r *projectRepo) List(typ types.ProjectType, page, limit uint) ([]*biz.Project, int64, error) {
+func (r *projectRepo) List(typ types.ProjectType, keyword string, page, limit uint) ([]*biz.Project, int64, error) {
 	var projects []*biz.Project
 	var total int64
 
 	query := r.db.Model(&biz.Project{})
 	if typ != "" && typ != "all" {
 		query = query.Where("type = ?", typ)
+	}
+	if keyword != "" {
+		query = query.Where("name LIKE ?", "%"+keyword+"%")
 	}
 
 	if err := query.Count(&total).Error; err != nil {

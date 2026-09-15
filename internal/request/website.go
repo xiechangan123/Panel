@@ -14,7 +14,8 @@ type WebsiteDefaultConfig struct {
 }
 
 type WebsiteList struct {
-	Type string `json:"type" form:"type" validate:"required && in:all,proxy,static,php"`
+	Type    string `json:"type" form:"type" validate:"required && in:all,proxy,static,php"`
+	Keyword string `json:"keyword" form:"keyword" query:"keyword"`
 	Paginate
 }
 

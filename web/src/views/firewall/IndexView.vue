@@ -5,6 +5,7 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
+import firewall from '@/api/panel/firewall'
 import ForwardView from '@/views/firewall/ForwardView.vue'
 import IpRuleView from '@/views/firewall/IpRuleView.vue'
 import RuleView from '@/views/firewall/RuleView.vue'
@@ -14,26 +15,51 @@ import TamperView from '@/views/tamper/TamperView.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('rule')
+
+// 规则类标签页只在系统防火墙运行时展示，状态未知前不渲染以免标签闪动
+// n-tabs 对 v-if 动态增删子 tab 不会重算指示条位置，用 key 强制重挂
+const ruleTabs = ['rule', 'ip-rule', 'forward']
+const firewallRunning = ref(false)
+const ready = ref(false)
+
+const { send: refreshStatus } = useRequest(firewall.status)
+  .onSuccess(({ data }) => {
+    firewallRunning.value = data
+    if (!data && ruleTabs.includes(currentTab.value)) currentTab.value = 'scan'
+  })
+  .onComplete(() => {
+    ready.value = true
+  })
+
+onMounted(() => {
+  window.$bus.on('firewall:refresh', refreshStatus)
+})
+
+onUnmounted(() => {
+  window.$bus.off('firewall:refresh', refreshStatus)
+})
 </script>
 
 <template>
   <PageContainer :show-footer="true">
     <template #tabs>
-      <n-tabs v-model:value="currentTab" animated>
-        <n-tab name="rule" :tab="$gettext('Port Rules')" />
-        <n-tab name="ip-rule" :tab="$gettext('IP Rules')" />
-        <n-tab name="forward" :tab="$gettext('Port Forwarding')" />
+      <n-tabs v-if="ready" :key="String(firewallRunning)" v-model:value="currentTab" animated>
+        <n-tab v-if="firewallRunning" name="rule" :tab="$gettext('Port Rules')" />
+        <n-tab v-if="firewallRunning" name="ip-rule" :tab="$gettext('IP Rules')" />
+        <n-tab v-if="firewallRunning" name="forward" :tab="$gettext('Port Forwarding')" />
         <n-tab name="scan" :tab="$gettext('Scan Awareness')" />
         <n-tab name="tamper" :tab="$gettext('Tamper Protection')" />
         <n-tab name="setting" :tab="$gettext('Settings')" />
       </n-tabs>
     </template>
-    <rule-view v-if="currentTab === 'rule'" />
-    <ip-rule-view v-if="currentTab === 'ip-rule'" />
-    <forward-view v-if="currentTab === 'forward'" />
-    <scan-view v-if="currentTab === 'scan'" />
-    <tamper-view v-if="currentTab === 'tamper'" />
-    <setting-view v-if="currentTab === 'setting'" />
+    <template v-if="ready">
+      <rule-view v-if="currentTab === 'rule'" />
+      <ip-rule-view v-if="currentTab === 'ip-rule'" />
+      <forward-view v-if="currentTab === 'forward'" />
+      <scan-view v-if="currentTab === 'scan'" />
+      <tamper-view v-if="currentTab === 'tamper'" />
+      <setting-view v-if="currentTab === 'setting'" />
+    </template>
   </PageContainer>
 </template>
 
