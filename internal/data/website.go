@@ -111,7 +111,7 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		return nil, err
 	}
 
-	vhost, err := r.getVhost(website)
+	vhost, err := r.getVhost(context.Background(), website)
 	if err != nil {
 		return nil, err
 	}
@@ -490,6 +490,9 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) (*
 		return nil, err
 	}
 
+	if _, _, err := r.Rebuild(ctx, website); err != nil {
+		return nil, err
+	}
 	if err := r.applyUpdate(ctx, req, website); err != nil {
 		return nil, err
 	}
@@ -709,31 +712,18 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 		HTTPRedirect: setting.HTTPRedirect,
 		SSLProtocols: setting.SSLProtocols,
 		PHP:          setting.PHP,
-		Rewrite:      setting.Rewrite,
 		OpenBasedir:  setting.OpenBasedir,
 		Upstreams:    setting.Upstreams,
 		Proxies:      setting.Proxies,
 		Redirects:    setting.Redirects,
-		// 目标支持访问统计时沿用原开关，来源不支持则默认开启
-		StatEnabled: d.Features().Stat && (setting.StatEnabled || !source.Features().Stat),
-		LSCache:     d.Features().LSCache && setting.LSCache,
-		AccessLog:   siteLogPath(website.Name, setting.AccessLog),
-		ErrorLog:    siteLogPath(website.Name, setting.ErrorLog),
-		RateLimit:   setting.RateLimit,
-		RealIP:      setting.RealIP,
-		BasicAuth:   setting.BasicAuth,
-		CustomConfigs: lo.Map(setting.CustomConfigs, func(config types.WebsiteCustomConfig, _ int) request.WebsiteCustomConfig {
-			return request.WebsiteCustomConfig{Name: config.Name, Scope: config.Scope, Content: config.Content}
-		}),
+		BasicAuth:    setting.BasicAuth,
+		StatEnabled:  d.Features().Stat,
 	}
 
-	// 伪静态与自定义配置是各服务器自己的语法，语法不同时只能停用，原文件带后缀保留
+	// 只迁移各服务器通用的设置，伪静态、自定义配置、限流与真实 IP 是各自的语法或语义，直接丢弃
 	var notes []string
-	sameSyntax := source.RewritesDir() == d.RewritesDir()
-	if !sameSyntax && (setting.Rewrite != "" || len(setting.CustomConfigs) > 0) {
-		update.Rewrite = ""
-		update.CustomConfigs = nil
-		notes = append(notes, r.t.Get("rewrite rules and custom configs are written for %s and have been disabled, the originals are kept as *.conf.%s", source.Type, source.Type))
+	if setting.Rewrite != "" || len(setting.CustomConfigs) > 0 || setting.RateLimit != nil || setting.RealIP != nil {
+		notes = append(notes, r.t.Get("rewrite rules, custom configs, rate limit and real IP settings are not migrated"))
 	}
 
 	backupDir := fmt.Sprintf("%s.rebuild-backup-%d", configDir, time.Now().UnixNano())
@@ -747,11 +737,6 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 	}
 	for _, scope := range []string{"site", "shared"} {
 		if err = os.MkdirAll(filepath.Join(configDir, scope), 0600); err != nil {
-			return restore(err)
-		}
-	}
-	if !sameSyntax {
-		if err = stashFragments(backupDir, configDir, string(source.Type)); err != nil {
 			return restore(err)
 		}
 	}
@@ -771,23 +756,12 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 	if err = vhost.SetEnable(website.Status); err != nil {
 		return restore(err)
 	}
-	if err = vhost.SetDefault(oldVhost.Default()); err != nil {
-		return restore(err)
-	}
 	if err = vhost.Save(); err != nil {
 		return restore(err)
 	}
 
 	_ = io.Remove(restoreCtx, backupDir)
 	return true, notes, nil
-}
-
-// siteLogPath 日志路径只沿用站点目录内的，来源服务器的专有路径（如 Caddy 的全局错误日志）在卸载后不复存在
-func siteLogPath(name, path string) string {
-	if strings.HasPrefix(path, filepath.Join(app.Root, "sites", name)+"/") {
-		return path
-	}
-	return ""
 }
 
 // sourceDialect 按站点目录里最新修改的主配置文件识别上一个 Web 服务器
@@ -809,45 +783,6 @@ func sourceDialect(configDir string) (webserver.Dialect, bool) {
 	return latest, !modTime.IsZero()
 }
 
-// stashFragments 把旧服务器的伪静态与自定义配置片段带后缀存入新目录，避免被新服务器加载
-func stashFragments(from, to, suffix string) error {
-	for _, scope := range []string{"site", "shared"} {
-		entries, err := os.ReadDir(filepath.Join(from, scope))
-		if err != nil {
-			continue
-		}
-		for _, entry := range entries {
-			name := entry.Name()
-			if entry.IsDir() || (name != "010-rewrite.conf" && !isCustomConfig(name)) {
-				continue
-			}
-			content, err := os.ReadFile(filepath.Join(from, scope, name))
-			if err != nil {
-				return err
-			}
-			if err = os.WriteFile(filepath.Join(to, scope, name+"."+suffix), content, 0600); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-// isCustomConfig 判断文件名是否为自定义配置片段（800-999 序号）
-func isCustomConfig(name string) bool {
-	if !strings.HasSuffix(name, ".conf") {
-		return false
-	}
-	parts := strings.SplitN(name, "-", 2)
-	if len(parts) < 2 {
-		return false
-	}
-	num, err := strconv.Atoi(parts[0])
-	return err == nil && num >= customConfigStartNum && num <= customConfigEndNum
-}
-
-// applyUpdate 将更新请求应用到网站配置与实体，供 Update 复用
 func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdate, website *biz.Website) error {
 	d, err := r.dialect()
 	if err != nil {
@@ -1259,7 +1194,7 @@ func (r *websiteRepo) UpdateStatus(ctx context.Context, id uint, status bool) er
 		return err
 	}
 
-	vhost, err := r.getVhost(website)
+	vhost, err := r.getVhost(ctx, website)
 	if err != nil {
 		return err
 	}
@@ -1461,9 +1396,13 @@ func newVhost(d webserver.Dialect, website *biz.Website) (webservertypes.Vhost, 
 	return d.NewVhost(string(website.Type), filepath.Join(app.Root, "sites", website.Name, "config"))
 }
 
-func (r *websiteRepo) getVhost(website *biz.Website) (webservertypes.Vhost, error) {
+// getVhost 站点还没按当前 Web 服务器生成过配置时先重建，兜住切换服务器时重建失败或被跳过的站点
+func (r *websiteRepo) getVhost(ctx context.Context, website *biz.Website) (webservertypes.Vhost, error) {
 	d, err := r.dialect()
 	if err != nil {
+		return nil, err
+	}
+	if _, _, err = r.Rebuild(ctx, website); err != nil {
 		return nil, err
 	}
 
