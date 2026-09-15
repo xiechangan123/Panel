@@ -14,7 +14,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
-	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/webserver"
 )
 
@@ -215,9 +214,9 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if _, err = shell.Exec(r.Context(), d.ConfigTest()); err != nil {
+	if out, testErr := d.Test(r.Context()); testErr != nil {
 		restore()
-		Error(w, http.StatusInternalServerError, s.t.Get("config test failed: %v", err))
+		Error(w, http.StatusInternalServerError, s.t.Get("config test failed: %v %s", testErr, out))
 		return
 	}
 	// 配置已落盘且不再回滚，reload 断开取消链，否则磁盘配置与运行中的配置会不一致

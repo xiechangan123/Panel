@@ -1,7 +1,10 @@
 package apache
 
+// ServerRoot 安装目录
+const ServerRoot = "/opt/ace/server/apache"
+
 // HTMLDir 默认页目录
-const HTMLDir = "/opt/ace/server/apache/htdocs"
+const HTMLDir = ServerRoot + "/htdocs"
 
 // DisablePage 禁用页面路径
 const DisablePage = HTMLDir + "/stop.html"

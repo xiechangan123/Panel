@@ -21,6 +21,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/webserver"
 )
 
 type App struct {
@@ -79,7 +80,7 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reloadConfig(w, r)
+	s.reload(w, r)
 }
 
 func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
@@ -262,27 +263,23 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reloadConfig(w, r)
+	s.reload(w, r)
 }
 
 // reload 重载 nginx 并回写响应，失败时删除 rollback 指定的配置文件
+// 走方言的 Reload，错误里已带配置检查输出
 func (s *App) reload(w http.ResponseWriter, r *http.Request, rollback ...string) {
-	if err := systemctl.Reload(r.Context(), "nginx"); err != nil {
+	d, err := webserver.Get(webserver.TypeNginx)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	if err = d.Reload(r.Context()); err != nil {
 		for _, path := range rollback {
 			_ = os.Remove(path)
 		}
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
-	}
-
-	service.Success(w, nil)
-}
-
-// reloadConfig 重载 nginx 并回写响应，失败时改用 nginx -t 的输出定位主配置里的语法错误
-func (s *App) reloadConfig(w http.ResponseWriter, r *http.Request) {
-	if err := systemctl.Reload(r.Context(), "nginx"); err != nil {
-		out, _ := shell.Execf(r.Context(), "nginx -t 2>&1")
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v %s", err, out))
 		return
 	}
 

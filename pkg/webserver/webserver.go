@@ -88,9 +88,14 @@ func (d Dialect) ReloadIfRunning(ctx context.Context) error {
 	return d.reload(ctx)
 }
 
+// Test 执行配置检查并返回输出，各方言的检查命令都已合并 stderr
+func (d Dialect) Test(ctx context.Context) (string, error) {
+	return shell.Exec(ctx, d.ConfigTest())
+}
+
 func (d Dialect) reload(ctx context.Context) error {
 	if err := systemctl.Reload(ctx, d.Service()); err != nil {
-		out, _ := shell.Exec(ctx, d.ConfigTest())
+		out, _ := d.Test(ctx)
 		return fmt.Errorf("failed to reload %s: %w; config test: %s", d.Service(), err, out)
 	}
 

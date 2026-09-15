@@ -18,6 +18,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/webserver"
 )
 
 var mpmEventRegexp = regexp.MustCompile(`(?s)<IfModule mpm_event_module>(.*?)</IfModule>`)
@@ -69,14 +70,20 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reloadConfig(w, r)
+	s.reload(w, r)
 }
 
-// reloadConfig 重载 apache 并回写响应
-func (s *App) reloadConfig(w http.ResponseWriter, r *http.Request) {
-	if err := systemctl.Reload(r.Context(), "apache"); err != nil {
-		out, _ := shell.Execf(r.Context(), "%s/server/apache/bin/apachectl configtest 2>&1", app.Root)
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v %s", err, out))
+// reload 重载 apache 并回写响应
+// 走方言的 Reload，错误里已带配置检查输出
+func (s *App) reload(w http.ResponseWriter, r *http.Request) {
+	d, err := webserver.Get(webserver.TypeApache)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	if err = d.Reload(r.Context()); err != nil {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v", err))
 		return
 	}
 
@@ -243,5 +250,5 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reloadConfig(w, r)
+	s.reload(w, r)
 }
