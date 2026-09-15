@@ -196,7 +196,7 @@ func (uc *ToolboxMigrationUsecase) pushWebsite(
 	stopSource bool,
 ) ([]string, error) {
 	id := cast.ToUint(item.SourceID)
-	website, err := uc.website.Get(ctx, id)
+	website, err := uc.website.Get(id)
 	if err != nil {
 		return nil, errors.New(uc.t.Get("failed to read website detail: %v", err))
 	}

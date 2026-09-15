@@ -39,7 +39,7 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 			} else if !uc.resourceName.MatchString(item.TargetName) {
 				item.Blockers = append(item.Blockers, uc.t.Get("the name contains characters not allowed by AcePanel"))
 			}
-			if _, err := uc.website.GetByName(ctx, item.TargetName); err == nil {
+			if _, err := uc.website.GetByName(item.TargetName); err == nil {
 				item.Blockers = append(item.Blockers, uc.t.Get("a website with the same name already exists on the target server"))
 			}
 			// 版本不一致不阻断迁移，导入时会退到最接近的已装版本，这里提前告知
@@ -372,7 +372,7 @@ func (uc *ToolboxMigrationUsecase) projectWebsite(ctx context.Context, detail *t
 	if project.Port == 0 || len(project.Domains) == 0 {
 		return nil
 	}
-	if _, err := uc.website.GetByName(ctx, detail.Item.TargetName); err == nil {
+	if _, err := uc.website.GetByName(detail.Item.TargetName); err == nil {
 		return []string{uc.t.Get("the project was migrated, but its reverse proxy website already exists on the target")}
 	}
 	root, _ := uc.setting.Get(SettingKeyWebsitePath, filepath.Join(app.Root, "sites"))

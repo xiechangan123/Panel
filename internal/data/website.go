@@ -105,7 +105,7 @@ func (r *websiteRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r *websiteRepo) Get(_ context.Context, id uint) (*types.WebsiteSetting, error) {
+func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	website := new(biz.Website)
 	if err := r.db.Where("id", id).First(website).Error; err != nil {
 		return nil, err
@@ -222,13 +222,13 @@ func (r *websiteRepo) loadSetting(website *biz.Website, vhost webservertypes.Vho
 	return setting, err
 }
 
-func (r *websiteRepo) GetByName(ctx context.Context, name string) (*types.WebsiteSetting, error) {
+func (r *websiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
 	website := new(biz.Website)
 	if err := r.db.Where("name", name).First(website).Error; err != nil {
 		return nil, err
 	}
 
-	return r.Get(ctx, website.ID)
+	return r.Get(website.ID)
 }
 
 func (r *websiteRepo) List(typ, keyword string, page, limit uint) ([]*biz.Website, int64, error) {
@@ -508,7 +508,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 		return nil, errors.New(r.t.Get("website type is unchanged"))
 	}
 
-	setting, err := r.Get(ctx, req.ID)
+	setting, err := r.Get(req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -1091,7 +1091,7 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 		return err
 	}
 
-	setting, err := r.Get(ctx, id)
+	setting, err := r.Get(id)
 	if err != nil {
 		return err
 	}

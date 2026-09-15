@@ -969,7 +969,7 @@ func (s *CliService) WebsiteRebuild(ctx context.Context, cmd *cli.Command) error
 }
 
 func (s *CliService) WebsiteRemove(ctx context.Context, cmd *cli.Command) error {
-	website, err := s.websiteRepo.GetByName(ctx, cmd.String("name"))
+	website, err := s.websiteRepo.GetByName(cmd.String("name"))
 	if err != nil {
 		return err
 	}
@@ -986,7 +986,7 @@ func (s *CliService) WebsiteRemove(ctx context.Context, cmd *cli.Command) error 
 }
 
 func (s *CliService) WebsiteDelete(ctx context.Context, cmd *cli.Command) error {
-	website, err := s.websiteRepo.GetByName(ctx, cmd.String("name"))
+	website, err := s.websiteRepo.GetByName(cmd.String("name"))
 	if err != nil {
 		return err
 	}
@@ -1225,7 +1225,7 @@ func (s *CliService) RestorePanel(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) CutoffWebsite(ctx context.Context, cmd *cli.Command) error {
-	website, err := s.websiteRepo.GetByName(ctx, cmd.String("name"))
+	website, err := s.websiteRepo.GetByName(cmd.String("name"))
 	if err != nil {
 		return err
 	}
@@ -1319,7 +1319,7 @@ func (s *CliService) CutoffClear(ctx context.Context, cmd *cli.Command) error {
 	var prefixes []string
 	switch typ {
 	case "website":
-		website, err := s.websiteRepo.GetByName(ctx, name)
+		website, err := s.websiteRepo.GetByName(name)
 		if err != nil {
 			return err
 		}
