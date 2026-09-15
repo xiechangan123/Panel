@@ -240,9 +240,12 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 
 	if len(cert.Websites) > 0 {
 		report(uc.t.Get("deploying certificate to website"))
-		return &ssl, uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false)
+		if err = uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false); err != nil {
+			return nil, err
+		}
 	}
 
+	// 绑定网站与部署脚本是两种独立的分发方式，证书可能还要同步到面板之外的服务
 	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return nil, err
 	}
@@ -285,7 +288,9 @@ func (uc *CertUsecase) ObtainSelfSigned(ctx context.Context, id uint) error {
 	}
 
 	if len(cert.Websites) > 0 {
-		return uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false)
+		if err = uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false); err != nil {
+			return err
+		}
 	}
 
 	if err = uc.repo.RunScript(ctx, cert); err != nil {
@@ -370,10 +375,11 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 
 	if len(cert.Websites) > 0 {
 		report(uc.t.Get("deploying certificate to website"))
-		return &ssl, uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false)
+		if err = uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false); err != nil {
+			return nil, err
+		}
 	}
 
-	// 续签同样要跑部署脚本，否则脚本同步出去的证书会一直停留在首次签发的那一份
 	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return nil, err
 	}
