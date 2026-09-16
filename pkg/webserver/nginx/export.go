@@ -47,10 +47,10 @@ func writeNodes(b *strings.Builder, nodes []conf.Node, depth int, sorted bool) {
 func writeDirective(b *strings.Builder, d *conf.Directive, depth int, sorted bool) {
 	indent := strings.Repeat(indentUnit, depth)
 	b.WriteString(indent + quote(conf.Arg{Value: d.Name}))
-	raw := ""
+	raw, hasRaw := "", false
 	for _, a := range d.Args {
 		if a.Quote == conf.QuoteRaw {
-			raw = a.Value
+			raw, hasRaw = a.Value, true
 			continue
 		}
 		// if 条件的右括号紧贴前一个参数，如 if ($host = "a.com")
@@ -67,7 +67,7 @@ func writeDirective(b *strings.Builder, d *conf.Directive, depth int, sorted boo
 		b.WriteByte('\n')
 		writeNodes(b, d.Nodes, depth+1, sorted)
 		b.WriteString(indent + "}\n")
-	case raw != "":
+	case hasRaw:
 		b.WriteString(" {" + raw + "}")
 		writeTrailing(b, d.Trailing)
 		b.WriteByte('\n')

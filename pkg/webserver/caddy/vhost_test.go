@@ -229,7 +229,8 @@ func TestVhostBasicAuth(t *testing.T) {
 	conf := siteConf(t, configDir)
 	check.Contains(t, conf, "\t@ace_auth_0 {\n\t\tpath /*\n\t\tnot path /.well-known/acme-challenge/*\n\t}\n\tbasic_auth @ace_auth_0 {\n\t\timport "+file0+".caddy\n\t}\n")
 	check.Contains(t, conf, "\t@ace_auth_1 path /admin*\n\tbasic_auth @ace_auth_1 {\n\t\timport "+file1+".caddy\n\t}\n")
-	check.NotContains(t, conf, "@ace_auth_2")
+	// 没有用户的规则退化为 401，不能静默放行
+	check.Contains(t, conf, "\t@ace_auth_2 path /empty*\n\terror @ace_auth_2 401\n")
 
 	// 明文文件转为 bcrypt 行
 	hashed, err := os.ReadFile(file0 + ".caddy")
@@ -267,7 +268,7 @@ func TestVhostRedirects(t *testing.T) {
 	conf := siteConf(t, configDir)
 	check.Contains(t, conf, "\t@ace_redirect_0 host old.example.com\n\tredir @ace_redirect_0 https://example.com{uri} 301\n")
 	check.Contains(t, conf, "\t@ace_redirect_1 path /old\n\tredir @ace_redirect_1 /new 302\n")
-	check.Contains(t, conf, "\thandle_errors 404 {\n\t\tredir /404-page 308\n\t}\n")
+	check.Contains(t, conf, "\thandle_errors 404 {\n\t\t# ace:redirect 2\n\t\tredir * /404-page 308\n\t}\n")
 
 	reloaded, err := NewStaticVhost(configDir)
 	must.NoError(t, err)
@@ -346,8 +347,8 @@ func TestVhostProxies(t *testing.T) {
 	check.Contains(t, conf, "\t\t\trequest_body {\n\t\t\t\tmax_size 10485760\n\t\t\t}\n")
 	check.Contains(t, conf, "\t\t\t@ace_deny_1 remote_ip 10.0.0.99\n\t\t\trespond @ace_deny_1 403\n\t\t\t@ace_allow_1 not remote_ip 10.0.0.0/8\n\t\t\trespond @ace_allow_1 403\n")
 	check.Contains(t, conf, "\t\t\turi path_regexp ^/api/ /v2/\n")
-	check.Contains(t, conf, "\t\t\treverse_proxy 10.0.0.5:443 {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\theader_down X-Proxy caddy\n\t\t\t\theader_down -Server\n\t\t\t\tflush_interval -1\n\t\t\t\tlb_retries 3\n\t\t\t\tlb_try_duration 10s\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_server_name api.internal\n\t\t\t\t\ttls_trust_pool file /ca.pem\n\t\t\t\t\tversions h2c 2\n\t\t\t\t\tdial_timeout 5s\n\t\t\t\t\tresponse_header_timeout 1m30s\n\t\t\t\t}\n\t\t\t}\n")
-	check.Contains(t, conf, "\t\t\treverse_proxy unix//tmp/app.sock {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n")
+	check.Contains(t, conf, "\t\t\treverse_proxy 10.0.0.5:443 {\n\t\t\t\theader_up Host {upstream_hostport}\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\theader_down X-Proxy caddy\n\t\t\t\theader_down -Server\n\t\t\t\tflush_interval -1\n\t\t\t\tlb_retries 3\n\t\t\t\tlb_try_duration 10s\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_server_name api.internal\n\t\t\t\t\ttls_trust_pool file /ca.pem\n\t\t\t\t\tversions h2c 2\n\t\t\t\t\tdial_timeout 5s\n\t\t\t\t\tresponse_header_timeout 1m30s\n\t\t\t\t}\n\t\t\t}\n")
+	check.Contains(t, conf, "\t\t\treverse_proxy unix//tmp/app.sock {\n\t\t\t\theader_up Host {upstream_hostport}\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n")
 
 	reloaded, err := NewProxyVhost(configDir)
 	must.NoError(t, err)
@@ -362,10 +363,14 @@ func TestVhostProxies(t *testing.T) {
 		Resolver: []string{},
 	}})
 
-	// 回读与写入一致，只有两处归一化：Host 换成 Caddy 占位符、与默认值相同的 X-Real-IP 不算用户头
+	// 回读与写入一致，只有两处归一化：未设置的 Host 补成 nginx 的默认变量、与默认值相同的 X-Real-IP 不算用户头
 	wantProxies := slices.Clone(proxies)
-	wantProxies[0].Host = "{upstream_hostport}"
 	wantProxies[0].Headers = map[string]string{}
+	for i := range wantProxies {
+		if wantProxies[i].Host == "" {
+			wantProxies[i].Host = "$proxy_host"
+		}
+	}
 	check.DeepEqual(t, reloaded.Proxies(), wantProxies)
 
 	// 再次保存内容稳定
@@ -386,7 +391,7 @@ func TestVhostHTTPSBackendDefaults(t *testing.T) {
 	must.NoError(t, err)
 	check.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "/", Pass: "https://backend.example.com", Buffering: true}}))
 	check.NoError(t, vhost.Save())
-	check.Contains(t, siteConf(t, configDir), "\t\t\treverse_proxy backend.example.com:443 {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_insecure_skip_verify\n\t\t\t\t}\n\t\t\t}\n")
+	check.Contains(t, siteConf(t, configDir), "\t\t\treverse_proxy backend.example.com:443 {\n\t\t\t\theader_up Host {upstream_hostport}\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_insecure_skip_verify\n\t\t\t\t}\n\t\t\t}\n")
 	reloaded, err := NewProxyVhost(configDir)
 	must.NoError(t, err)
 	got := reloaded.Proxies()

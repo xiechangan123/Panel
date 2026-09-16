@@ -74,7 +74,7 @@ func (v *baseVhost) loadUpstreams(cfg *conf.Config) {
 			switch lb.Arg(0) {
 			case "round_robin":
 			case "weighted_round_robin":
-				for i, weight := range lb.Values()[1:] {
+				for i, weight := range lb.ArgsFrom(1) {
 					if i < len(servers) && weight != "1" {
 						up.Servers[servers[i]] = "weight=" + weight
 					}
@@ -162,8 +162,9 @@ func (v *baseVhost) buildProxies(body *conf.Block) {
 			rp.AppendArg(address)
 		}
 		switch host := strings.TrimSpace(p.Host); host {
-		case "", "$host":
-		case "$proxy_host":
+		case "$host":
+		case "", "$proxy_host":
+			// 与 nginx 的默认值 $proxy_host 一致，发上游主机名而不是访客 Host
 			rp.Add("header_up", "Host", "{upstream_hostport}")
 		default:
 			rp.Add("header_up", "Host", caddyValue(host))
@@ -314,8 +315,8 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 			p.AccessControl = &types.AccessControlConfig{}
 		}
 		if m.Arg(0) == "not" {
-			p.AccessControl.Allow = append(p.AccessControl.Allow, m.Values()[2:]...)
-		} else if deny := m.Values()[1:]; slices.Equal(deny, denyAll) {
+			p.AccessControl.Allow = append(p.AccessControl.Allow, m.ArgsFrom(2)...)
+		} else if deny := m.ArgsFrom(1); slices.Equal(deny, denyAll) {
 			p.AccessControl.Deny = append(p.AccessControl.Deny, "all")
 		} else {
 			p.AccessControl.Deny = append(p.AccessControl.Deny, deny...)
@@ -332,7 +333,8 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 	for _, d := range rp.GetAll("header_up") {
 		switch {
 		case d.Arg(0) == "Host":
-			p.Host = d.Arg(1)
+			// 回读成 nginx 的变量名，切换服务器时这个值会原样交给别的方言
+			p.Host = strings.Replace(d.Arg(1), "{upstream_hostport}", "$proxy_host", 1)
 		case d.Arg(0) == realIPHeader && d.Arg(1) == realIPValue:
 		default:
 			p.Headers[d.Arg(0)] = d.Arg(1)

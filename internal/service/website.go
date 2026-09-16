@@ -163,6 +163,11 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 			return
 		}
 		target = websites[idx]
+		// 没有当前服务器的配置说明站点尚未重建，保存会写出一份默认值配置顶掉真实站点
+		if !io.Exists(filepath.Join(app.Root, "sites", target.Name, "config", d.ConfigFile())) {
+			Error(w, http.StatusUnprocessableEntity, s.t.Get("website %s has no config for the current web server, rebuild it first", target.Name))
+			return
+		}
 	}
 
 	holders := filterDefaultHolders(d, websites)

@@ -171,8 +171,10 @@ var order = map[string]int{
 	"add_header": 1000,
 	"expires":    1001,
 
+	// rewrite 阶段按书写顺序执行，三者共用排序键以保持原有先后
+	"set":     1100,
 	"rewrite": 1100,
-	"return":  1101,
+	"return":  1100,
 
 	"error_page": 1200,
 

@@ -41,7 +41,7 @@ func parseUpstreamFiles(sharedDir string) []types.Upstream {
 		}
 		for _, srv := range up.GetAll("server") {
 			if srv.Arg(0) != "" {
-				upstream.Servers[srv.Arg(0)] = strings.Join(srv.Values()[1:], " ")
+				upstream.Servers[srv.Arg(0)] = strings.Join(srv.ArgsFrom(1), " ")
 			}
 		}
 		if resolver := up.Get("resolver").Values(); resolver != nil {

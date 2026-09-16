@@ -2,6 +2,8 @@ package caddy
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -34,15 +36,21 @@ func (v *baseVhost) buildRedirects(body *conf.Block) {
 			body.Add(name, "path", r.From)
 			body.Add("redir", name, to, code)
 		case types.RedirectType404:
-			body.AddBlock("handle_errors", "404").Add("redir", to, code)
+			// redir 的首参以 / 开头会被当成路径匹配器，必须显式带通配匹配器
+			h := body.AddBlock("handle_errors", "404")
+			h.AddMeta("redirect", strconv.Itoa(i))
+			h.Add("redir", "*", to, code)
 		}
 	}
 }
 
+// loadRedirects 按写入时的序号还原顺序，否则重新保存会打乱匹配器编号、产生无意义的 diff
 func (v *baseVhost) loadRedirects(body *conf.Block) {
+	indexed := make(map[int]types.Redirect)
 	for _, d := range body.GetAll("redir") {
+		index, ok := strings.CutPrefix(d.Arg(0), "@ace_redirect_")
 		m := body.Get(d.Arg(0))
-		if m == nil || !strings.HasPrefix(d.Arg(0), "@ace_redirect_") {
+		if !ok || m == nil {
 			continue
 		}
 		r := redirectFromArgs(d.Arg(1), d.Arg(2))
@@ -51,14 +59,19 @@ func (v *baseVhost) loadRedirects(body *conf.Block) {
 		if m.Arg(0) == "host" {
 			r.Type = types.RedirectTypeHost
 		}
-		v.redirects = append(v.redirects, r)
+		i, _ := strconv.Atoi(index)
+		indexed[i] = r
 	}
 	for _, h := range body.GetAll("handle_errors") {
 		if d := h.Get("redir"); h.Arg(0) == "404" && d != nil {
-			r := redirectFromArgs(d.Arg(0), d.Arg(1))
+			r := redirectFromArgs(d.Arg(1), d.Arg(2))
 			r.Type = types.RedirectType404
-			v.redirects = append(v.redirects, r)
+			i, _ := strconv.Atoi(h.Meta("redirect"))
+			indexed[i] = r
 		}
+	}
+	for _, i := range slices.Sorted(maps.Keys(indexed)) {
+		v.redirects = append(v.redirects, indexed[i])
 	}
 }
 

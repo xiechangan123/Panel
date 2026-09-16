@@ -159,8 +159,16 @@ func (p *parser) readWord() string {
 	start := p.i
 	for p.i < len(p.s) {
 		switch p.s[p.i] {
-		case ' ', '\t', '\r', '\n', ';', '{', '}':
+		case ' ', '\t', '\r', '\n', ';':
 			return p.s[start:p.i]
+		case '{':
+			if p.i == start || p.s[p.i-1] != '$' {
+				return p.s[start:p.i]
+			}
+		case '}':
+			if p.i == start {
+				return p.s[start:p.i]
+			}
 		case '\\':
 			p.i++
 		}

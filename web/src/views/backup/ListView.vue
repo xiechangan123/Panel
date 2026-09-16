@@ -8,7 +8,7 @@ import storage from '@/api/panel/backup-storage'
 import database from '@/api/panel/database'
 import website from '@/api/panel/website'
 import { useConfirm } from '@/components/system/composables/useConfirm'
-import { formatDateTime } from '@/utils'
+import { formatDateTime, WEBSERVER_SLUGS } from '@/utils'
 import UploadModal from '@/views/backup/UploadModal.vue'
 
 const { $gettext } = useGettext()
@@ -191,7 +191,7 @@ watch(
 )
 
 onMounted(() => {
-  useRequest(app.isInstalled('nginx,openresty,apache,caddy')).onSuccess(({ data }) => {
+  useRequest(app.isInstalled(WEBSERVER_SLUGS)).onSuccess(({ data }) => {
     if (data) {
       useRequest(website.list('all', 1, 10000)).onSuccess(({ data }: { data: any }) => {
         for (const item of data.items) {

@@ -10,6 +10,7 @@ import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import CronSelector from '@/components/common/CronSelector.vue'
 import PathSelector from '@/components/common/PathSelector.vue'
+import { WEBSERVER_SLUGS } from '@/utils'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -282,7 +283,7 @@ watch(
 )
 
 onMounted(() => {
-  useRequest(app.isInstalled('nginx,openresty,apache,caddy')).onSuccess(({ data }) => {
+  useRequest(app.isInstalled(WEBSERVER_SLUGS)).onSuccess(({ data }) => {
     if (data) {
       useRequest(website.list('all', 1, 10000)).onSuccess(({ data }: { data: any }) => {
         for (const item of data.items) {

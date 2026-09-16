@@ -11,6 +11,7 @@ import app from '@/api/panel/app'
 import website from '@/api/panel/website'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
+import { WEBSERVER_SLUGS } from '@/utils'
 
 const { $gettext } = useGettext()
 const { confirmDelete } = useConfirm()
@@ -256,7 +257,7 @@ const handleUnBan = (name: string, ip: string) => {
 onMounted(() => {
   refresh()
   getWhiteList()
-  useRequest(app.isInstalled('nginx,openresty,apache,caddy')).onSuccess(({ data }) => {
+  useRequest(app.isInstalled(WEBSERVER_SLUGS)).onSuccess(({ data }) => {
     if (data) {
       getWebsiteList(1, 10000)
     }

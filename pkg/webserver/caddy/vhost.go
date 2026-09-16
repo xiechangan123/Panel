@@ -13,6 +13,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
@@ -327,6 +328,13 @@ func (v *baseVhost) SetListen(listens []types.Listen) error {
 	if withHost > 0 && withoutHost > 0 {
 		return errors.New("caddy binds addresses per site: listens must either all specify an IP or none")
 	}
+	// 所有站点共用一份主配置，非法端口会让整份配置拒载，必须在写盘前挡住
+	for _, l := range listens {
+		_, port := splitHostPort(l.Address)
+		if value, err := strconv.ParseUint(port, 10, 16); err != nil || value == 0 {
+			return fmt.Errorf("invalid listen address %q: caddy requires a port", l.Address)
+		}
+	}
 
 	v.listens = make([]types.Listen, 0, len(listens))
 	for _, l := range listens {
@@ -419,9 +427,11 @@ func caddyUserFile(userFile string) string {
 func (v *baseVhost) writeUserFiles() (map[string]bool, error) {
 	users := make(map[string]bool, len(v.auths))
 	for _, auth := range v.auths {
+		// 用户文件缺失时当作没有用户，规则不生成，不能阻塞整个站点保存
 		content, err := os.ReadFile(auth.UserFile)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read htpasswd file: %w", err)
+			users[auth.UserFile] = false
+			continue
 		}
 		var lines []string
 		for line := range strings.SplitSeq(string(content), "\n") {
@@ -647,33 +657,34 @@ func (v *baseVhost) build(users map[string]bool) *conf.Config {
 	acme.Add("rewrite", "*", "{http.request.orig_uri.path}")
 	acme.AddBlock("file_server").Add("root", ACMEDir)
 
-	// 停用时恒真匹配器排在片段之前，先于用户的 handle 命中
+	// 停用时只留验证与停用页：redir 与 basic_auth 的执行顺序都排在 handle 之前，生成了就会先于停用页生效
 	if !v.Enable() {
 		body.Append(&conf.Comment{Text: " ace:stop"})
 		body.Add(stopMatcher, "expression", "true")
 		stop := body.AddBlock("handle", stopMatcher)
 		stop.Add("rewrite", "*", "/stop.html")
 		stop.AddBlock("file_server").Add("root", HTMLDir)
-	}
-
-	body.Append(&conf.Blank{})
-	body.Add("import", filepath.Join(v.configDir, "site", "*.conf"))
-	for _, inc := range v.includes {
-		body.Add("import", inc.Path)
-	}
-
-	v.buildRedirects(body.Block)
-	v.buildAuths(body.Block, users)
-	v.buildProxies(body.Block)
-
-	body.Append(&conf.Blank{})
-	if v.php > 0 {
-		body.Add("php_fastcgi", phpSocket(v.php))
-	}
-	if len(v.index) > 0 {
-		body.AddBlock("file_server").Add("index", v.index...)
 	} else {
-		body.Add("file_server")
+		body.Append(&conf.Blank{})
+		body.Add("import", filepath.Join(v.configDir, "site", "*.conf"))
+		for _, inc := range v.includes {
+			body.Add("import", inc.Path)
+		}
+
+		// 重定向排在片段之后：多个 handle_errors 后写的生效，与 nginx 的 error_page 覆盖语义一致
+		v.buildRedirects(body.Block)
+		v.buildAuths(body.Block, users)
+		v.buildProxies(body.Block)
+
+		body.Append(&conf.Blank{})
+		if v.php > 0 {
+			body.Add("php_fastcgi", phpSocket(v.php))
+		}
+		if len(v.index) > 0 {
+			body.AddBlock("file_server").Add("index", v.index...)
+		} else {
+			body.Add("file_server")
+		}
 	}
 
 	httpKeys, httpsKeys := v.siteKeys()
@@ -733,8 +744,11 @@ func (v *baseVhost) siteKeys() ([]string, []string) {
 func (v *baseVhost) bindHosts() []string {
 	var hosts []string
 	for _, l := range v.listens {
-		if host, _ := splitHostPort(l.Address); host != "" && !slices.Contains(hosts, host) {
-			hosts = append(hosts, host)
+		// bind 要的是裸 IP，不能带方括号
+		if host, _ := splitHostPort(l.Address); host != "" {
+			if host = tools.UnwrapIPv6(host); !slices.Contains(hosts, host) {
+				hosts = append(hosts, host)
+			}
 		}
 	}
 	return hosts
@@ -756,12 +770,9 @@ func (v *baseVhost) authMatcher(i int) string {
 	return fmt.Sprintf("@ace_auth_%d", i)
 }
 
-// buildAuths 整站认证要放过验证路径，没有用户的规则不生成
+// buildAuths 整站认证要放过验证路径；没有用户的规则退化为 401，与 nginx 的空 htpasswd 一致
 func (v *baseVhost) buildAuths(body *conf.Block, users map[string]bool) {
 	for i, auth := range v.auths {
-		if !users[auth.UserFile] {
-			continue
-		}
 		name := v.authMatcher(i)
 		pattern := "/" + strings.Trim(auth.Path, "/") + "*"
 		if auth.Path == "/" {
@@ -771,6 +782,11 @@ func (v *baseVhost) buildAuths(body *conf.Block, users map[string]bool) {
 			m.Add("not", "path", acmeURI+"*")
 		} else {
 			body.Add(name, "path", pattern)
+		}
+		// 没有用户时直接 401，与 nginx 读到空 htpasswd 的行为一致，不能放行
+		if !users[auth.UserFile] {
+			body.Add("error", name, "401")
+			continue
 		}
 		body.AddBlock("basic_auth", name).Add("import", caddyUserFile(auth.UserFile))
 	}
@@ -787,16 +803,16 @@ func phpSocket(version uint) string {
 	return fmt.Sprintf("unix//tmp/php-cgi-%d.sock", version)
 }
 
-// splitHostPort 无法拆分时整体视为端口
+// splitHostPort 无法拆分时整体视为端口；IPv6 字面量保留方括号，面板的域名与监听地址都是带括号的形式
 func splitHostPort(address string) (string, string) {
 	if !strings.Contains(address, ":") {
 		return "", address
 	}
-	host, port, err := net.SplitHostPort(address)
+	_, port, err := net.SplitHostPort(address)
 	if err != nil {
 		return "", address
 	}
-	return host, port
+	return strings.TrimSuffix(address, ":"+port), port
 }
 
 // safeName 片段名全局唯一，编码必须可逆，避免 a-b 与 a_b 撞名

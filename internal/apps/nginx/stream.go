@@ -272,7 +272,7 @@ func (s *App) parseStreamServerFile(filePath string, name string) (*StreamServer
 	}
 	if listen := srv.Get("listen"); listen != nil {
 		server.Listen = listen.Arg(0)
-		for _, arg := range listen.Values()[1:] {
+		for _, arg := range listen.ArgsFrom(1) {
 			switch arg {
 			case "udp":
 				server.UDP = true
@@ -354,7 +354,7 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 		switch d.Name {
 		case "server":
 			if d.Arg(0) != "" {
-				upstream.Servers[d.Arg(0)] = strings.Join(d.Values()[1:], " ")
+				upstream.Servers[d.Arg(0)] = strings.Join(d.ArgsFrom(1), " ")
 			}
 		case "least_conn", "ip_hash", "random":
 			upstream.Algo = d.Name

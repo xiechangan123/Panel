@@ -1,6 +1,7 @@
 package nginx
 
 import (
+	"fmt"
 	"regexp"
 	"slices"
 	"strings"
@@ -18,14 +19,20 @@ const (
 	authFileVarPrefix  = "$ace_auth_file_"
 )
 
-// SafeName 将名称转换为 nginx 标识符安全形式
+// SafeName 将名称转换为 nginx 标识符安全形式，编码可逆以免 demo.com 与 demo-com 撞名
 func SafeName(name string) string {
-	return strings.Map(func(char rune) rune {
-		if char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z' || char >= '0' && char <= '9' {
-			return char
+	var b strings.Builder
+	for _, char := range name {
+		switch {
+		case char >= 'a' && char <= 'z', char >= 'A' && char <= 'Z', char >= '0' && char <= '9':
+			b.WriteRune(char)
+		case char == '_':
+			b.WriteString("__")
+		default:
+			_, _ = fmt.Fprintf(&b, "_%02x", char)
 		}
-		return '_'
-	}, name)
+	}
+	return b.String()
 }
 
 // authVarNames 返回站点专属的 realm/file map 变量名

@@ -114,7 +114,7 @@ func parseProxy(loc *conf.Directive) types.Proxy {
 		p.Resolver = resolver
 	}
 	for _, d := range loc.GetAll("proxy_set_header") {
-		name, value := d.Arg(0), strings.Join(d.Values()[1:], " ")
+		name, value := d.Arg(0), strings.Join(d.ArgsFrom(1), " ")
 		switch {
 		case name == "Host":
 			p.Host = value

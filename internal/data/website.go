@@ -339,7 +339,7 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		return nil, err
 	}
 	domains = lo.Map(domains, func(d string, _ int) string { return tools.WrapIPv6(d) })
-	if err = r.checkDomains(d, req.Name, domains); err != nil {
+	if err = r.checkDomains(d, req.Name, domains, listens); err != nil {
 		return nil, err
 	}
 	if err = vhost.SetServerName(domains); err != nil {
@@ -813,7 +813,7 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 		return err
 	}
 	domains = lo.Map(domains, func(d string, _ int) string { return tools.WrapIPv6(d) })
-	if err = r.checkDomains(d, website.Name, domains); err != nil {
+	if err = r.checkDomains(d, website.Name, domains, req.Listens); err != nil {
 		return err
 	}
 	if err = vhost.SetServerName(domains); err != nil {
@@ -1147,42 +1147,43 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 		}
 	}
 	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
-	if err = io.Remove(resetCtx, configDir); err != nil {
+	backupDir := fmt.Sprintf("%s.reset-backup-%d", configDir, time.Now().UnixNano())
+	if err = os.Rename(configDir, backupDir); err != nil {
 		return err
 	}
-	if err = os.MkdirAll(filepath.Join(configDir, "site"), 0600); err != nil {
-		return err
+	restore := func(resetErr error) error {
+		return errors.Join(resetErr, io.Remove(resetCtx, configDir), os.Rename(backupDir, configDir))
 	}
-	if err = os.MkdirAll(filepath.Join(configDir, "shared"), 0600); err != nil {
-		return err
+	for _, scope := range []string{"site", "shared"} {
+		if err = os.MkdirAll(filepath.Join(configDir, scope), 0600); err != nil {
+			return restore(err)
+		}
 	}
 
 	website.Status = true
 	if err = r.applyUpdate(resetCtx, update, website); err != nil {
-		return err
+		return restore(err)
 	}
 
 	vhost, err := newVhost(d, website)
 	if err != nil {
-		return err
+		return restore(err)
 	}
 	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
-		return err
+		return restore(err)
 	}
 	if err = writeTypeConfigs(d, vhost, website.Type); err != nil {
-		return err
+		return restore(err)
 	}
 	if err = vhost.Save(); err != nil {
-		return err
+		return restore(err)
 	}
-	if err = io.Chmod(resetCtx, filepath.Join(app.Root, "sites", website.Name, "config"), 0600); err != nil {
-		return err
+	if err = io.Chmod(resetCtx, configDir, 0600); err != nil {
+		return restore(err)
 	}
-	if err = r.ReloadWebServer(resetCtx); err != nil {
-		return err
-	}
+	_ = io.Remove(resetCtx, backupDir)
 
-	return nil
+	return r.ReloadWebServer(resetCtx)
 }
 
 func (r *websiteRepo) UpdateStatus(ctx context.Context, id uint, status bool) error {
@@ -1388,6 +1389,16 @@ func (r *websiteRepo) dialect() (webserver.Dialect, error) {
 	return webserver.Get(webserver.Type(webServer))
 }
 
+// listenPorts 取监听端口，忽略 `80`、`0.0.0.0:80`、`[::]:80` 的地址形式差异
+func listenPorts(listens []webservertypes.Listen) []string {
+	return lo.Uniq(lo.Map(listens, func(listen webservertypes.Listen, _ int) string {
+		if _, port, err := net.SplitHostPort(listen.Address); err == nil {
+			return port
+		}
+		return listen.Address
+	}))
+}
+
 // newVhost 按网站类型构造站点 vhost
 func newVhost(d webserver.Dialect, website *biz.Website) (webservertypes.Vhost, error) {
 	return d.NewVhost(string(website.Type), filepath.Join(app.Root, "sites", website.Name, "config"))
@@ -1497,8 +1508,9 @@ func (r *websiteRepo) enableStat(d webserver.Dialect, vhost webservertypes.Vhost
 	return vhost.SetConfig("021-stats-log.conf", webservertypes.ScopeSite, site)
 }
 
-// checkDomains 域名不能被其它站点占用：nginx 只是警告，Caddy 会整份配置拒载
-func (r *websiteRepo) checkDomains(d webserver.Dialect, exclude string, domains []string) error {
+// checkDomains 域名与监听端口同时重叠才算被占用：nginx 只是警告，Caddy 会整份配置拒载
+func (r *websiteRepo) checkDomains(d webserver.Dialect, exclude string, domains []string, listens []webservertypes.Listen) error {
+	ports := listenPorts(listens)
 	var websites []*biz.Website
 	if err := r.db.Find(&websites).Error; err != nil {
 		return err
@@ -1509,11 +1521,11 @@ func (r *websiteRepo) checkDomains(d webserver.Dialect, exclude string, domains 
 			continue
 		}
 		vhost, err := newVhost(d, website)
-		if err != nil {
+		if err != nil || !lo.Some(listenPorts(vhost.Listen()), ports) {
 			continue
 		}
 		for _, domain := range vhost.ServerName() {
-			if slices.Contains(domains, domain) {
+			if slices.ContainsFunc(domains, func(d string) bool { return strings.EqualFold(d, domain) }) {
 				return errors.New(r.t.Get("domain %s is already used by website %s", domain, website.Name))
 			}
 		}

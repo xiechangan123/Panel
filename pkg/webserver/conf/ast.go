@@ -111,6 +111,14 @@ func (d *Directive) Values() []string {
 	return Values(d.Args)
 }
 
+// ArgsFrom 第 i 个及之后参数的值，越界返回 nil
+func (d *Directive) ArgsFrom(i int) []string {
+	if d == nil || i >= len(d.Args) {
+		return nil
+	}
+	return Values(d.Args[i:])
+}
+
 // SetArgs 替换参数
 func (d *Directive) SetArgs(values ...string) {
 	d.Args = Args(values...)

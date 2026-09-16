@@ -38,7 +38,7 @@ func parseRedirect(cfg *conf.Config) *types.Redirect {
 	if ret == nil {
 		return nil
 	}
-	r := &types.Redirect{To: strings.Join(ret.Values()[1:], " ")}
+	r := &types.Redirect{To: strings.Join(ret.ArgsFrom(1), " ")}
 	r.StatusCode, _ = strconv.Atoi(ret.Arg(0))
 	if r.KeepURI = strings.HasSuffix(r.To, "$request_uri"); r.KeepURI {
 		r.To = strings.TrimSuffix(r.To, "$request_uri")
