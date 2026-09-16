@@ -141,6 +141,19 @@ func (r *Runner) processNext(ctx context.Context) bool {
 
 // execute 执行单个任务
 func (r *Runner) execute(ctx context.Context, task *biz.Task) {
+	// 先登记再抢占：状态一旦变成 running，Cancel 就必须能命中，
+	// 反过来会让刚开始跑的任务取消落空，取出后、抢占前的取消也会被忽略
+	taskCtx, cancel := context.WithCancel(ctx)
+	r.mu.Lock()
+	r.currentID, r.currentCancel = task.ID, cancel
+	r.mu.Unlock()
+	defer func() {
+		r.mu.Lock()
+		r.currentID, r.currentCancel = 0, nil
+		r.mu.Unlock()
+		cancel()
+	}()
+
 	// 原子抢占，任务可能在取出后被取消
 	result := r.db.Model(task).Where("status = ?", biz.TaskStatusWaiting).Update("status", biz.TaskStatusRunning)
 	if result.Error != nil {
@@ -159,18 +172,6 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 		r.log.Error("failed to update task log path", slog.Any("task_id", task.ID), slog.Any("err", err))
 		return
 	}
-
-	// 登记当前任务，供 Cancel 定位
-	taskCtx, cancel := context.WithCancel(ctx)
-	r.mu.Lock()
-	r.currentID, r.currentCancel = task.ID, cancel
-	r.mu.Unlock()
-	defer func() {
-		r.mu.Lock()
-		r.currentID, r.currentCancel = 0, nil
-		r.mu.Unlock()
-		cancel()
-	}()
 
 	if err := shell.ExecWithLog(taskCtx, task.Shell, logFile); err != nil {
 		// 用户取消和面板停机都不是任务本身失败，记为 canceled 并跑清理命令；
