@@ -12,11 +12,17 @@ import (
 	"github.com/libtnb/sqlite"
 	"gorm.io/gorm"
 
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 )
 
 func newRunnerForTest(t *testing.T) *Runner {
 	t.Helper()
+	// 任务日志落在 app.Root 下，指到临时目录避免在包目录里留下 panel/storage
+	root := app.Root
+	app.Root = t.TempDir()
+	t.Cleanup(func() { app.Root = root })
+
 	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{SkipDefaultTransaction: true})
 	if err != nil {
 		t.Fatal(err)
