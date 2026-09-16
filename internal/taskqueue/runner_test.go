@@ -18,7 +18,6 @@ import (
 
 func newRunnerForTest(t *testing.T) *Runner {
 	t.Helper()
-	// 任务日志落在 app.Root 下，指到临时目录避免在包目录里留下 panel/storage
 	root := app.Root
 	app.Root = t.TempDir()
 	t.Cleanup(func() { app.Root = root })
