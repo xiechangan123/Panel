@@ -10,6 +10,7 @@ export interface EditorTab {
   modified: boolean // 是否已修改
   loading: boolean // 是否正在加载
   lineEnding: 'LF' | 'CRLF' // 行分隔符
+  encoding: string // 文件编码
   cursorLine: number // 光标行
   cursorColumn: number // 光标列
 }
@@ -95,7 +96,7 @@ export const useEditorStore = defineStore('editor', {
 
   actions: {
     // 打开文件（添加标签页）
-    openFile(path: string, content: string = '') {
+    openFile(path: string, content: string = '', encoding: string = 'utf-8') {
       const existingTab = this.tabs.find((tab) => tab.path === path)
       if (existingTab) {
         // 文件已打开，切换到该标签页
@@ -116,6 +117,7 @@ export const useEditorStore = defineStore('editor', {
         modified: false,
         loading: false,
         lineEnding,
+        encoding,
         cursorLine: 1,
         cursorColumn: 1,
       }
@@ -220,6 +222,16 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
+    // 更新编码
+    updateEncoding(path: string, encoding: string) {
+      const tab = this.tabs.find((t) => t.path === path)
+      if (tab && tab.encoding !== encoding) {
+        tab.encoding = encoding
+        // 落盘字节会变，需要用户保存后才生效
+        tab.modified = true
+      }
+    },
+
     // 重命名标签页(文件/目录重命名后同步路径,保留内容与修改状态)
     renameTab(oldPath: string, newPath: string) {
       const tab = this.tabs.find((t) => t.path === oldPath)
@@ -278,13 +290,14 @@ export const useEditorStore = defineStore('editor', {
     },
 
     // 重新加载文件内容
-    reloadFile(path: string, content: string) {
+    reloadFile(path: string, content: string, encoding?: string) {
       const tab = this.tabs.find((t) => t.path === path)
       if (tab) {
         tab.content = content
         tab.originalContent = content
         tab.modified = false
         tab.lineEnding = content.includes('\r\n') ? 'CRLF' : 'LF'
+        if (encoding) tab.encoding = encoding
       }
     },
 

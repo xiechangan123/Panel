@@ -2,10 +2,12 @@
 import { useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
 import { useEditorStore } from '@/stores'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
+const { loadTab } = useEditorOps()
 const themeVars = useThemeVars()
 
 // 支持的语言列表
@@ -36,6 +38,49 @@ const languages = [
   'dockerfile',
 ]
 
+// 支持的编码列表
+const encodings = computed(() => [
+  { name: 'UTF-8', value: 'utf-8' },
+  { name: 'UTF-8 BOM', value: 'utf-8-bom' },
+  { name: 'UTF-16 LE', value: 'utf-16le' },
+  { name: 'UTF-16 BE', value: 'utf-16be' },
+  { name: 'GB18030', lang: $gettext('Simplified Chinese'), value: 'gb18030' },
+  { name: 'GBK', lang: $gettext('Simplified Chinese'), value: 'gbk' },
+  { name: 'Big5', lang: $gettext('Traditional Chinese'), value: 'big5' },
+  { name: 'Shift_JIS', lang: $gettext('Japanese'), value: 'shift_jis' },
+  { name: 'EUC-JP', lang: $gettext('Japanese'), value: 'euc-jp' },
+  { name: 'ISO-2022-JP', lang: $gettext('Japanese'), value: 'iso-2022-jp' },
+  { name: 'EUC-KR', lang: $gettext('Korean'), value: 'euc-kr' },
+  { name: 'Windows-1252', lang: $gettext('Western European'), value: 'windows-1252' },
+  { name: 'Windows-1251', lang: $gettext('Cyrillic'), value: 'windows-1251' },
+])
+
+// 编码菜单，两级区分重新解码与转换后保存
+const encodingOptions = computed(() => {
+  const items = encodings.value.map((e) => ({
+    label: e.lang ? `${e.name} (${e.lang})` : e.name,
+    value: e.value,
+  }))
+  return [
+    {
+      label: $gettext('Reopen with Encoding'),
+      key: 'reopen',
+      children: items.map((e) => ({ label: e.label, key: `reopen:${e.value}` })),
+    },
+    {
+      label: $gettext('Convert to Encoding'),
+      key: 'save',
+      children: items.map((e) => ({ label: e.label, key: `save:${e.value}` })),
+    },
+  ]
+})
+
+// 状态栏只显示编码名，不带语言说明
+const currentEncoding = computed(() => {
+  const encoding = editorStore.activeTab?.encoding ?? ''
+  return encodings.value.find((e) => e.value === encoding)?.name ?? encoding.toUpperCase()
+})
+
 // 缩进选项
 const indentOptions = computed(() => [
   { label: `${$gettext('Spaces')}: 2`, value: '2-spaces' },
@@ -61,6 +106,33 @@ function handleLineEndingChange(value: 'LF' | 'CRLF') {
 function handleLanguageChange(value: string) {
   if (editorStore.activeTab) {
     editorStore.updateLanguage(editorStore.activeTab.path, value)
+  }
+}
+
+// 更新编码
+function handleEncodingSelect(key: string) {
+  const tab = editorStore.activeTab
+  if (!tab) return
+
+  const [action, encoding] = key.split(':') as [string, string]
+  if (action === 'save') {
+    editorStore.updateEncoding(tab.path, encoding)
+    return
+  }
+
+  // 重新解码需从磁盘取原始字节，未保存的修改会丢失
+  if (tab.modified) {
+    window.$dialog.warning({
+      title: $gettext('Unsaved Changes'),
+      content: $gettext('This file has unsaved changes. Reopening will discard them. Continue?'),
+      positiveText: $gettext('Reopen'),
+      negativeText: $gettext('Cancel'),
+      onPositiveClick: () => {
+        loadTab(tab.path, encoding)
+      },
+    })
+  } else {
+    loadTab(tab.path, encoding)
   }
 }
 
@@ -123,6 +195,18 @@ function handleIndentChange(value: string) {
         {{ $gettext('Language') }}: {{ editorStore.activeTab.language }}
       </div>
     </n-popselect>
+
+    <!-- 编码 -->
+    <n-dropdown
+      trigger="click"
+      placement="top-end"
+      :options="encodingOptions"
+      @select="handleEncodingSelect"
+    >
+      <div class="status-item clickable">
+        {{ currentEncoding }}
+      </div>
+    </n-dropdown>
   </div>
   <div class="editor-status-bar empty" v-else>
     <span class="status-item">{{ $gettext('No file open') }}</span>

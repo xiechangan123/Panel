@@ -9,11 +9,12 @@ export function useEditorOps() {
   const editorStore = useEditorStore()
 
   // 从磁盘加载文件内容到已存在的标签页
-  async function loadTab(path: string): Promise<boolean> {
+  async function loadTab(path: string, encoding?: string): Promise<boolean> {
     editorStore.setLoading(path, true)
     try {
-      const data = await file.content(encodeURIComponent(path))
-      editorStore.reloadFile(path, decodeBase64(data.content))
+      const tab = editorStore.tabs.find((t) => t.path === path)
+      const data = await file.content(encodeURIComponent(path), encoding ?? tab?.encoding ?? 'auto')
+      editorStore.reloadFile(path, decodeBase64(data.content), data.encoding)
       return true
     } catch {
       return false
@@ -29,15 +30,16 @@ export function useEditorOps() {
       return
     }
     editorStore.openFile(path, '')
-    if (!(await loadTab(path))) {
+    if (!(await loadTab(path, 'auto'))) {
       editorStore.closeTab(path)
     }
   }
 
-  // 保存标签页（内容按状态栏显示的行分隔符规范化）
+  // 保存标签页（内容按状态栏显示的行分隔符规范化，由后端转成标签页编码）
   async function saveTab(path: string): Promise<boolean> {
     try {
-      await file.save(path, editorStore.contentForSave(path))
+      const tab = editorStore.tabs.find((t) => t.path === path)
+      await file.save(path, editorStore.contentForSave(path), tab?.encoding)
       editorStore.markSaved(path)
       return true
     } catch {

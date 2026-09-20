@@ -23,6 +23,11 @@ type FilePath struct {
 	Path string `json:"path" form:"path" validate:"required && unix_path"`
 }
 
+type FileContent struct {
+	Path     string `json:"path" form:"path" validate:"required && unix_path"`
+	Encoding string `json:"encoding" form:"encoding"`
+}
+
 type FileTail struct {
 	Path      string `json:"path" form:"path"`
 	Service   string `json:"service" form:"service"`
@@ -48,8 +53,9 @@ type FileCreate struct {
 }
 
 type FileSave struct {
-	Path    string `form:"path" json:"path" validate:"required && unix_path"`
-	Content string `form:"content" json:"content"`
+	Path     string `form:"path" json:"path" validate:"required && unix_path"`
+	Content  string `form:"content" json:"content"`
+	Encoding string `form:"encoding" json:"encoding"`
 }
 
 type FileControl struct {

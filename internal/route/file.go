@@ -17,7 +17,7 @@ func FileRoutes(fileService *service.FileService) Endpoints {
 			Document: DescribeReq[request.FileCreate]()},
 		{Method: http.MethodGet, Path: "/api/file/content", Handler: file.Content,
 			Summary: "读取文件内容", Tags: []string{"文件"},
-			Document: DescribeReq[request.FilePath]()},
+			Document: DescribeReq[request.FileContent]()},
 		{Method: http.MethodGet, Path: "/api/file/tail", Handler: file.Tail,
 			Summary: "反向分页读取日志", Tags: []string{"文件"},
 			Document: DescribeReq[request.FileTail]()},

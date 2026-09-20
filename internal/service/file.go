@@ -10,6 +10,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	stdio "io"
 	"net/http"
@@ -30,6 +31,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/charset"
 	"github.com/acepanel/panel/v3/pkg/chattr"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/os"
@@ -77,7 +79,7 @@ func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *FileService) Content(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.FilePath](r)
+	req, err := Bind[request.FileContent](r)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -108,9 +110,18 @@ func (s *FileService) Content(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.Encoding == charset.Auto {
+		req.Encoding = charset.Detect(content)
+	}
+	if content, err = charset.Decode(content, req.Encoding); err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
 	Success(w, chix.M{
-		"mime":    mime,
-		"content": base64.StdEncoding.EncodeToString(content),
+		"mime":     mime,
+		"encoding": req.Encoding,
+		"content":  base64.StdEncoding.EncodeToString(content),
 	})
 }
 
@@ -255,12 +266,21 @@ func (s *FileService) Save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 防篡改保护中的文件先解锁再写入,写后恢复
+	content, err := charset.Encode([]byte(req.Content), req.Encoding)
+	if err != nil {
+		if unsupported, ok := errors.AsType[*charset.UnsupportedRuneError](err); ok {
+			Error(w, http.StatusUnprocessableEntity, s.t.Get("character %s on line %d cannot be saved as %s", strconv.QuoteRune(unsupported.Rune), unsupported.Line, req.Encoding))
+			return
+		}
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
 	if s.tamperRepo.Unlock(req.Path) {
 		defer s.tamperRepo.Relock(req.Path)
 	}
 
-	if err = io.Write(req.Path, req.Content, fileInfo.Mode()); err != nil {
+	if err = io.Write(req.Path, string(content), fileInfo.Mode()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

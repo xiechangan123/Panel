@@ -4,7 +4,8 @@ export default {
   // 创建文件/文件夹
   create: (path: string, dir: boolean): any => http.Post('/file/create', { path, dir }),
   // 获取文件内容
-  content: (path: string): any => http.Get('/file/content', { params: { path } }),
+  content: (path: string, encoding?: string): any =>
+    http.Get('/file/content', { params: { path, encoding } }),
   // 反向分页读取文件/容器/systemd 日志
   // 文件/容器: 用 offset 从末尾跳过 offset 行，读 limit 行
   // 文件: 翻页额外传首屏返回的 size 作为锚点，避免期间写入的新日志顶偏移量
@@ -19,7 +20,8 @@ export default {
     size?: number
   }): any => http.Get('/file/tail', { params }),
   // 保存文件
-  save: (path: string, content: string): any => http.Post('/file/save', { path, content }),
+  save: (path: string, content: string, encoding?: string): any =>
+    http.Post('/file/save', { path, content, encoding }),
   // 截断文件至 0 长度
   truncate: (path: string): any => http.Post('/file/truncate', { path }),
   // 删除文件
