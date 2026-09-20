@@ -649,8 +649,7 @@ func (m *Manager) Relock(paths []string) {
 	_ = m.eng.apply(entries)
 }
 
-// dropReplaced 摘掉这些路径上已经换掉的旧对象。集合按 (dev, inode) 下发到内核,
-// 只加不减的话旧 inode 会一直留着,被回收复用给别的文件就误拦到毫不相干的路径
+// dropReplaced 摘掉这些路径上已经换掉的旧对象
 func (m *Manager) dropReplaced(entries []fileEntry) {
 	m.mu.RLock()
 	var stale []fileEntry
