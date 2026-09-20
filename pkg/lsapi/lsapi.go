@@ -27,9 +27,9 @@ const (
 
 	maxPacketLen = 16 << 20
 
-	// lsphp 的 readReq 超过这个长度直接拒绝并关连接，自己先拦住才能给出像样的错误
+	// 超过 lsphp readReq 的上限，自己先拦住才能给出像样的错误
 	maxRequestLen = 256 << 10
-	// 响应体总量上限，异常的 lsphp 可能一直吐数据
+	// 异常的 lsphp 可能一直吐数据
 	maxBodyLen = 32 << 20
 	// 调用方没给期限时的兜底，否则读循环会一直等
 	defaultTimeout = 30 * time.Second
@@ -50,7 +50,7 @@ var endianFlag = func() byte {
 	return 1
 }()
 
-// Request 发起一次请求，返回的响应体不含响应头
+// Request 返回的响应体不含响应头
 func Request(ctx context.Context, network, address string, params map[string]string) ([]byte, error) {
 	req, err := buildRequest(params)
 	if err != nil {
@@ -129,13 +129,12 @@ func Request(ctx context.Context, network, address string, params map[string]str
 	}
 }
 
-// buildRequest 定长头 + 环境变量区 + 8 字节对齐后的已知头索引表。
-// 头里的四个偏移指向环境变量区中的值，所以这四项要排在最前
+// buildRequest 定长头 + 环境变量区 + 8 字节对齐后的已知头索引表
 func buildRequest(params map[string]string) ([]byte, error) {
 	keys := make([]string, len(fixedKeys), len(params)+len(fixedKeys))
 	copy(keys, fixedKeys)
 	for _, name := range slices.Sorted(maps.Keys(params)) {
-		// 超长的可选项直接丢掉，写进去只会让包错位
+		// 超长的写进去会让包错位
 		if slices.Contains(fixedKeys, name) || len(name) > maxEnvLen || len(params[name]) > maxEnvLen {
 			continue
 		}
@@ -146,7 +145,7 @@ func buildRequest(params map[string]string) ([]byte, error) {
 	}
 
 	reqHeaderLen := packetHeaderLen + 4*9
-	envLen := 4 + 4 // 两个环境变量区各有 4 字节结束符，特殊变量区只有结束符
+	envLen := 4 + 4 // 两个环境变量区各有 4 字节结束符
 	for _, name := range keys {
 		value := params[name]
 		if len(value) > maxEnvLen {
@@ -172,7 +171,7 @@ func buildRequest(params map[string]string) ([]byte, error) {
 	offsets := make([]uint32, 4)
 	for i, name := range keys {
 		value := params[name]
-		// 固定项不能丢，超长时退化成空值
+		// 固定项超长时退化成空值
 		if len(value) > maxEnvLen {
 			value = ""
 		}
