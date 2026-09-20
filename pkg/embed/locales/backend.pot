@@ -175,7 +175,7 @@ msgstr ""
 msgid "Anonymous Only"
 msgstr ""
 
-#: internal/data/app.go:254
+#: internal/data/app.go:259
 msgid "App %s %s"
 msgstr ""
 
@@ -3451,27 +3451,27 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:908
+#: internal/service/file.go:910
 msgid "chunk %d is missing"
 msgstr ""
 
-#: internal/service/file.go:871
+#: internal/service/file.go:873
 msgid "chunk hash mismatch"
 msgstr ""
 
-#: internal/service/file.go:837
+#: internal/service/file.go:839
 msgid "chunk index out of range"
 msgstr ""
 
-#: internal/service/file.go:867
+#: internal/service/file.go:869
 msgid "chunk size mismatch"
 msgstr ""
 
-#: internal/service/file.go:831
+#: internal/service/file.go:833
 msgid "chunk upload not started"
 msgstr ""
 
-#: internal/service/file.go:903
+#: internal/service/file.go:905
 msgid "chunk upload not started or chunk count mismatch"
 msgstr ""
 
@@ -3508,7 +3508,7 @@ msgid "could not find database backup file"
 msgstr ""
 
 #: internal/service/file.go:330
-#: internal/service/file.go:788
+#: internal/service/file.go:790
 msgid "create directory error: %v"
 msgstr ""
 
@@ -4666,7 +4666,7 @@ msgstr ""
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:843
+#: internal/service/file.go:845
 msgid "open upload file error: %v"
 msgstr ""
 
@@ -4896,11 +4896,11 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/service/file.go:801
-#: internal/service/file.go:850
-#: internal/service/file.go:860
-#: internal/service/file.go:878
-#: internal/service/file.go:883
+#: internal/service/file.go:803
+#: internal/service/file.go:852
+#: internal/service/file.go:862
+#: internal/service/file.go:880
+#: internal/service/file.go:885
 msgid "save chunk error: %v"
 msgstr ""
 
@@ -5047,8 +5047,8 @@ msgid "target is a directory"
 msgstr ""
 
 #: internal/service/file.go:324
-#: internal/service/file.go:784
-#: internal/service/file.go:915
+#: internal/service/file.go:786
+#: internal/service/file.go:917
 msgid "target path %s already exists"
 msgstr ""
 
@@ -5382,7 +5382,7 @@ msgstr ""
 
 #: internal/service/file.go:354
 #: internal/service/file.go:358
-#: internal/service/file.go:919
+#: internal/service/file.go:921
 msgid "write file error: %v"
 msgstr ""
 
