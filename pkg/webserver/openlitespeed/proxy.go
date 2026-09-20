@@ -2,9 +2,11 @@ package openlitespeed
 
 import (
 	"fmt"
+	"maps"
 	"net"
 	"net/url"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -105,12 +107,12 @@ func (v *baseVhost) buildProxies(cfg *conf.Config) map[int]bool {
 		if host := proxyHost(p); host != "" {
 			headers = append(headers, "RequestHeader set Host "+host)
 		}
-		for _, name := range sortedKeys(p.Headers) {
-			headers = append(headers, fmt.Sprintf("RequestHeader set %s %s", name, p.Headers[name]))
+		for _, name := range slices.Sorted(maps.Keys(p.Headers)) {
+			headers = append(headers, fmt.Sprintf("RequestHeader set %s %s", name, headerValue(p.Headers[name])))
 		}
 		if p.ResponseHeaders != nil {
-			for _, name := range sortedKeys(p.ResponseHeaders.Add) {
-				headers = append(headers, fmt.Sprintf("Header set %s %s", name, p.ResponseHeaders.Add[name]))
+			for _, name := range slices.Sorted(maps.Keys(p.ResponseHeaders.Add)) {
+				headers = append(headers, fmt.Sprintf("Header set %s %s", name, headerValue(p.ResponseHeaders.Add[name])))
 			}
 			for _, name := range p.ResponseHeaders.Hide {
 				headers = append(headers, "Header unset "+name)
@@ -169,6 +171,23 @@ func proxyHost(p types.Proxy) string {
 	default:
 		return host
 	}
+}
+
+// headerValue 含变量的头值要写成 expr 形式，OLS 的 extraHeaders 走 Apache 指令语法，照搬 nginx 变量会当字面量发给上游
+func headerValue(value string) string {
+	native := types.ApacheVars.ToNative(value)
+	if native == value {
+		return value
+	}
+	return "expr=" + native
+}
+
+func parseHeaderValue(value string) string {
+	expr, ok := strings.CutPrefix(value, "expr=")
+	if !ok {
+		return value
+	}
+	return types.ApacheVars.ToNginx(expr)
 }
 
 // upstreamHost 取代理地址里的主机名
@@ -250,12 +269,12 @@ func (v *baseVhost) loadProxies(cfg *conf.Config) {
 						p.Host = m[4]
 					}
 				case m[1] == "RequestHeader":
-					p.Headers[m[3]] = m[4]
+					p.Headers[m[3]] = parseHeaderValue(m[4])
 				case m[2] == "set":
 					if p.ResponseHeaders == nil {
 						p.ResponseHeaders = &types.ResponseHeaderConfig{Add: make(map[string]string)}
 					}
-					p.ResponseHeaders.Add[m[3]] = m[4]
+					p.ResponseHeaders.Add[m[3]] = parseHeaderValue(m[4])
 				default:
 					if p.ResponseHeaders == nil {
 						p.ResponseHeaders = &types.ResponseHeaderConfig{Add: make(map[string]string)}
@@ -326,14 +345,4 @@ func addrFromOLS(addr string) string {
 		return "unix:" + path + addr[5:]
 	}
 	return addr
-}
-
-// sortedKeys 返回排序后的键，保证生成结果稳定
-func sortedKeys(m map[string]string) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
 }

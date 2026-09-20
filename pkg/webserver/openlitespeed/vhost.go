@@ -664,7 +664,7 @@ func (v *baseVhost) buildAuthContexts(cfg *conf.Config, consumed map[int]bool) {
 // proxyHandlerFor 覆盖该路径的代理规则的处理器，按最长前缀匹配，正则规则不参与
 func (v *baseVhost) proxyHandlerFor(path string) string {
 	path = "/" + strings.Trim(path, "/")
-	best, handler := -1, ""
+	best, match := -1, -1
 	for i, p := range v.proxies {
 		uri := locationToURI(p.Location)
 		if strings.HasPrefix(uri, "exp:") {
@@ -675,10 +675,14 @@ func (v *baseVhost) proxyHandlerFor(path string) string {
 			continue
 		}
 		if len(prefix) > best {
-			h, _ := v.proxyHandler(p, i)
-			best, handler = len(prefix), h
+			best, match = len(prefix), i
 		}
 	}
+	if match < 0 {
+		return ""
+	}
+
+	handler, _ := v.proxyHandler(v.proxies[match], match)
 	return handler
 }
 

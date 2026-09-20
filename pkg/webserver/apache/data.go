@@ -15,6 +15,9 @@ const SitesPath = "/opt/ace/sites"
 // ConfigName 站点配置文件名
 const ConfigName = "apache.conf"
 
+// ListenConf 面板维护的全局监听配置，放在 Apache 的 conf/extra 下
+const ListenConf = "ace-listen.conf"
+
 // HSTSValue 是 HSTS 响应头的默认 max-age（1 年）
 const HSTSValue = "max-age=31536000"
 

@@ -3,6 +3,7 @@ package apache
 import (
 	"fmt"
 	"maps"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -104,10 +105,11 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		Replaces: make(map[string]string),
 	}
 
-	// 匹配类型与目标路径在 Apache 语法里不可逆，回读取写入时留下的原值
+	// 取写入时留下的原值
 	if blk := cfg.GetBlock("IfModule", "mod_proxy.c"); blk != nil {
 		proxy.Location = blk.Meta("location")
 		proxy.Pass = blk.Meta("pass")
+		proxy.SNI = blk.Meta("sni")
 	}
 	if proxy.Location == "" {
 		if d := cfg.FindOne("IfModule.ProxyPass"); d != nil && len(d.Args) >= 2 {
@@ -145,8 +147,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		proxy.Host = "$host"
 	}
 
-	proxy.SNI = findSNIComment(cfg)
-
 	if cfg.FindOne("IfModule.ProxyIOBufferSize") != nil {
 		proxy.Buffering = true
 	}
@@ -176,32 +176,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	}
 
 	return proxy, nil
-}
-
-// findSNIComment 从片段所有注释中提取 SNI 值
-func findSNIComment(c *conf.Config) string {
-	for _, cmt := range collectComments(c.Nodes) {
-		if rest, ok := strings.CutPrefix(strings.TrimSpace(cmt.Text), "SNI:"); ok {
-			return strings.TrimSpace(rest)
-		}
-	}
-	return ""
-}
-
-// collectComments 递归收集节点树中的所有注释
-func collectComments(nodes []conf.Node) []*conf.Comment {
-	var out []*conf.Comment
-	for _, n := range nodes {
-		switch v := n.(type) {
-		case *conf.Comment:
-			out = append(out, v)
-		case *conf.Directive:
-			if v.Block != nil {
-				out = append(out, collectComments(v.Nodes)...)
-			}
-		}
-	}
-	return out
 }
 
 // parseCacheBlock 从 mod_cache 块提取缓存配置
@@ -297,30 +271,21 @@ type location struct {
 	path    string // 用于 ProxyPassReverse 与 <Location> 的路径前缀
 }
 
-// parseLocation 把 nginx 的匹配前缀翻译成 Apache 的匹配方式
 func parseLocation(loc string) location {
-	loc = strings.TrimSpace(loc)
-	switch {
-	case strings.HasPrefix(loc, "= "):
-		path := normalizePath(strings.TrimPrefix(loc, "= "))
+	kind, rest := types.ParseLocation(loc)
+	switch kind {
+	case types.LocationExact:
+		path := types.NormalizePath(rest)
 		return location{regex: true, pattern: "^" + regexp.QuoteMeta(path) + "$", path: path}
-	case strings.HasPrefix(loc, "~* "):
+	case types.LocationRegexAny:
 		// PCRE 的内联标志，ProxyPassMatch 本身区分大小写
-		return location{regex: true, pattern: "(?i)" + strings.TrimPrefix(loc, "~* "), path: "/"}
-	case strings.HasPrefix(loc, "~ "):
-		return location{regex: true, pattern: strings.TrimPrefix(loc, "~ "), path: "/"}
+		return location{regex: true, pattern: "(?i)" + rest, path: "/"}
+	case types.LocationRegex:
+		return location{regex: true, pattern: rest, path: "/"}
 	default:
-		path := normalizePath(strings.TrimPrefix(loc, "^~ "))
+		path := types.NormalizePath(rest)
 		return location{pattern: path, path: path}
 	}
-}
-
-func normalizePath(path string) string {
-	path = strings.TrimSpace(path)
-	if !strings.HasPrefix(path, "/") {
-		path = "/" + path
-	}
-	return path
 }
 
 // proxyTarget 代理目标。nginx 的 proxy_pass 不带路径时保留完整 URI，带路径时替换掉 location 前缀，
@@ -342,87 +307,60 @@ func proxyTarget(pass string, loc location) string {
 	return strings.TrimSuffix(target, "/")
 }
 
-// nginx 变量到 Apache 表达式的映射，照搬会把 $remote_addr 这类变量当字面量发给上游
-var headerVars = []struct{ from, to string }{
-	{"$proxy_add_x_forwarded_for", "%{HTTP:X-Forwarded-For}"},
-	{"$http_host", "%{HTTP_HOST}"},
-	{"$remote_addr", "%{REMOTE_ADDR}"},
-	{"$request_uri", "%{REQUEST_URI}"},
-	{"$server_name", "%{SERVER_NAME}"},
-	{"$server_port", "%{SERVER_PORT}"},
-	{"$scheme", "%{REQUEST_SCHEME}"},
-	{"$host", "%{HTTP_HOST}"},
-}
-
-// headerValue 含变量的头值转成 Apache 的 expr 写法
+// headerValue 含变量的头值要写成 expr 形式，Apache 才会求值
 func headerValue(value string) string {
-	replaced := value
-	for _, v := range headerVars {
-		replaced = strings.ReplaceAll(replaced, v.from, v.to)
-	}
-	if replaced == value {
+	native := types.ApacheVars.ToNative(value)
+	if native == value {
 		return value
 	}
-	return "expr=" + replaced
+	return "expr=" + native
 }
 
-// parseHeaderValue 还原成面板的 nginx 变量写法
 func parseHeaderValue(value string) string {
 	expr, ok := strings.CutPrefix(value, "expr=")
 	if !ok {
 		return value
 	}
-	for _, v := range headerVars {
-		expr = strings.ReplaceAll(expr, v.to, v.from)
-	}
-	return expr
+	return types.ApacheVars.ToNginx(expr)
 }
 
-// splitPass 拆出代理地址的源与路径部分
-func splitPass(pass string) (string, string) {
-	scheme, rest, found := strings.Cut(pass, "://")
-	if !found {
+func splitPass(pass string) (origin, path string) {
+	u, err := url.Parse(pass)
+	if err != nil || u.Host == "" {
 		return pass, ""
 	}
-	host, path, found := strings.Cut(rest, "/")
-	if !found {
-		return pass, ""
-	}
-	return scheme + "://" + host, "/" + path
+	return u.Scheme + "://" + u.Host, u.Path
 }
 
 // balancerPass 上游名换成 Apache 的 balancer 地址，照搬 nginx 的 http://<上游名> 会被当真实主机解析
 func balancerPass(pass string, upstreams []string) string {
-	origin, path := splitPass(pass)
-	_, host, found := strings.Cut(origin, "://")
-	if !found || !slices.Contains(upstreams, host) {
+	u, err := url.Parse(pass)
+	if err != nil || !slices.Contains(upstreams, u.Hostname()) {
 		return pass
 	}
-	return "balancer://" + host + path
+	return "balancer://" + u.Hostname() + u.Path
 }
 
-// proxyParams ProxyPass 的 worker 参数
 func proxyParams(p types.Proxy) []string {
 	var params []string
 	if p.Timeout != nil {
 		if p.Timeout.Connect > 0 {
-			params = append(params, fmt.Sprintf("connectiontimeout=%d", int(p.Timeout.Connect.Seconds())))
+			params = append(params, "connectiontimeout="+strconv.Itoa(int(p.Timeout.Connect.Seconds())))
 		}
 		if p.Timeout.Read > 0 {
-			params = append(params, fmt.Sprintf("timeout=%d", int(p.Timeout.Read.Seconds())))
+			params = append(params, "timeout="+strconv.Itoa(int(p.Timeout.Read.Seconds())))
 		}
 	}
 	if p.Retry != nil && p.Retry.Timeout > 0 {
-		params = append(params, fmt.Sprintf("retry=%d", int(p.Retry.Timeout.Seconds())))
+		params = append(params, "retry="+strconv.Itoa(int(p.Retry.Timeout.Seconds())))
 	}
-	// 2.4.47 起 mod_proxy_http 自带协议升级，不加这个参数 WebSocket 会被当普通请求
+	// 2.4.47 起协议升级由 mod_proxy_http 接管，但要显式开启，否则 WebSocket 被当普通请求
 	params = append(params, "upgrade=websocket")
 	return params
 }
 
-// parseProxyParams 从 worker 参数还原超时与重试
 func parseProxyParams(dirs ...*conf.Directive) (*types.TimeoutConfig, *types.RetryConfig) {
-	var timeout *types.TimeoutConfig
+	timeout := &types.TimeoutConfig{}
 	var retry *types.RetryConfig
 	for _, d := range dirs {
 		for _, a := range d.ArgsFrom(2) {
@@ -433,38 +371,34 @@ func parseProxyParams(dirs ...*conf.Directive) (*types.TimeoutConfig, *types.Ret
 			}
 			switch key {
 			case "connectiontimeout":
-				if timeout == nil {
-					timeout = &types.TimeoutConfig{}
-				}
 				timeout.Connect = time.Duration(seconds) * time.Second
 			case "timeout":
-				if timeout == nil {
-					timeout = &types.TimeoutConfig{}
-				}
 				timeout.Read = time.Duration(seconds) * time.Second
 			case "retry":
 				retry = &types.RetryConfig{Timeout: time.Duration(seconds) * time.Second}
 			}
 		}
 	}
+	if *timeout == (types.TimeoutConfig{}) {
+		return nil, retry
+	}
 	return timeout, retry
 }
 
 // accessControlNodes IP 访问控制，deny 要包在 RequireAll 里才是"默认放行、排除名单"的语义
 func accessControlNodes(ac *types.AccessControlConfig) []conf.Node {
-	switch {
-	case len(ac.Deny) == 0:
+	if len(ac.Deny) == 0 {
 		return []conf.Node{conf.Dir("Require", append([]string{"ip"}, ac.Allow...)...)}
-	default:
-		all := conf.Blk("RequireAll")
-		if len(ac.Allow) > 0 {
-			all.Append(conf.Dir("Require", append([]string{"ip"}, ac.Allow...)...))
-		} else {
-			all.Append(conf.Dir("Require", "all", "granted"))
-		}
-		all.Append(conf.Dir("Require", append([]string{"not", "ip"}, ac.Deny...)...))
-		return []conf.Node{all}
 	}
+
+	allow := conf.Dir("Require", "all", "granted")
+	if len(ac.Allow) > 0 {
+		allow = conf.Dir("Require", append([]string{"ip"}, ac.Allow...)...)
+	}
+	return []conf.Node{conf.Blk("RequireAll").Append(
+		allow,
+		conf.Dir("Require", append([]string{"not", "ip"}, ac.Deny...)...),
+	)}
 }
 
 func parseAccessControl(blk *conf.Directive) *types.AccessControlConfig {
@@ -519,6 +453,10 @@ func generateProxyConfig(proxy types.Proxy, upstreams []string) string {
 	// 匹配类型与目标路径在 Apache 语法里不可逆，留下原值供回读
 	inner.AddMeta("location", proxy.Location)
 	inner.AddMeta("pass", proxy.Pass)
+	// Apache 不支持自定义 SNI，记下来供换回其它服务器时使用
+	if proxy.SNI != "" {
+		inner.AddMeta("sni", proxy.SNI)
+	}
 
 	args := []string{loc.pattern, target}
 	// balancer 目标只认 balancer 参数，worker 参数得写在 BalancerMember 上
@@ -545,42 +483,14 @@ func generateProxyConfig(proxy types.Proxy, upstreams []string) string {
 		conf.Dir("RequestHeader", "set", "X-Forwarded-Proto", "expr=%{REQUEST_SCHEME}"),
 	)
 
-	if strings.HasPrefix(target, "https://") {
-		inner.Append(conf.Dir("SSLProxyEngine", "On"))
-		if proxy.SSLBackend != nil && proxy.SSLBackend.Verify {
-			inner.Append(conf.Dir("SSLProxyVerify", "require"))
-			if proxy.SSLBackend.TrustedCertificate != "" {
-				inner.Append(conf.Dir("SSLProxyCACertificateFile", proxy.SSLBackend.TrustedCertificate))
-			}
-		} else {
-			inner.Append(
-				conf.Dir("SSLProxyVerify", "none"),
-				conf.Dir("SSLProxyCheckPeerCN", "off"),
-				conf.Dir("SSLProxyCheckPeerName", "off"),
-			)
-		}
-		if proxy.SNI != "" {
-			// 垃圾 Apache 不支持自定义 SNI，写注释备注
-			inner.Append(conf.Cmt("SNI: " + proxy.SNI))
-		}
-	}
+	inner.Append(sslProxyNodes(proxy, target)...)
 
 	if proxy.Buffering {
 		inner.Append(conf.Dir("ProxyIOBufferSize", "65536"))
 	}
-
 	if proxy.Cache != nil {
-		expireSeconds := 600
-		for _, duration := range proxy.Cache.Valid {
-			expireSeconds = parseDurationToSeconds(duration)
-			break
-		}
-		inner.Append(conf.Blk("IfModule", "mod_cache.c").Append(
-			conf.Dir("CacheEnable", "disk", loc.path),
-			conf.Dir("CacheDefaultExpire", strconv.Itoa(expireSeconds)),
-		))
+		inner.Append(cacheNode(proxy.Cache, loc.path))
 	}
-
 	if len(proxy.Headers) > 0 {
 		headers := conf.Blk("IfModule", "mod_headers.c")
 		for _, name := range slices.Sorted(maps.Keys(proxy.Headers)) {
@@ -588,18 +498,9 @@ func generateProxyConfig(proxy types.Proxy, upstreams []string) string {
 		}
 		inner.Append(headers)
 	}
-
 	if len(proxy.Replaces) > 0 {
-		sub := conf.Blk("IfModule", "mod_substitute.c").Append(
-			conf.Dir("AddOutputFilterByType", "SUBSTITUTE", "text/html", "text/plain", "text/xml"),
-		)
-		for _, from := range slices.Sorted(maps.Keys(proxy.Replaces)) {
-			// 用 | 作为分隔符以支持含 / 的内容，强制双引号
-			sub.Append(&conf.Directive{Name: "Substitute", Args: []conf.Arg{dquote(fmt.Sprintf("s|%s|%s|n", from, proxy.Replaces[from]))}})
-		}
-		inner.Append(sub)
+		inner.Append(substituteNode(proxy.Replaces))
 	}
-
 	// 这几项是按路径生效的，必须落在容器块里
 	if scoped := scopedNodes(proxy); len(scoped) > 0 {
 		inner.Append(conf.Blk("Location", loc.path).Append(scoped...))
@@ -614,7 +515,50 @@ func generateProxyConfig(proxy types.Proxy, upstreams []string) string {
 	return Export(cfg) + "\n"
 }
 
-// scopedNodes 访问控制、响应头与请求体限制
+func sslProxyNodes(proxy types.Proxy, target string) []conf.Node {
+	if !strings.HasPrefix(target, "https://") {
+		return nil
+	}
+
+	nodes := []conf.Node{conf.Dir("SSLProxyEngine", "On")}
+	if proxy.SSLBackend != nil && proxy.SSLBackend.Verify {
+		nodes = append(nodes, conf.Dir("SSLProxyVerify", "require"))
+		if proxy.SSLBackend.TrustedCertificate != "" {
+			nodes = append(nodes, conf.Dir("SSLProxyCACertificateFile", proxy.SSLBackend.TrustedCertificate))
+		}
+		return nodes
+	}
+
+	return append(nodes,
+		conf.Dir("SSLProxyVerify", "none"),
+		conf.Dir("SSLProxyCheckPeerCN", "off"),
+		conf.Dir("SSLProxyCheckPeerName", "off"),
+	)
+}
+
+func cacheNode(cache *types.CacheConfig, path string) *conf.Directive {
+	expire := 600
+	for _, duration := range cache.Valid {
+		expire = parseDurationToSeconds(duration)
+		break
+	}
+	return conf.Blk("IfModule", "mod_cache.c").Append(
+		conf.Dir("CacheEnable", "disk", path),
+		conf.Dir("CacheDefaultExpire", strconv.Itoa(expire)),
+	)
+}
+
+func substituteNode(replaces map[string]string) *conf.Directive {
+	sub := conf.Blk("IfModule", "mod_substitute.c").Append(
+		conf.Dir("AddOutputFilterByType", "SUBSTITUTE", "text/html", "text/plain", "text/xml"),
+	)
+	for _, from := range slices.Sorted(maps.Keys(replaces)) {
+		// 用 | 作为分隔符以支持含 / 的内容，强制双引号
+		sub.Append(&conf.Directive{Name: "Substitute", Args: []conf.Arg{dquote(fmt.Sprintf("s|%s|%s|n", from, replaces[from]))}})
+	}
+	return sub
+}
+
 func scopedNodes(p types.Proxy) []conf.Node {
 	var nodes []conf.Node
 	if p.AccessControl != nil && (len(p.AccessControl.Allow) > 0 || len(p.AccessControl.Deny) > 0) {
@@ -718,17 +662,21 @@ func parseBalancerFile(filePath string, name string) (*types.Upstream, error) {
 	return upstream, nil
 }
 
-// lbMethods 规范算法名到 Apache lbmethod 的映射，Apache 只有按请求数、按流量、按繁忙度三种
-var lbMethods = map[string]string{
-	types.AlgoRoundRobin: "byrequests",
-	types.AlgoLeastConn:  "bybusyness",
+// lbMethod 规范算法名转 Apache 的 lbmethod，Apache 只有按请求数、按流量、按繁忙度三种，其余表达不了
+func lbMethod(algo string) (string, bool) {
+	switch algo {
+	case types.AlgoRoundRobin:
+		return "byrequests", true
+	case types.AlgoLeastConn:
+		return "bybusyness", true
+	default:
+		return "byrequests", false
+	}
 }
 
 func algoFromLBMethod(method string) string {
-	for algo, m := range lbMethods {
-		if m == method {
-			return algo
-		}
+	if method == "bybusyness" {
+		return types.AlgoLeastConn
 	}
 	return types.AlgoRoundRobin
 }
@@ -736,7 +684,6 @@ func algoFromLBMethod(method string) string {
 // balancerMember 上游地址与参数转 Apache 语法：地址必须带协议前缀，
 // 参数名与 nginx 完全不同，照搬过去会让 Apache 以 "unknown Worker parameter" 拒载
 func balancerMember(addr, options string) []string {
-	// 2.4.47 起 mod_proxy_http 自带协议升级，不加这个参数 WebSocket 会被当普通请求
 	args := []string{balancerAddr(addr), "upgrade=websocket"}
 	for _, opt := range strings.Fields(options) {
 		key, value, _ := strings.Cut(opt, "=")
@@ -780,18 +727,37 @@ func parseMember(args []string) (string, string) {
 			continue
 		}
 		key, value, _ := strings.Cut(a, "=")
-		switch {
-		case key == "loadfactor":
+		switch key {
+		case "loadfactor":
 			options = append(options, "weight="+value)
-		case key == "retry":
+		case "retry":
 			options = append(options, "fail_timeout="+value+"s")
-		case a == "status=+H":
-			options = append(options, "backup")
-		case a == "status=+D":
-			options = append(options, "down")
+		case "status":
+			switch value {
+			case "+H":
+				options = append(options, "backup")
+			case "+D":
+				options = append(options, "down")
+			}
 		}
 	}
 	return addr, strings.Join(options, " ")
+}
+
+// balancerNames 上游名从文件名就能取到，不必读内容
+func balancerNames(sharedDir string) []string {
+	entries, err := os.ReadDir(sharedDir)
+	if err != nil {
+		return nil
+	}
+
+	names := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		if matches := balancerFilePattern.FindStringSubmatch(entry.Name()); matches != nil {
+			names = append(names, matches[2])
+		}
+	}
+	return names
 }
 
 // writeBalancerFiles 将负载均衡配置写入文件
@@ -844,9 +810,9 @@ func generateBalancerConfig(upstream types.Upstream) string {
 	}
 
 	algo := types.NormalizeAlgo(upstream.Algo)
-	method, ok := lbMethods[algo]
+	method, ok := lbMethod(algo)
 	if !ok {
-		method = lbMethods[types.AlgoRoundRobin]
+		// 降级后靠注释保留原值，换回其它服务器时不丢
 		proxy.AddMeta("algo", algo)
 	}
 	proxy.Append(conf.Dir("ProxySet", "lbmethod="+method))

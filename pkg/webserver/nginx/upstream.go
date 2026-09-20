@@ -2,9 +2,11 @@ package nginx
 
 import (
 	"fmt"
+	"maps"
 	"math"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -84,7 +86,7 @@ func upstreamNode(u types.Upstream) *conf.Directive {
 			up.Add("resolver_timeout", formatDuration(u.ResolverTimeout))
 		}
 	}
-	for _, addr := range sortedKeys(u.Servers) {
+	for _, addr := range slices.Sorted(maps.Keys(u.Servers)) {
 		up.Add("server", append([]string{addr}, strings.Fields(u.Servers[addr])...)...)
 	}
 	if u.Keepalive > 0 {

@@ -2,8 +2,10 @@ package nginx
 
 import (
 	"fmt"
+	"maps"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -308,13 +310,13 @@ func proxyNode(p types.Proxy) *conf.Directive {
 	if p.Cache != nil {
 		addProxyCache(loc, p.Cache)
 	}
-	for _, name := range sortedKeys(p.Headers) {
+	for _, name := range slices.Sorted(maps.Keys(p.Headers)) {
 		loc.Add("proxy_set_header", name, p.Headers[name])
 	}
 	if len(p.Replaces) > 0 {
 		loc.Add("proxy_set_header", "Accept-Encoding", "")
 		loc.Add("sub_filter_once", "off")
-		for _, from := range sortedKeys(p.Replaces) {
+		for _, from := range slices.Sorted(maps.Keys(p.Replaces)) {
 			loc.Add("sub_filter", from, p.Replaces[from])
 		}
 	}
@@ -322,7 +324,7 @@ func proxyNode(p types.Proxy) *conf.Directive {
 		for _, header := range p.ResponseHeaders.Hide {
 			loc.Add("proxy_hide_header", header)
 		}
-		for _, name := range sortedKeys(p.ResponseHeaders.Add) {
+		for _, name := range slices.Sorted(maps.Keys(p.ResponseHeaders.Add)) {
 			loc.Add("add_header", name, p.ResponseHeaders.Add[name], "always")
 		}
 	}
@@ -335,7 +337,7 @@ func addProxyCache(loc *conf.Directive, cache *types.CacheConfig) {
 		loc.Add("proxy_cache_valid", "200", "302", "10m")
 		loc.Add("proxy_cache_valid", "404", "10s")
 	}
-	for _, codes := range sortedKeys(cache.Valid) {
+	for _, codes := range slices.Sorted(maps.Keys(cache.Valid)) {
 		if codes == "any" {
 			loc.Add("proxy_cache_valid", cache.Valid[codes])
 		} else {

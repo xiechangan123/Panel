@@ -638,7 +638,7 @@ func TestProxyVhostSNI(t *testing.T) {
 	must.NoError(t, err)
 
 	check.Contains(t, string(content), "SSLProxyEngine On")
-	check.Contains(t, string(content), "# SNI: backend.example.com")
+	check.Contains(t, string(content), "# ace:sni backend.example.com")
 
 	check.DeepEqual(t, vhost.Proxies(), proxies, cmpopts.EquateEmpty())
 }
@@ -718,8 +718,11 @@ func TestProxyVhostUpstreamMultipleServers(t *testing.T) {
 
 func TestSyncListen(t *testing.T) {
 	root := t.TempDir()
-	mainConf := filepath.Join(root, "httpd.conf")
+	confDir := filepath.Join(root, "conf")
+	must.NoError(t, os.MkdirAll(filepath.Join(confDir, "extra"), 0755))
+	mainConf := filepath.Join(confDir, "httpd.conf")
 	must.NoError(t, os.WriteFile(mainConf, []byte("Listen 80\nListen 443\n"), 0644))
+	listenConf := filepath.Join(confDir, "extra", ListenConf)
 
 	newSite := func(name string, addrs ...string) {
 		dir := filepath.Join(root, "sites", name, "config")
@@ -729,25 +732,26 @@ func TestSyncListen(t *testing.T) {
 	}
 	sites := filepath.Join(root, "sites")
 
-	// 只有标准端口时不写入
+	// 只有标准端口时不写监听项，但引用行要补上
 	newSite("a", "*:80", "*:443")
-	must.NoError(t, syncListenIn(sites, mainConf))
-	check.Equal(t, readFile(t, mainConf), "Listen 80\nListen 443\n")
+	must.NoError(t, syncListen(sites, confDir))
+	check.NotContains(t, readFile(t, listenConf), "Listen")
+	check.Contains(t, readFile(t, mainConf), "IncludeOptional conf/extra/"+ListenConf)
 
 	// 非标端口去重后补齐
 	newSite("b", "*:8080", "[::]:8443")
 	newSite("c", "127.0.0.1:8080")
-	must.NoError(t, syncListenIn(sites, mainConf))
-	check.Contains(t, readFile(t, mainConf), listenBeginMark+"\nListen 8080\nListen 8443\n"+listenEndMark)
+	must.NoError(t, syncListen(sites, confDir))
+	check.Contains(t, readFile(t, listenConf), "Listen 8080\nListen 8443\n")
 
 	// 重复执行不累加
 	before := readFile(t, mainConf)
-	must.NoError(t, syncListenIn(sites, mainConf))
+	must.NoError(t, syncListen(sites, confDir))
 	check.Equal(t, readFile(t, mainConf), before)
 
-	// 端口不再使用时整段移除
+	// 端口不再使用时随之移除
 	must.NoError(t, os.RemoveAll(filepath.Join(sites, "b")))
 	must.NoError(t, os.RemoveAll(filepath.Join(sites, "c")))
-	must.NoError(t, syncListenIn(sites, mainConf))
-	check.Equal(t, readFile(t, mainConf), "Listen 80\nListen 443\n")
+	must.NoError(t, syncListen(sites, confDir))
+	check.NotContains(t, readFile(t, listenConf), "Listen")
 }

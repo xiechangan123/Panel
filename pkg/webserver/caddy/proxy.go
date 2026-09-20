@@ -2,6 +2,7 @@ package caddy
 
 import (
 	"fmt"
+	"maps"
 	"net"
 	"net/url"
 	"regexp"
@@ -28,7 +29,7 @@ func (v *baseVhost) buildUpstreams(cfg *conf.Config) {
 	for _, up := range v.upstreams {
 		s := cfg.AddBlock("(" + v.upstreamSnippet(up.Name) + ")")
 		s.AddMeta("upstream", up.Name)
-		servers := sortedKeys(up.Servers)
+		servers := slices.Sorted(maps.Keys(up.Servers))
 		to := make([]string, 0, len(servers))
 		weights := make([]string, 0, len(servers))
 		weighted := false
@@ -150,7 +151,7 @@ func (v *baseVhost) buildProxies(body *conf.Block) {
 		if prefix, path := passPrefixRewrite(p); path != "" {
 			h.Add("uri", "path_regexp", "^"+regexp.QuoteMeta(prefix), path)
 		}
-		for _, from := range sortedKeys(p.Replaces) {
+		for _, from := range slices.Sorted(maps.Keys(p.Replaces)) {
 			h.Add("replace", from, p.Replaces[from])
 		}
 
@@ -167,22 +168,22 @@ func (v *baseVhost) buildProxies(body *conf.Block) {
 			// 与 nginx 的默认值 $proxy_host 一致，发上游主机名而不是访客 Host
 			rp.Add("header_up", "Host", "{upstream_hostport}")
 		default:
-			rp.Add("header_up", "Host", caddyValue(host))
+			rp.Add("header_up", "Host", nginxVariables.ToNative(host))
 		}
 		// X-Forwarded-* 由 Caddy 自动附加，X-Real-IP 与 nginx 方言一样默认补上
 		if _, ok := p.Headers[realIPHeader]; !ok {
 			rp.Add("header_up", realIPHeader, realIPValue)
 		}
-		for _, name := range sortedKeys(p.Headers) {
+		for _, name := range slices.Sorted(maps.Keys(p.Headers)) {
 			// nginx 习惯手写的 X-Forwarded-For 链由 Caddy 自动维护，写死反而会丢掉上游链路
 			if strings.EqualFold(name, "X-Forwarded-For") && p.Headers[name] == "$proxy_add_x_forwarded_for" {
 				continue
 			}
-			rp.Add("header_up", name, caddyValue(p.Headers[name]))
+			rp.Add("header_up", name, nginxVariables.ToNative(p.Headers[name]))
 		}
 		if p.ResponseHeaders != nil {
-			for _, name := range sortedKeys(p.ResponseHeaders.Add) {
-				rp.Add("header_down", name, caddyValue(p.ResponseHeaders.Add[name]))
+			for _, name := range slices.Sorted(maps.Keys(p.ResponseHeaders.Add)) {
+				rp.Add("header_down", name, nginxVariables.ToNative(p.ResponseHeaders.Add[name]))
 			}
 			for _, name := range p.ResponseHeaders.Hide {
 				rp.Add("header_down", "-"+name)
@@ -337,7 +338,7 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 			p.Host = strings.Replace(d.Arg(1), "{upstream_hostport}", "$proxy_host", 1)
 		case d.Arg(0) == realIPHeader && d.Arg(1) == realIPValue:
 		default:
-			p.Headers[d.Arg(0)] = nginxValue(d.Arg(1))
+			p.Headers[d.Arg(0)] = nginxVariables.ToNginx(d.Arg(1))
 		}
 	}
 	for _, d := range rp.GetAll("header_down") {
@@ -347,7 +348,7 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 		if name, hide := strings.CutPrefix(d.Arg(0), "-"); hide {
 			p.ResponseHeaders.Hide = append(p.ResponseHeaders.Hide, name)
 		} else {
-			p.ResponseHeaders.Add[d.Arg(0)] = nginxValue(d.Arg(1))
+			p.ResponseHeaders.Add[d.Arg(0)] = nginxVariables.ToNginx(d.Arg(1))
 		}
 	}
 	if d := rp.Get("flush_interval"); d != nil && d.Arg(0) == "-1" {
@@ -436,40 +437,13 @@ func nginxAddress(addr string) string {
 	return addr
 }
 
-var nginxVariables = strings.NewReplacer(
-	"$proxy_add_x_forwarded_for", "{remote_host}",
-	"$remote_addr", "{remote_host}",
-	"$http_host", "{host}",
-	"$host", "{host}",
-	"$scheme", "{scheme}",
-	"$request_uri", "{uri}",
-	"$server_port", "{port}",
-)
-
-var caddyPlaceholders = strings.NewReplacer(
-	"{remote_host}", "$remote_addr",
-	"{host}", "$host",
-	"{scheme}", "$scheme",
-	"{uri}", "$request_uri",
-	"{port}", "$server_port",
-)
-
-// caddyValue 常见的 nginx 变量换成 Caddy 占位符，切换服务器后头部仍生效
-func caddyValue(value string) string {
-	return nginxVariables.Replace(value)
-}
-
-// nginxValue 回读时换回 nginx 变量，否则切到别的方言会把 {scheme} 当字面量发给上游
-func nginxValue(value string) string {
-	return caddyPlaceholders.Replace(value)
-}
-
-// sortedKeys 返回排序后的键，保证生成结果稳定
-func sortedKeys(m map[string]string) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
-}
+// 表首命中即回读时的规范原像，所以 $host 要排在 $http_host 之前
+var nginxVariables = types.NewVarMap([][2]string{
+	{"$proxy_add_x_forwarded_for", "{remote_host}"},
+	{"$remote_addr", "{remote_host}"},
+	{"$host", "{host}"},
+	{"$http_host", "{host}"},
+	{"$scheme", "{scheme}"},
+	{"$request_uri", "{uri}"},
+	{"$server_port", "{port}"},
+})

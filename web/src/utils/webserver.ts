@@ -16,7 +16,7 @@ export interface WebServerFeatures {
   rateLimit: boolean // 限流限速
   realIP: boolean // 真实 IP
   lsCache: boolean // LiteSpeed 页面缓存
-  upstreamAlgos: string[] // 上游负载均衡算法，空字符串为默认轮询
+  upstreamAlgos: string[] // 上游负载均衡算法，取 nginx 写法，空字符串为默认轮询；方言表达不了的会被后端降级，不要在这里列方言原生名
   lang: string // 配置文件语法高亮
 }
 
@@ -35,7 +35,7 @@ const features: Record<string, WebServerFeatures> = {
     rateLimit: true,
     realIP: true,
     lsCache: false,
-    upstreamAlgos: ['', 'least_conn', 'ip_hash', 'hash', 'random'],
+    upstreamAlgos: ['', 'least_conn', 'ip_hash', 'random'],
     lang: 'nginx',
   },
   apache: {
@@ -52,7 +52,7 @@ const features: Record<string, WebServerFeatures> = {
     rateLimit: true,
     realIP: true,
     lsCache: false,
-    upstreamAlgos: ['', 'bybusyness', 'bytraffic'],
+    upstreamAlgos: ['', 'least_conn'],
     lang: 'apacheconf',
   },
   openlitespeed: {
@@ -86,7 +86,7 @@ const features: Record<string, WebServerFeatures> = {
     rateLimit: false,
     realIP: false,
     lsCache: false,
-    upstreamAlgos: ['', 'least_conn', 'ip_hash', 'client_ip_hash', 'uri_hash', 'random', 'first'],
+    upstreamAlgos: ['', 'least_conn', 'ip_hash', 'random'],
     lang: 'plaintext',
   },
 }

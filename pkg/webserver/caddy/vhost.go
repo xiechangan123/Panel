@@ -11,8 +11,6 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
@@ -418,37 +416,22 @@ func (v *baseVhost) Save() error {
 	return nil
 }
 
-// caddyUserFile 供 basic_auth import 的用户文件，与面板可回读的明文 htpasswd 并存
+// userFileSuffix 供 basic_auth import 的用户文件后缀，与面板可回读的明文 htpasswd 并存
+const userFileSuffix = ".caddy"
+
 func caddyUserFile(userFile string) string {
-	return userFile + ".caddy"
+	return userFile + userFileSuffix
 }
 
-// writeUserFiles Caddy 只接受 bcrypt 或 argon2id，明文 htpasswd 另转一份；返回各文件是否有用户
+// writeUserFiles 明文 htpasswd 另转一份 Caddy 能用的；返回各文件是否有用户
 func (v *baseVhost) writeUserFiles() (map[string]bool, error) {
 	users := make(map[string]bool, len(v.auths))
 	for _, auth := range v.auths {
-		// 用户文件缺失时当作没有用户，规则不生成，不能阻塞整个站点保存
-		content, err := os.ReadFile(auth.UserFile)
+		hasUsers, err := types.WriteUserFile(auth.UserFile, userFileSuffix, " ")
 		if err != nil {
-			users[auth.UserFile] = false
-			continue
+			return nil, err
 		}
-		var lines []string
-		for line := range strings.SplitSeq(string(content), "\n") {
-			user, password, ok := strings.Cut(strings.TrimSpace(line), ":")
-			if !ok || user == "" || strings.HasPrefix(user, "#") {
-				continue
-			}
-			hash, err := bcrypt.GenerateFromPassword([]byte(strings.TrimPrefix(password, "{PLAIN}")), bcrypt.DefaultCost)
-			if err != nil {
-				return nil, err
-			}
-			lines = append(lines, user+" "+string(hash))
-		}
-		if err = os.WriteFile(caddyUserFile(auth.UserFile), []byte(strings.Join(lines, "\n")+"\n"), 0600); err != nil {
-			return nil, fmt.Errorf("failed to write user file: %w", err)
-		}
-		users[auth.UserFile] = len(lines) > 0
+		users[auth.UserFile] = hasUsers
 	}
 	return users, nil
 }

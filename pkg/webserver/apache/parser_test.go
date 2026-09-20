@@ -256,3 +256,19 @@ func TestAddDirectiveAutoQuote(t *testing.T) {
 	check.Contains(t, out, "DocumentRoot /var/www")
 	check.NotContains(t, out, `"`)
 }
+
+// collectComments 递归收集节点树中的所有注释
+func collectComments(nodes []conf.Node) []*conf.Comment {
+	var out []*conf.Comment
+	for _, n := range nodes {
+		switch v := n.(type) {
+		case *conf.Comment:
+			out = append(out, v)
+		case *conf.Directive:
+			if v.Block != nil {
+				out = append(out, collectComments(v.Nodes)...)
+			}
+		}
+	}
+	return out
+}

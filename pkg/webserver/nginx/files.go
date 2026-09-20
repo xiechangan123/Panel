@@ -57,13 +57,3 @@ func writeFragment(path string, nodes ...conf.Node) error {
 	}
 	return nil
 }
-
-// sortedKeys 返回排序后的键，保证生成结果稳定
-func sortedKeys(m map[string]string) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
-}

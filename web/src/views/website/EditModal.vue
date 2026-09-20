@@ -107,8 +107,6 @@ const features = computed(() => webserverFeatures(installedEnvironment.value.web
 // 上游负载均衡算法选项，纯算法名不翻译
 const upstreamAlgoLabels: Record<string, () => string> = {
   '': () => $gettext('Round Robin (default)'),
-  bybusyness: () => $gettext('Least Busy'),
-  bytraffic: () => $gettext('By Traffic'),
 }
 const upstreamAlgoOptions = computed(() =>
   features.value.upstreamAlgos.map((value) => ({

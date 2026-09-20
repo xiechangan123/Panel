@@ -2,6 +2,8 @@
 // 各方言只负责自己的分词、解析与渲染，查询与修改在这里统一实现
 package conf
 
+import "slices"
+
 // Quote 参数的引号风格，解析时记录原样，生成时由方言按 QuoteAuto 决定是否加引号
 type Quote uint8
 
@@ -136,4 +138,39 @@ func (d *Directive) Append(nodes ...Node) *Directive {
 	}
 	d.Nodes = append(d.Nodes, nodes...)
 	return d
+}
+
+// Clone 深拷贝节点列表，副本与原树不共享任何可变结构
+func (b *Block) Clone() *Block {
+	if b == nil {
+		return nil
+	}
+	out := &Block{Nodes: make([]Node, 0, len(b.Nodes))}
+	for _, n := range b.Nodes {
+		out.Nodes = append(out.Nodes, cloneNode(n))
+	}
+	return out
+}
+
+// Clone 深拷贝指令及其子块
+func (d *Directive) Clone() *Directive {
+	if d == nil {
+		return nil
+	}
+	out := &Directive{Name: d.Name, Trailing: d.Trailing, Block: d.Block.Clone()}
+	if d.Args != nil {
+		out.Args = slices.Clone(d.Args)
+	}
+	return out
+}
+
+func cloneNode(n Node) Node {
+	switch v := n.(type) {
+	case *Directive:
+		return v.Clone()
+	case *Comment:
+		return &Comment{Text: v.Text}
+	default:
+		return &Blank{}
+	}
 }

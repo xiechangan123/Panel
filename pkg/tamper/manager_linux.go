@@ -30,6 +30,11 @@ type fileEntry struct {
 	exts  []string // 目录条目的规则扩展名,空=整树
 }
 
+// sameObject 指向同一个内核对象，保护集合按 (dev, inode) 下发，路径相同但 inode 变了就是另一个对象
+func (e fileEntry) sameObject(other fileEntry) bool {
+	return e.dev == other.dev && e.inode == other.inode
+}
+
 type fileKey struct {
 	dev   uint64
 	inode uint64
@@ -99,8 +104,9 @@ func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
 }
 
 type mountDev struct {
-	point string
-	dev   uint64
+	point  string
+	prefix string // 带尾斜杠的挂载点，逐路径比较时不必反复拼
+	dev    uint64
 }
 
 var mountUnescape = strings.NewReplacer(`\040`, " ", `\011`, "\t", `\012`, "\n", `\134`, `\`)
@@ -155,21 +161,21 @@ func loadMountDevs() []mountDev {
 		if err1 != nil || err2 != nil {
 			continue
 		}
-		mounts = append(mounts, mountDev{point: mountUnescape.Replace(f[4]), dev: maj<<20 | minNum&0xfffff})
+		point := mountUnescape.Replace(f[4])
+		mounts = append(mounts, mountDev{point: point, prefix: strings.TrimRight(point, "/") + "/", dev: maj<<20 | minNum&0xfffff})
 	}
+	// 按挂载点由深到浅，查找时首个命中即最深的那个
+	slices.SortFunc(mounts, func(a, b mountDev) int { return len(b.point) - len(a.point) })
+
 	return mounts
 }
 
 // 同点位后挂载遮蔽先挂载,故最长前缀并列取靠后者
 func devOfPath(mounts []mountDev, path string, st *syscall.Stat_t) uint64 {
-	best := -1
-	for i, m := range mounts {
-		if UnderRoot(path, m.point) && (best < 0 || len(m.point) >= len(mounts[best].point)) {
-			best = i
+	for _, m := range mounts {
+		if path == m.point || strings.HasPrefix(path, m.prefix) {
+			return m.dev
 		}
-	}
-	if best >= 0 {
-		return mounts[best].dev
 	}
 	return uint64(unix.Major(st.Dev))<<20 | uint64(unix.Minor(st.Dev))&0xfffff
 }
@@ -305,32 +311,36 @@ func (m *Manager) rescanLoop() {
 	}
 }
 
-// rescan 重新扫描规则路径，把新增与消失的对象同步给引擎
 func (m *Manager) rescan() {
+	m.mu.RLock()
+	running := m.running
+	m.mu.RUnlock()
+	if !running {
+		return
+	}
+
 	refreshMountDevs()
-	current := make(map[string]fileEntry)
-	for _, e := range m.scan() {
+	entries := m.scan()
+	current := make(map[string]fileEntry, len(entries))
+	for _, e := range entries {
 		current[e.path] = e
 	}
 
 	m.mu.RLock()
-	running := m.running
 	var added, removed []fileEntry
-	if running {
-		for path, e := range current {
-			if old, ok := m.entries[path]; !ok || old.dev != e.dev || old.inode != e.inode {
-				added = append(added, e)
-			}
+	for path, e := range current {
+		if old, ok := m.entries[path]; !ok || !old.sameObject(e) {
+			added = append(added, e)
 		}
-		for path, e := range m.entries {
-			if c, ok := current[path]; !ok || c.dev != e.dev || c.inode != e.inode {
-				removed = append(removed, e)
-			}
+	}
+	for path, e := range m.entries {
+		if c, ok := current[path]; !ok || !c.sameObject(e) {
+			removed = append(removed, e)
 		}
 	}
 	m.mu.RUnlock()
 
-	if !running || (len(added) == 0 && len(removed) == 0) {
+	if len(added) == 0 && len(removed) == 0 {
 		return
 	}
 

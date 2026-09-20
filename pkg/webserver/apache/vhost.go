@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
@@ -76,6 +76,7 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 
 // loadVhosts 把写盘时拆开的明文与 TLS 两个 VirtualHost 合回单一逻辑视图
 func (v *baseVhost) loadVhosts() {
+	clear(v.httpsPorts)
 	vhosts := v.config.Blocks("VirtualHost")
 	if len(vhosts) == 0 {
 		v.vhost = v.config.AddBlock("VirtualHost", "*:80")
@@ -173,7 +174,7 @@ func (v *baseVhost) SetDefault(bool) error {
 
 func (v *baseVhost) Listen() []types.Listen {
 	var result []types.Listen
-	// Apache 的监听写在 <VirtualHost *:80> 标签参数中，TLS 与否由块上的 SSLEngine 决定
+	// Apache 的监听写在 <VirtualHost *:80> 标签参数中，是否走 TLS 取自加载时记下的 httpsPorts
 	for _, addr := range v.vhost.Values() {
 		args := []string{}
 		if v.httpsPorts[portOf(addr)] {
@@ -323,12 +324,8 @@ func (v *baseVhost) SetErrorLog(errorLog string) error {
 }
 
 func (v *baseVhost) Save() error {
-	config, err := v.expand()
-	if err != nil {
-		return err
-	}
 	configFile := filepath.Join(v.configDir, ConfigName)
-	if err = os.WriteFile(configFile, []byte(Render(config)+"\n"), 0600); err != nil {
+	if err := os.WriteFile(configFile, []byte(Render(v.expand())+"\n"), 0600); err != nil {
 		return fmt.Errorf("failed to save config file: %w", err)
 	}
 	return nil
@@ -336,8 +333,8 @@ func (v *baseVhost) Save() error {
 
 // expand TLS 端口与明文端口各占一个 VirtualHost。SSLEngine 按 VirtualHost 生效，
 // 同一个块里混用两种端口会让明文端口直接断连，连强制跳转都执行不到
-func (v *baseVhost) expand() (*conf.Config, error) {
-	var plainAddrs, tlsAddrs []string
+func (v *baseVhost) expand() *conf.Config {
+	plainAddrs, tlsAddrs := []string{}, []string{}
 	for _, addr := range v.vhost.Values() {
 		if v.httpsPorts[portOf(addr)] {
 			tlsAddrs = append(tlsAddrs, addr)
@@ -346,34 +343,22 @@ func (v *baseVhost) expand() (*conf.Config, error) {
 		}
 	}
 	if len(plainAddrs) == 0 || len(tlsAddrs) == 0 {
-		return v.config, nil
+		return v.config
 	}
 
-	// 语法树没有深拷贝，渲染再解析得到独立副本
-	rendered := Render(v.config)
-	config, err := ParseString(rendered)
-	if err != nil {
-		return nil, fmt.Errorf("failed to split vhost: %w", err)
-	}
-	plain, err := ParseString(rendered)
-	if err != nil {
-		return nil, fmt.Errorf("failed to split vhost: %w", err)
-	}
-	tlsBlocks, plainBlocks := config.Blocks("VirtualHost"), plain.Blocks("VirtualHost")
-	if len(tlsBlocks) == 0 || len(plainBlocks) == 0 {
-		return v.config, nil
-	}
-
-	tlsBlocks[0].SetArgs(tlsAddrs...)
-	plainBlocks[0].SetArgs(plainAddrs...)
-	plainBlocks[0].Filter(func(n conf.Node) bool {
+	plain := v.vhost.Clone()
+	plain.SetArgs(plainAddrs...)
+	plain.Filter(func(n conf.Node) bool {
 		d, ok := n.(*conf.Directive)
 		return !ok || !strings.HasPrefix(d.Name, "SSL")
 	})
-	plainBlocks[0].RemoveFunc("Header", isHSTSHeader)
-	config.Append(&conf.Blank{}, plainBlocks[0])
+	plain.RemoveFunc("Header", isHSTSHeader)
 
-	return config, nil
+	config := &conf.Config{Block: *v.config.Clone()}
+	config.Blocks("VirtualHost")[0].SetArgs(tlsAddrs...)
+	config.Append(&conf.Blank{}, plain)
+
+	return config
 }
 
 func (v *baseVhost) Reset() error {
@@ -382,7 +367,6 @@ func (v *baseVhost) Reset() error {
 		return fmt.Errorf("failed to reset config: %w", err)
 	}
 	v.config = config
-	clear(v.httpsPorts)
 	v.loadVhosts()
 	return nil
 }
@@ -500,25 +484,18 @@ func sslProtocolArgs(protocols []string) []string {
 	if len(protocols) == 0 {
 		protocols = []string{"TLSv1.2", "TLSv1.3"}
 	}
-	args := []string{"-all"}
-	for _, p := range protocols {
-		args = append(args, "+"+strings.TrimPrefix(p, "+"))
-	}
-	return args
+	return append([]string{"-all"}, lo.Map(protocols, func(p string, _ int) string {
+		return "+" + strings.TrimPrefix(p, "+")
+	})...)
 }
 
 // parseSSLProtocols 从 Apache 语法还原协议列表，只取显式开启的项
 func parseSSLProtocols(args []string) []string {
-	protocols := make([]string, 0, len(args))
-	for _, a := range args {
-		if name, ok := strings.CutPrefix(a, "+"); ok {
-			protocols = append(protocols, name)
-		}
-	}
-	return protocols
+	return lo.FilterMap(args, func(a string, _ int) (string, bool) {
+		return strings.CutPrefix(a, "+")
+	})
 }
 
-// removeHTTPRedirect 移除面板写入的强制跳转规则
 func (v *baseVhost) removeHTTPRedirect() {
 	v.vhost.RemoveFunc("RewriteCond", func(d *conf.Directive) bool {
 		return d.Arg(0) == "%{HTTPS}" && strings.EqualFold(d.Arg(1), "off")
@@ -607,6 +584,9 @@ func (v *baseVhost) BasicAuth() []types.BasicAuth {
 	return nil
 }
 
+// userFileSuffix 加密用户文件的后缀，与面板可回读的明文 htpasswd 并存
+const userFileSuffix = ".apache"
+
 func (v *baseVhost) SetBasicAuth(auths []types.BasicAuth) error {
 	_ = v.ClearBasicAuth()
 	// Location 块后声明者覆盖先声明者，按路径长度升序写出使更精确的目录规则生效；
@@ -615,7 +595,8 @@ func (v *baseVhost) SetBasicAuth(auths []types.BasicAuth) error {
 		return len(a.Path) - len(b.Path)
 	})
 	for _, auth := range auths {
-		if err := writeUserFile(auth.UserFile); err != nil {
+		// 缺文件时照写规则，Apache 找不到 AuthUserFile 会拒绝访问，比放行安全
+		if _, err := types.WriteUserFile(auth.UserFile, userFileSuffix, ":"); err != nil {
 			return err
 		}
 		v.vhost.AddBlock("Location", auth.Path).Append(
@@ -624,41 +605,6 @@ func (v *baseVhost) SetBasicAuth(auths []types.BasicAuth) error {
 			conf.Dir("AuthUserFile", auth.UserFile+userFileSuffix),
 			conf.Dir("Require", "valid-user"),
 		)
-	}
-	return nil
-}
-
-// userFileSuffix 加密用户文件的后缀，与面板可回读的明文 htpasswd 并存
-const userFileSuffix = ".apache"
-
-// writeUserFile Apache 在 Unix 下不认明文密码，明文 htpasswd 另转一份 bcrypt
-func writeUserFile(userFile string) error {
-	content, err := os.ReadFile(userFile)
-	if err != nil {
-		// 用户文件缺失时不阻塞站点保存
-		return nil
-	}
-
-	var lines []string
-	for line := range strings.SplitSeq(string(content), "\n") {
-		user, password, ok := strings.Cut(strings.TrimSpace(line), ":")
-		if !ok || user == "" || strings.HasPrefix(user, "#") {
-			continue
-		}
-		password = strings.TrimPrefix(password, "{PLAIN}")
-		if strings.HasPrefix(password, "$") || strings.HasPrefix(password, "{SHA}") {
-			lines = append(lines, user+":"+password)
-			continue
-		}
-		hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-		if err != nil {
-			return err
-		}
-		lines = append(lines, user+":"+string(hash))
-	}
-
-	if err = os.WriteFile(userFile+userFileSuffix, []byte(strings.Join(lines, "\n")+"\n"), 0600); err != nil {
-		return fmt.Errorf("failed to write user file: %w", err)
 	}
 	return nil
 }
@@ -780,12 +726,7 @@ func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
 
 // upstreamNames 已写入的上游名，代理目标指向其中之一时要换成 balancer 地址
 func (v *ProxyVhost) upstreamNames() []string {
-	upstreams, _ := parseBalancerFiles(filepath.Join(v.configDir, "shared"))
-	names := make([]string, 0, len(upstreams))
-	for _, up := range upstreams {
-		names = append(names, up.Name)
-	}
-	return names
+	return balancerNames(filepath.Join(v.configDir, "shared"))
 }
 
 func (v *ProxyVhost) ClearProxies() error {
