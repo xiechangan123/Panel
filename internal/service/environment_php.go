@@ -38,14 +38,16 @@ type EnvironmentPHPService struct {
 	conf            *config.Config
 	environmentRepo *biz.EnvironmentUsecase
 	taskRepo        *biz.TaskUsecase
+	settingRepo     biz.SettingRepo
 }
 
-func NewEnvironmentPHPService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, conf *config.Config, t *gotext.Locale) *EnvironmentPHPService {
+func NewEnvironmentPHPService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, settingUsecase *biz.SettingUsecase, conf *config.Config, t *gotext.Locale) *EnvironmentPHPService {
 	return &EnvironmentPHPService{
 		t:               t,
 		conf:            conf,
 		environmentRepo: environmentUsecase,
 		taskRepo:        taskUsecase,
+		settingRepo:     settingUsecase,
 	}
 }
 

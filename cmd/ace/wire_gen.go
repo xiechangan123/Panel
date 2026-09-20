@@ -319,7 +319,7 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue152_0 := service.NewEnvironmentNodejsService(wireValue69_0, wireValue1_0)
 
-	wireValue153_0 := service.NewEnvironmentPHPService(wireValue69_0, wireValue80_0, wireValue0_0, wireValue1_0)
+	wireValue153_0 := service.NewEnvironmentPHPService(wireValue69_0, wireValue80_0, wireValue77_0, wireValue0_0, wireValue1_0)
 
 	wireValue154_0 := service.NewEnvironmentPythonService(wireValue69_0, wireValue1_0)
 

@@ -365,6 +365,13 @@ const handleSaveComposerMirror = async () => {
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-flex vertical>
+          <n-alert v-if="lsapiTakeover" type="info" :show-icon="true">
+            {{
+              $gettext(
+                'Processes are managed by OpenLiteSpeed under LSAPI, so php-fpm metrics do not apply here. Live status is on the OpenLiteSpeed app page.',
+              )
+            }}
+          </n-alert>
           <n-data-table
             striped
             remote

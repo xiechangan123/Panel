@@ -67,14 +67,19 @@ func Request(ctx context.Context, network, address string, params map[string]str
 		case typeStderr:
 			stderr.Write(content[:contentLength])
 		case typeEndRequest:
+			// 剥离 CGI 响应头
+			body := stdout.Bytes()
+			if _, rest, found := bytes.Cut(body, []byte("\r\n\r\n")); found {
+				body = rest
+			}
+			// 有正文就返回，一条 warning 不该让整个请求失败；与 pkg/lsapi 保持一致
+			if len(body) > 0 {
+				return body, nil
+			}
 			if stderr.Len() > 0 {
 				return nil, fmt.Errorf("fastcgi stderr: %s", stderr.String())
 			}
-			// 剥离 CGI 响应头
-			if _, body, found := bytes.Cut(stdout.Bytes(), []byte("\r\n\r\n")); found {
-				return body, nil
-			}
-			return stdout.Bytes(), nil
+			return body, nil
 		}
 	}
 }
