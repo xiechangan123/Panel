@@ -661,6 +661,7 @@ msgid "Command may still running. Closing the window will terminate the command.
 msgstr ""
 
 #: src/components/common/PtyTerminalModal.vue:207
+#: src/components/file-editor/EditorStatusBar.vue:129
 #: src/components/file-editor/EditorToolbar.vue:77
 #: src/components/file-editor/FileTree.vue:596
 #: src/components/system/composables/useConfirm.ts:37
@@ -1134,6 +1135,7 @@ msgid "Generate"
 msgstr ""
 
 #: src/components/file-editor/EditorPane.vue:158
+#: src/components/file-editor/EditorStatusBar.vue:126
 #: src/components/file-editor/EditorToolbar.vue:74
 #: src/views/file/EditModal.vue:41
 msgid "Unsaved Changes"
@@ -1312,32 +1314,75 @@ msgstr ""
 msgid "Select a file to edit"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:41
-#: src/components/file-editor/EditorStatusBar.vue:42
+#: src/components/file-editor/EditorStatusBar.vue:47
+#: src/components/file-editor/EditorStatusBar.vue:48
+msgid "Simplified Chinese"
+msgstr ""
+
+#: src/components/file-editor/EditorStatusBar.vue:49
+msgid "Traditional Chinese"
+msgstr ""
+
 #: src/components/file-editor/EditorStatusBar.vue:50
+#: src/components/file-editor/EditorStatusBar.vue:51
+#: src/components/file-editor/EditorStatusBar.vue:52
+msgid "Japanese"
+msgstr ""
+
+#: src/components/file-editor/EditorStatusBar.vue:53
+msgid "Korean"
+msgstr ""
+
+#: src/components/file-editor/EditorStatusBar.vue:54
+msgid "Western European"
+msgstr ""
+
+#: src/components/file-editor/EditorStatusBar.vue:55
+msgid "Cyrillic"
+msgstr ""
+
+#: src/components/file-editor/EditorStatusBar.vue:66
+msgid "Reopen with Encoding"
+msgstr ""
+
+#: src/components/file-editor/EditorStatusBar.vue:71
+msgid "Convert to Encoding"
+msgstr ""
+
+#: src/components/file-editor/EditorStatusBar.vue:86
+#: src/components/file-editor/EditorStatusBar.vue:87
+#: src/components/file-editor/EditorStatusBar.vue:95
 msgid "Spaces"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:43
-#: src/components/file-editor/EditorStatusBar.vue:44
-#: src/components/file-editor/EditorStatusBar.vue:50
+#: src/components/file-editor/EditorStatusBar.vue:88
+#: src/components/file-editor/EditorStatusBar.vue:89
+#: src/components/file-editor/EditorStatusBar.vue:95
 msgid "Tabs"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:104
+#: src/components/file-editor/EditorStatusBar.vue:127
+msgid "This file has unsaved changes. Reopening will discard them. Continue?"
+msgstr ""
+
+#: src/components/file-editor/EditorStatusBar.vue:128
+msgid "Reopen"
+msgstr ""
+
+#: src/components/file-editor/EditorStatusBar.vue:176
 msgid "Ln"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:104
+#: src/components/file-editor/EditorStatusBar.vue:176
 msgid "Col"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:123
+#: src/components/file-editor/EditorStatusBar.vue:195
 #: src/views/setting/SettingBase.vue:131
 msgid "Language"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:128
+#: src/components/file-editor/EditorStatusBar.vue:212
 msgid "No file open"
 msgstr ""
 

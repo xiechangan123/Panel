@@ -513,7 +513,7 @@ msgstr ""
 msgid "Composer is not installed"
 msgstr ""
 
-#: internal/service/file.go:623
+#: internal/service/file.go:643
 msgid "Compress %v"
 msgstr ""
 
@@ -813,7 +813,7 @@ msgstr ""
 msgid "Download file check failed"
 msgstr ""
 
-#: internal/service/file.go:493
+#: internal/service/file.go:513
 msgid "Download remote file %v"
 msgstr ""
 
@@ -2910,7 +2910,7 @@ msgstr ""
 msgid "Unassigned Shards"
 msgstr ""
 
-#: internal/service/file.go:651
+#: internal/service/file.go:671
 msgid "Uncompress %v"
 msgstr ""
 
@@ -3410,7 +3410,7 @@ msgid "btrfs filesystem is not mounted, logical volume has been extended but fil
 msgstr ""
 
 #: internal/service/backup.go:168
-#: internal/service/file.go:475
+#: internal/service/file.go:495
 msgid "can't download a directory"
 msgstr ""
 
@@ -3442,32 +3442,36 @@ msgstr ""
 msgid "certificate renewal failed"
 msgstr ""
 
+#: internal/service/file.go:272
+msgid "character %s on line %d cannot be saved as %s"
+msgstr ""
+
 #: internal/biz/database_server.go:130
 #: internal/biz/database_server.go:150
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:888
+#: internal/service/file.go:908
 msgid "chunk %d is missing"
 msgstr ""
 
-#: internal/service/file.go:851
+#: internal/service/file.go:871
 msgid "chunk hash mismatch"
 msgstr ""
 
-#: internal/service/file.go:817
+#: internal/service/file.go:837
 msgid "chunk index out of range"
 msgstr ""
 
-#: internal/service/file.go:847
+#: internal/service/file.go:867
 msgid "chunk size mismatch"
 msgstr ""
 
-#: internal/service/file.go:811
+#: internal/service/file.go:831
 msgid "chunk upload not started"
 msgstr ""
 
-#: internal/service/file.go:883
+#: internal/service/file.go:903
 msgid "chunk upload not started or chunk count mismatch"
 msgstr ""
 
@@ -3503,8 +3507,8 @@ msgstr ""
 msgid "could not find database backup file"
 msgstr ""
 
-#: internal/service/file.go:310
-#: internal/service/file.go:768
+#: internal/service/file.go:330
+#: internal/service/file.go:788
 msgid "create directory error: %v"
 msgstr ""
 
@@ -3931,7 +3935,7 @@ msgstr ""
 msgid "failed to get elasticsearch status: %v"
 msgstr ""
 
-#: internal/service/file.go:521
+#: internal/service/file.go:541
 msgid "failed to get file system info"
 msgstr ""
 
@@ -4413,7 +4417,7 @@ msgstr ""
 msgid "failed to write webhook script: %v"
 msgstr ""
 
-#: internal/service/file.go:96
+#: internal/service/file.go:98
 msgid "file is too large, please download it to view"
 msgstr ""
 
@@ -4658,11 +4662,11 @@ msgstr ""
 msgid "only PHP runtime websites can be migrated: %s"
 msgstr ""
 
-#: internal/service/file.go:317
+#: internal/service/file.go:337
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:823
+#: internal/service/file.go:843
 msgid "open upload file error: %v"
 msgstr ""
 
@@ -4735,7 +4739,7 @@ msgstr ""
 msgid "path is not a directory: %s"
 msgstr ""
 
-#: internal/service/file.go:137
+#: internal/service/file.go:148
 #: internal/service/ws.go:113
 msgid "path, service or container is required"
 msgstr ""
@@ -4788,9 +4792,9 @@ msgid "please connect to the source server first"
 msgstr ""
 
 #: internal/biz/user.go:115
-#: internal/service/file.go:280
-#: internal/service/file.go:398
-#: internal/service/file.go:449
+#: internal/service/file.go:300
+#: internal/service/file.go:418
+#: internal/service/file.go:469
 msgid "please don't do this"
 msgstr ""
 
@@ -4892,11 +4896,11 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/service/file.go:781
-#: internal/service/file.go:830
-#: internal/service/file.go:840
-#: internal/service/file.go:858
-#: internal/service/file.go:863
+#: internal/service/file.go:801
+#: internal/service/file.go:850
+#: internal/service/file.go:860
+#: internal/service/file.go:878
+#: internal/service/file.go:883
 msgid "save chunk error: %v"
 msgstr ""
 
@@ -5038,13 +5042,13 @@ msgstr ""
 msgid "target import failed: %v"
 msgstr ""
 
-#: internal/service/file.go:92
+#: internal/service/file.go:94
 msgid "target is a directory"
 msgstr ""
 
-#: internal/service/file.go:304
-#: internal/service/file.go:764
-#: internal/service/file.go:895
+#: internal/service/file.go:324
+#: internal/service/file.go:784
+#: internal/service/file.go:915
 msgid "target path %s already exists"
 msgstr ""
 
@@ -5278,7 +5282,7 @@ msgstr ""
 msgid "upload certificate cannot be set to auto renewal"
 msgstr ""
 
-#: internal/service/file.go:327
+#: internal/service/file.go:347
 msgid "upload file error: %v"
 msgstr ""
 
@@ -5376,9 +5380,9 @@ msgstr ""
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
-#: internal/service/file.go:334
-#: internal/service/file.go:338
-#: internal/service/file.go:899
+#: internal/service/file.go:354
+#: internal/service/file.go:358
+#: internal/service/file.go:919
 msgid "write file error: %v"
 msgstr ""
 
