@@ -304,7 +304,7 @@ const handleSaveComposerMirror = async () => {
           <n-alert v-if="lsapiTakeover" type="info" :show-icon="true">
             {{
               $gettext(
-                'PHP requests are handled by OpenLiteSpeed over LSAPI, php-fpm is not involved. It stays stopped on purpose.'
+                'PHP requests are handled by OpenLiteSpeed over LSAPI and do not go through php-fpm, so its stopped state does not affect websites.'
               )
             }}
           </n-alert>
