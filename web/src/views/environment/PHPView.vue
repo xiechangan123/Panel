@@ -19,7 +19,7 @@ const { $gettext } = useGettext()
 
 const currentTab = ref('status')
 
-// 走 LSAPI 时 PHP 由 OpenLiteSpeed 自己拉起，php-fpm 会被停掉，这里说明一下免得当成故障
+// 走 LSAPI 时 PHP 由 OpenLiteSpeed 自己拉起
 const lsapiTakeover = ref(false)
 useRequest(home.installedEnvironment()).onSuccess(async ({ data }: any) => {
   if (data?.webserver !== 'openlitespeed') return
