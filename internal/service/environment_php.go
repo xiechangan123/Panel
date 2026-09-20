@@ -7,6 +7,7 @@ import (
 	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"slices"
 	"strconv"
 	"strings"
@@ -584,6 +585,11 @@ func (s *EnvironmentPHPService) Opcache(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	if _, err = os.Stat(s.phpFPMSocket(req.Version)); err != nil {
+		Success(w, types.EnvironmentPHPOpcache{Enabled: false})
+		return
+	}
+
 	body, err := s.opcacheProbe(r.Context(), req.Version, "")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get OPcache status: %v", err))
@@ -629,6 +635,11 @@ func (s *EnvironmentPHPService) ResetOpcache(w http.ResponseWriter, r *http.Requ
 	}
 	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
+		return
+	}
+
+	if _, err = os.Stat(s.phpFPMSocket(req.Version)); err != nil {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("php-fpm for PHP-%d is not running", req.Version))
 		return
 	}
 
@@ -982,7 +993,7 @@ echo json_encode(function_exists('opcache_get_status') ? opcache_get_status(fals
 
 	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
-	return fastcgi.Request(timeoutCtx, "unix", fmt.Sprintf("/tmp/php-cgi-%d.sock", version), map[string]string{
+	return fastcgi.Request(timeoutCtx, "unix", s.phpFPMSocket(version), map[string]string{
 		"SCRIPT_FILENAME":   probePath,
 		"SCRIPT_NAME":       "/acepanel_opcache_probe.php",
 		"REQUEST_METHOD":    "GET",
@@ -996,7 +1007,6 @@ echo json_encode(function_exists('opcache_get_status') ? opcache_get_status(fals
 	})
 }
 
-// composerMirror 读取 Composer 全局镜像源配置，未设置时返回空
 func (s *EnvironmentPHPService) composerMirror() string {
 	for _, path := range []string{"/root/.config/composer/config.json", "/root/.composer/config.json"} {
 		content, err := io.Read(path)
@@ -1019,4 +1029,8 @@ func (s *EnvironmentPHPService) composerMirror() string {
 	}
 
 	return ""
+}
+
+func (s *EnvironmentPHPService) phpFPMSocket(version uint) string {
+	return fmt.Sprintf("/tmp/php-cgi-%d.sock", version)
 }
