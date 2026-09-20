@@ -113,6 +113,9 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 			proxy.Host = vals[2]
 		}
 	}
+	if d := cfg.FindOne("IfModule.ProxyPreserveHost"); d != nil && strings.EqualFold(d.Arg(0), "on") {
+		proxy.Host = "$host"
+	}
 
 	proxy.SNI = findSNIComment(cfg)
 
@@ -284,10 +287,14 @@ func generateProxyConfig(proxy types.Proxy) string {
 		conf.Dir("ProxyPassReverse", location, pass),
 	)
 
-	if proxy.Host != "" {
-		inner.Append(conf.Dir("RequestHeader", "set", "Host", proxy.Host))
-	} else {
+	// 未设置时与 nginx 的默认值 $proxy_host 一致，发上游主机名；Apache 默认 ProxyPreserveHost Off 即为此语义，
+	// 显式保留访客 Host 要在面板里把 Host 填成 $host
+	switch host := strings.TrimSpace(proxy.Host); host {
+	case "$host":
 		inner.Append(conf.Dir("ProxyPreserveHost", "On"))
+	case "", "$proxy_host":
+	default:
+		inner.Append(conf.Dir("RequestHeader", "set", "Host", host))
 	}
 
 	if proxy.SNI != "" || strings.HasPrefix(pass, "https://") {

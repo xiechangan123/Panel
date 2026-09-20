@@ -180,17 +180,18 @@ func TestProxy(t *testing.T) {
 	must.NoError(t, err)
 	check.DeepEqual(t, reloaded.Upstreams(), upstreams, cmpopts.EquateEmpty())
 
-	// OLS 没有缓冲开关，Buffering 回读时丢失，其余字段原样保留
+	// OLS 没有缓冲开关，Buffering 回读时丢失；未设置的 Host 补成 nginx 的默认变量，其余字段原样保留
 	check.DeepEqual(t, reloaded.Proxies(), []types.Proxy{
 		{Location: "^~ /", Pass: "http://backend", Host: "example.com"},
 		{
 			Location:        "~ ^/api/v[0-9]+/",
 			Pass:            "https://api.example.com",
+			Host:            "$proxy_host",
 			Headers:         map[string]string{"X-Custom": "1"},
 			ResponseHeaders: &types.ResponseHeaderConfig{Add: map[string]string{"X-Cache": "HIT"}, Hide: []string{"X-Powered-By"}},
 			AccessControl:   &types.AccessControlConfig{Allow: []string{"10.0.0.0/8"}, Deny: []string{"*"}},
 		},
-		{Location: "/ws", Pass: "http://127.0.0.1:3000"},
+		{Location: "/ws", Pass: "http://127.0.0.1:3000", Host: "$proxy_host"},
 	}, cmpopts.EquateEmpty())
 }
 

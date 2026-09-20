@@ -101,8 +101,8 @@ func (v *baseVhost) buildProxies(cfg *conf.Config) map[int]bool {
 		}
 
 		headers := v.contextHeaders()
-		if p.Host != "" {
-			headers = append(headers, "RequestHeader set Host "+p.Host)
+		if host := proxyHost(p); host != "" {
+			headers = append(headers, "RequestHeader set Host "+host)
 		}
 		for _, name := range sortedKeys(p.Headers) {
 			headers = append(headers, fmt.Sprintf("RequestHeader set %s %s", name, p.Headers[name]))
@@ -157,6 +157,28 @@ func addProxyApp(ext *conf.Directive, address string, timeout int, buffering boo
 	ext.Add("persistConn", "1")
 	ext.Add("pcKeepAliveTimeout", "60")
 	ext.Add("respBuffer", map[bool]string{true: "1", false: "0"}[buffering])
+}
+
+// proxyHost 代理请求发往上游的 Host，未设置时与 nginx 的默认值 $proxy_host 一致，
+// 发上游主机名而不是访客 Host，否则按名字分流的外部站点会直接拒绝请求
+func proxyHost(p types.Proxy) string {
+	switch host := strings.TrimSpace(p.Host); host {
+	case "$host":
+		return ""
+	case "", "$proxy_host":
+		return upstreamHost(p.Pass)
+	default:
+		return host
+	}
+}
+
+// upstreamHost 取代理地址里的主机名
+func upstreamHost(pass string) string {
+	u, err := url.Parse(pass)
+	if err != nil {
+		return ""
+	}
+	return u.Hostname()
 }
 
 // proxyHandler 解析代理目标：命中上游时返回上游名，否则返回新建外部应用名与后端地址
@@ -222,7 +244,12 @@ func (v *baseVhost) loadProxies(cfg *conf.Config) {
 				}
 				switch {
 				case m[1] == "RequestHeader" && m[3] == "Host":
-					p.Host = m[4]
+					// 与从 pass 推导的默认值相同时回读成 nginx 的变量名，保证往返幂等
+					if m[4] == upstreamHost(p.Pass) {
+						p.Host = "$proxy_host"
+					} else {
+						p.Host = m[4]
+					}
 				case m[1] == "RequestHeader":
 					p.Headers[m[3]] = m[4]
 				case m[2] == "set":
