@@ -195,6 +195,5 @@ func listenerAddress(addr string) string {
 
 // listenerName 由地址派生唯一的 listener 名称
 func listenerName(addr string) string {
-	name := strings.NewReplacer("*", "any", "[::]", "ip6").Replace(addr)
-	return "ace_" + safeName(name)
+	return safeName(strings.NewReplacer("*", "any", "[::]", "ip6").Replace(addr))
 }
