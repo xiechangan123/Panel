@@ -225,7 +225,6 @@ func (r *appRepo) SaveCustom(ctx context.Context, slug string, custom *biz.AppCu
 }
 
 func (r *appRepo) PreCheck(app *api.App, catalog api.Apps) error {
-	// 没写依赖表达式的应用直接放行，空串在 expr 里是语法错误
 	if strings.TrimSpace(app.Depends) == "" {
 		return nil
 	}
