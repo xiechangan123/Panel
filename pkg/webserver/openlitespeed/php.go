@@ -1,6 +1,7 @@
 package openlitespeed
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"slices"
 	"strconv"
 
+	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 )
 
@@ -112,6 +114,28 @@ func syncPHP() error {
 	}
 
 	return os.WriteFile(phpConf, []byte(Export(cfg)), 0600)
+}
+
+// SyncFPM 按 LSAPI 的启用情况开停 php-fpm
+func SyncFPM(ctx context.Context, active bool) error {
+	var errs []error
+	for _, version := range installedPHPVersions() {
+		name := fmt.Sprintf("php-fpm-%d", version)
+		// 服务不存在时 enable/disable 会报错，这里只关心开停结果
+		if active && LSAPIEnabled(version) {
+			_ = systemctl.Disable(ctx, name)
+			if running, _ := systemctl.Status(ctx, name); running {
+				errs = append(errs, systemctl.Stop(ctx, name))
+			}
+			continue
+		}
+		_ = systemctl.Enable(ctx, name)
+		if running, _ := systemctl.Status(ctx, name); !running {
+			errs = append(errs, systemctl.Start(ctx, name))
+		}
+	}
+
+	return errors.Join(errs...)
 }
 
 func installedPHPVersions() []uint {

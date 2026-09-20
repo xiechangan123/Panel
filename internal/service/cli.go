@@ -41,6 +41,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 	"github.com/acepanel/panel/v3/pkg/webserver"
+	"github.com/acepanel/panel/v3/pkg/webserver/openlitespeed"
 )
 
 // passwordEnv 交互输入前回退读取的密码环境变量
@@ -948,6 +949,12 @@ func (s *CliService) WebsiteRebuild(ctx context.Context, cmd *cli.Command) error
 	websites, _, err := s.websiteRepo.List("all", "", 1, 10000)
 	if err != nil {
 		return err
+	}
+
+	// 换用别的 Web 服务器时要把 php-fpm 拉回来
+	webServer, _ := s.settingRepo.Get(biz.SettingKeyWebserver)
+	if err = openlitespeed.SyncFPM(ctx, webServer == "openlitespeed"); err != nil {
+		fmt.Printf("[WARN] php-fpm: %v\n", err)
 	}
 
 	for _, website := range websites {

@@ -164,6 +164,10 @@ func (s *App) SetPHP(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+	if err = openlitespeed.SyncFPM(r.Context(), true); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 	if err = s.reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
