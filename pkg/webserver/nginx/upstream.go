@@ -14,7 +14,8 @@ import (
 
 var upstreamFilePattern = regexp.MustCompile(`^(\d{3})-(.+)\.conf$`)
 
-var upstreamAlgos = []string{"least_conn", "ip_hash", "hash", "random"}
+// upstreamAlgos 能直接当指令写的算法，nginx 的 hash 必须带参数，裸写会拒载
+var upstreamAlgos = []string{types.AlgoLeastConn, types.AlgoIPHash, types.AlgoRandom}
 
 func parseUpstreamFiles(sharedDir string) []types.Upstream {
 	var upstreams []types.Upstream
@@ -73,8 +74,9 @@ func clearUpstreamFiles(sharedDir string) error {
 func upstreamNode(u types.Upstream) *conf.Directive {
 	up := conf.Blk("upstream", u.Name)
 	up.Add("zone", u.Name, "512k")
-	if u.Algo != "" {
-		up.Add(u.Algo)
+	// 其它服务器带过来的算法名在 nginx 下是未知指令，整个 nginx 都会起不来
+	if algo := types.NormalizeAlgo(u.Algo); algo != "" {
+		up.Add(algo)
 	}
 	if len(u.Resolver) > 0 {
 		up.Add("resolver", u.Resolver...)

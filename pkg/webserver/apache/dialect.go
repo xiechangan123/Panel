@@ -2,8 +2,10 @@ package apache
 
 import (
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/samber/lo"
@@ -64,7 +66,7 @@ func (Dialect) HTMLDir() string {
 }
 
 func (Dialect) ConfigFile() string {
-	return "apache.conf"
+	return ConfigName
 }
 
 func (Dialect) PanelACMEConf() string {
@@ -116,7 +118,73 @@ func (Dialect) RewritesDir() string {
 	return "apache"
 }
 
+// BeforeReload 同步全局监听端口
 func (Dialect) BeforeReload() error {
+	return syncListen()
+}
+
+// listenBeginMark 主配置里由面板维护的监听区间标记
+const (
+	listenBeginMark = "# AcePanel listen begin"
+	listenEndMark   = "# AcePanel listen end"
+)
+
+// syncListen 站点用到的非标端口要在全局声明，Apache 不像 nginx 在站点块里自带监听，
+// 少了全局 Listen 站点就完全不可达；同一端口重复声明又会让 Apache 起不来，所以整段一起重写
+func syncListen() error {
+	return syncListenIn(SitesPath, filepath.Join(ServerRoot, "conf", "httpd.conf"))
+}
+
+func syncListenIn(sitesPath, mainConf string) error {
+	ports := make(map[string]bool)
+	confs, _ := filepath.Glob(filepath.Join(sitesPath, "*", "config", ConfigName))
+	for _, path := range confs {
+		cfg, err := ParseFile(path)
+		if err != nil {
+			continue
+		}
+		for _, vhost := range cfg.Blocks("VirtualHost") {
+			for _, addr := range vhost.Values() {
+				// 80 与 443 由安装脚本写入，这里只补非标端口
+				if port := portOf(addr); port != "" && port != "80" && port != "443" {
+					ports[port] = true
+				}
+			}
+		}
+	}
+
+	raw, err := os.ReadFile(mainConf)
+	if err != nil {
+		return fmt.Errorf("failed to read apache config: %w", err)
+	}
+
+	var block string
+	if len(ports) > 0 {
+		lines := []string{listenBeginMark}
+		for _, port := range slices.Sorted(maps.Keys(ports)) {
+			lines = append(lines, "Listen "+port)
+		}
+		block = strings.Join(append(lines, listenEndMark, ""), "\n")
+	}
+
+	content := string(raw)
+	if begin := strings.Index(content, listenBeginMark); begin >= 0 {
+		end := strings.Index(content, listenEndMark)
+		if end < begin {
+			return nil
+		}
+		content = strings.TrimRight(content[:begin], "\n") + "\n" + strings.TrimLeft(content[end+len(listenEndMark):], "\n")
+	}
+	if block != "" {
+		content = strings.TrimRight(content, "\n") + "\n\n" + block
+	}
+	if content == string(raw) {
+		return nil
+	}
+
+	if err = os.WriteFile(mainConf, []byte(content), 0644); err != nil {
+		return fmt.Errorf("failed to write apache config: %w", err)
+	}
 	return nil
 }
 

@@ -45,8 +45,9 @@ func (v *baseVhost) buildUpstreams(cfg *conf.Config) {
 		lb := cfg.AddBlock("extprocessor", lbName)
 		lb.Add("type", "loadbalancer")
 		lb.Add("workers", strings.Join(workers, ", "))
-		if up.Algo != "" {
-			lb.AddMeta("algo", up.Algo)
+		// OLS 的 loadbalancer 没有算法选项，记下来供换回其它服务器时使用
+		if algo := types.NormalizeAlgo(up.Algo); algo != "" {
+			lb.AddMeta("algo", algo)
 		}
 		if up.Keepalive > 0 {
 			lb.AddMeta("keepalive", strconv.Itoa(up.Keepalive))
@@ -63,7 +64,7 @@ func (v *baseVhost) loadUpstreams(cfg *conf.Config) {
 		up := types.Upstream{
 			Name:     strings.TrimPrefix(lb.Arg(0), prefix),
 			Servers:  make(map[string]string),
-			Algo:     lb.Meta("algo"),
+			Algo:     types.NormalizeAlgo(lb.Meta("algo")),
 			Resolver: []string{},
 		}
 		up.Keepalive, _ = strconv.Atoi(lb.Meta("keepalive"))

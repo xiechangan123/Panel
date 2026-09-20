@@ -42,9 +42,9 @@ func (v *baseVhost) buildUpstreams(cfg *conf.Config) {
 			weights = append(weights, weight)
 		}
 		s.Add("to", to...)
-		switch {
-		case up.Algo != "":
-			s.Add("lb_policy", up.Algo)
+		switch algo := types.NormalizeAlgo(up.Algo); {
+		case algo != "":
+			s.Add("lb_policy", algo)
 		case weighted:
 			s.Add("lb_policy", append([]string{"weighted_round_robin"}, weights...)...)
 		default:
@@ -80,7 +80,7 @@ func (v *baseVhost) loadUpstreams(cfg *conf.Config) {
 					}
 				}
 			default:
-				up.Algo = lb.Arg(0)
+				up.Algo = types.NormalizeAlgo(lb.Arg(0))
 			}
 		}
 		v.upstreams = append(v.upstreams, up)
@@ -337,7 +337,7 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 			p.Host = strings.Replace(d.Arg(1), "{upstream_hostport}", "$proxy_host", 1)
 		case d.Arg(0) == realIPHeader && d.Arg(1) == realIPValue:
 		default:
-			p.Headers[d.Arg(0)] = d.Arg(1)
+			p.Headers[d.Arg(0)] = nginxValue(d.Arg(1))
 		}
 	}
 	for _, d := range rp.GetAll("header_down") {
@@ -347,7 +347,7 @@ func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 		if name, hide := strings.CutPrefix(d.Arg(0), "-"); hide {
 			p.ResponseHeaders.Hide = append(p.ResponseHeaders.Hide, name)
 		} else {
-			p.ResponseHeaders.Add[d.Arg(0)] = d.Arg(1)
+			p.ResponseHeaders.Add[d.Arg(0)] = nginxValue(d.Arg(1))
 		}
 	}
 	if d := rp.Get("flush_interval"); d != nil && d.Arg(0) == "-1" {
@@ -446,9 +446,22 @@ var nginxVariables = strings.NewReplacer(
 	"$server_port", "{port}",
 )
 
+var caddyPlaceholders = strings.NewReplacer(
+	"{remote_host}", "$remote_addr",
+	"{host}", "$host",
+	"{scheme}", "$scheme",
+	"{uri}", "$request_uri",
+	"{port}", "$server_port",
+)
+
 // caddyValue 常见的 nginx 变量换成 Caddy 占位符，切换服务器后头部仍生效
 func caddyValue(value string) string {
 	return nginxVariables.Replace(value)
+}
+
+// nginxValue 回读时换回 nginx 变量，否则切到别的方言会把 {scheme} 当字面量发给上游
+func nginxValue(value string) string {
+	return caddyPlaceholders.Replace(value)
 }
 
 // sortedKeys 返回排序后的键，保证生成结果稳定

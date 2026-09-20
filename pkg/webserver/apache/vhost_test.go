@@ -715,3 +715,39 @@ func TestProxyVhostUpstreamMultipleServers(t *testing.T) {
 
 	check.DeepEqual(t, vhost.Upstreams(), upstreams, cmpopts.EquateEmpty())
 }
+
+func TestSyncListen(t *testing.T) {
+	root := t.TempDir()
+	mainConf := filepath.Join(root, "httpd.conf")
+	must.NoError(t, os.WriteFile(mainConf, []byte("Listen 80\nListen 443\n"), 0644))
+
+	newSite := func(name string, addrs ...string) {
+		dir := filepath.Join(root, "sites", name, "config")
+		must.NoError(t, os.MkdirAll(dir, 0755))
+		content := "<VirtualHost " + strings.Join(addrs, " ") + ">\n    ServerName " + name + "\n</VirtualHost>\n"
+		must.NoError(t, os.WriteFile(filepath.Join(dir, ConfigName), []byte(content), 0600))
+	}
+	sites := filepath.Join(root, "sites")
+
+	// 只有标准端口时不写入
+	newSite("a", "*:80", "*:443")
+	must.NoError(t, syncListenIn(sites, mainConf))
+	check.Equal(t, readFile(t, mainConf), "Listen 80\nListen 443\n")
+
+	// 非标端口去重后补齐
+	newSite("b", "*:8080", "[::]:8443")
+	newSite("c", "127.0.0.1:8080")
+	must.NoError(t, syncListenIn(sites, mainConf))
+	check.Contains(t, readFile(t, mainConf), listenBeginMark+"\nListen 8080\nListen 8443\n"+listenEndMark)
+
+	// 重复执行不累加
+	before := readFile(t, mainConf)
+	must.NoError(t, syncListenIn(sites, mainConf))
+	check.Equal(t, readFile(t, mainConf), before)
+
+	// 端口不再使用时整段移除
+	must.NoError(t, os.RemoveAll(filepath.Join(sites, "b")))
+	must.NoError(t, os.RemoveAll(filepath.Join(sites, "c")))
+	must.NoError(t, syncListenIn(sites, mainConf))
+	check.Equal(t, readFile(t, mainConf), "Listen 80\nListen 443\n")
+}

@@ -636,7 +636,8 @@ func (v *baseVhost) buildRealms(cfg *conf.Config) {
 	}
 }
 
-// buildAuthContexts 为未合并进代理上下文的认证路径生成静态上下文
+// buildAuthContexts 为未合并进代理上下文的认证路径生成上下文。
+// OLS 按最长前缀匹配上下文，代理站点上的子路径认证若生成静态上下文，该路径就不再走代理而是去磁盘找文件
 func (v *baseVhost) buildAuthContexts(cfg *conf.Config, consumed map[int]bool) {
 	for i, auth := range v.auths {
 		if consumed[i] {
@@ -647,12 +648,38 @@ func (v *baseVhost) buildAuthContexts(cfg *conf.Config, consumed map[int]bool) {
 			uri = "/" + strings.Trim(auth.Path, "/") + "/"
 		}
 		ctx := cfg.AddBlock("context", uri)
-		ctx.Add("location", "$DOC_ROOT"+uri)
-		ctx.Add("allowBrowse", "1")
+		if handler := v.proxyHandlerFor(auth.Path); handler != "" {
+			ctx.Add("type", "proxy")
+			ctx.Add("handler", handler)
+		} else {
+			ctx.Add("location", "$DOC_ROOT"+uri)
+			ctx.Add("allowBrowse", "1")
+		}
 		ctx.Add("realm", v.realmName(i))
 		ctx.AddMeta("auth", auth.Path)
 		setHeaders(ctx, v.contextHeaders())
 	}
+}
+
+// proxyHandlerFor 覆盖该路径的代理规则的处理器，按最长前缀匹配，正则规则不参与
+func (v *baseVhost) proxyHandlerFor(path string) string {
+	path = "/" + strings.Trim(path, "/")
+	best, handler := -1, ""
+	for i, p := range v.proxies {
+		uri := locationToURI(p.Location)
+		if strings.HasPrefix(uri, "exp:") {
+			continue
+		}
+		prefix := "/" + strings.Trim(uri, "/")
+		if prefix != "/" && path != prefix && !strings.HasPrefix(path, prefix+"/") {
+			continue
+		}
+		if len(prefix) > best {
+			h, _ := v.proxyHandler(p, i)
+			best, handler = len(prefix), h
+		}
+	}
+	return handler
 }
 
 // buildIncludes 返回需放进 rewrite 块的重写片段

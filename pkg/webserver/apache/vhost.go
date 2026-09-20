@@ -52,7 +52,7 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 	}
 
 	var config *conf.Config
-	configFile := filepath.Join(configDir, "apache.conf")
+	configFile := filepath.Join(configDir, ConfigName)
 	if _, err := os.Stat(configFile); err == nil {
 		config, err = ParseFile(configFile)
 		if err != nil {
@@ -327,7 +327,7 @@ func (v *baseVhost) Save() error {
 	if err != nil {
 		return err
 	}
-	configFile := filepath.Join(v.configDir, "apache.conf")
+	configFile := filepath.Join(v.configDir, ConfigName)
 	if err = os.WriteFile(configFile, []byte(Render(config)+"\n"), 0600); err != nil {
 		return fmt.Errorf("failed to save config file: %w", err)
 	}
