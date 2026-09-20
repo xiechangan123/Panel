@@ -908,7 +908,7 @@ msgstr ""
 
 #: internal/biz/backup.go:72
 #: internal/job/cert_renew.go:185
-#: internal/taskqueue/runner.go:194
+#: internal/taskqueue/runner.go:195
 msgid "Error"
 msgstr ""
 
@@ -1604,7 +1604,7 @@ msgid "Locale"
 msgstr ""
 
 #: internal/service/cli.go:1725
-#: internal/taskqueue/runner.go:193
+#: internal/taskqueue/runner.go:194
 msgid "Log"
 msgstr ""
 
@@ -2735,7 +2735,7 @@ msgid "Targets"
 msgstr ""
 
 #: internal/service/cli.go:1722
-#: internal/taskqueue/runner.go:192
+#: internal/taskqueue/runner.go:193
 msgid "Task"
 msgstr ""
 
@@ -2784,7 +2784,7 @@ msgstr ""
 #: internal/service/user.go:182
 #: internal/service/user.go:202
 #: internal/service/user_passkey.go:309
-#: internal/taskqueue/runner.go:195
+#: internal/taskqueue/runner.go:196
 msgid "Time"
 msgstr ""
 
@@ -3259,7 +3259,7 @@ msgstr ""
 msgid "[AcePanel] Alert: %s"
 msgstr ""
 
-#: internal/taskqueue/runner.go:191
+#: internal/taskqueue/runner.go:192
 msgid "[AcePanel] Background Task Failed"
 msgstr ""
 
@@ -3362,7 +3362,7 @@ msgstr ""
 msgid "app status"
 msgstr ""
 
-#: internal/taskqueue/runner.go:191
+#: internal/taskqueue/runner.go:192
 msgid "background task failed"
 msgstr ""
 
@@ -3487,7 +3487,7 @@ msgstr ""
 msgid "compose %s already exists"
 msgstr ""
 
-#: internal/service/website.go:219
+#: internal/service/website.go:224
 msgid "config test failed: %v %s"
 msgstr ""
 
@@ -3595,7 +3595,7 @@ msgstr ""
 msgid "disk write speed"
 msgstr ""
 
-#: internal/data/website.go:1517
+#: internal/data/website.go:1529
 msgid "domain %s is already used by website %s"
 msgstr ""
 
@@ -4079,7 +4079,7 @@ msgstr ""
 #: internal/biz/cert.go:104
 #: internal/biz/setting.go:241
 #: internal/biz/setting.go:319
-#: internal/data/website.go:1224
+#: internal/data/website.go:1225
 #: internal/data/website.go:850
 msgid "failed to parse certificate: %v"
 msgstr ""
@@ -4099,7 +4099,7 @@ msgstr ""
 #: internal/biz/cert.go:107
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:322
-#: internal/data/website.go:1227
+#: internal/data/website.go:1228
 #: internal/data/website.go:853
 msgid "failed to parse private key: %v"
 msgstr ""
@@ -4553,7 +4553,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1328
+#: internal/data/website.go:1329
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -5321,6 +5321,10 @@ msgstr ""
 
 #: internal/biz/alert.go:873
 msgid "website %s expires in %s days"
+msgstr ""
+
+#: internal/service/website.go:168
+msgid "website %s has no config for the current web server, rebuild it first"
 msgstr ""
 
 #: internal/biz/alert.go:907
