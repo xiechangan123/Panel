@@ -280,12 +280,81 @@ func (m *Manager) Start() error {
 		}
 	}
 
+	go m.rescanLoop()
+
 	st := m.Stats()
 	m.log.Info("tamper protection enabled",
 		slog.String("mode", string(m.cfg.Mode)),
 		slog.Int("files", st.ProtectedFiles),
 		slog.Int("dirs", st.ProtectedDirs))
 	return nil
+}
+
+// rescanInterval 存量对象的重扫周期。保护集合按 (dev, inode) 下发到内核，
+// 受保护文件被删除后 inode 会被回收，不及时摘除就会在新文件复用到同一 inode 时误拦，
+// 表现为毫不相干的路径连 root 都改不动
+const rescanInterval = 5 * time.Minute
+
+func (m *Manager) rescanLoop() {
+	ticker := time.NewTicker(rescanInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-m.closed:
+			return
+		case <-ticker.C:
+			m.rescan()
+		}
+	}
+}
+
+// rescan 重新扫描规则路径，把新增与消失的对象同步给引擎
+func (m *Manager) rescan() {
+	refreshMountDevs()
+	current := make(map[string]fileEntry)
+	for _, e := range m.scan() {
+		current[e.path] = e
+	}
+
+	m.mu.RLock()
+	running := m.running
+	var added, removed []fileEntry
+	if running {
+		for path, e := range current {
+			if old, ok := m.entries[path]; !ok || old.dev != e.dev || old.inode != e.inode {
+				added = append(added, e)
+			}
+		}
+		for path, e := range m.entries {
+			if c, ok := current[path]; !ok || c.dev != e.dev || c.inode != e.inode {
+				removed = append(removed, e)
+			}
+		}
+	}
+	m.mu.RUnlock()
+
+	if !running || (len(added) == 0 && len(removed) == 0) {
+		return
+	}
+
+	// 先摘后加：同一路径换了 inode 时，旧 inode 必须先离开集合
+	if len(removed) > 0 {
+		if err := m.eng.remove(removed); err != nil {
+			m.log.Warn("failed to drop stale tamper entries", slog.Any("err", err))
+		}
+		m.forget(removed)
+	}
+	if len(added) > 0 {
+		if err := m.eng.apply(added); err != nil {
+			m.log.Warn("failed to protect new tamper entries", slog.Any("err", err))
+		}
+		m.remember(added)
+	}
+
+	st := m.Stats()
+	m.log.Debug("tamper protection rescanned",
+		slog.Int("added", len(added)), slog.Int("removed", len(removed)),
+		slog.Int("files", st.ProtectedFiles), slog.Int("dirs", st.ProtectedDirs))
 }
 
 func (m *Manager) startWatcher() error {
