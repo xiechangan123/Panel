@@ -670,7 +670,9 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 	task.Key = fmt.Sprintf("uncompress:%s:%s", req.File, req.Path)
 	task.Name = s.t.Get("Uncompress %v", filepath.Base(req.File))
 	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`%s && chmod -R 0755 '%s' && chown -R www:www '%s'`, cmd, req.Path, req.Path)
+	// 权限失败不影响任务结果：目标目录里可能有带不可变属性的文件（如 PHP 站点的 .user.ini），
+	// 用 && 串联时会让已经解压成功的任务报失败
+	task.Shell = fmt.Sprintf(`%s; chmod -R 0755 '%s'; chown -R www:www '%s'; true`, cmd, req.Path, req.Path)
 
 	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
