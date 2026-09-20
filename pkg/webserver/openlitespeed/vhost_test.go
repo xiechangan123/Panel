@@ -334,7 +334,6 @@ func TestListenerNaming(t *testing.T) {
 	check.Equal(t, listenerAddress("0.0.0.0:8080"), "*:8080")
 	check.Equal(t, listenerName("[::]:443"), "ip6_443")
 	check.Equal(t, listenerName("*:80"), "any_80")
-	// 绑定地址时名字数字开头，OLS 实测接受
 	check.Equal(t, listenerName("127.0.0.1:8899"), "127_0_0_1_8899")
 }
 
