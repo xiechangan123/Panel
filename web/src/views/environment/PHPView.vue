@@ -2,8 +2,10 @@
 import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import openlitespeed from '@/api/apps/openlitespeed'
 import php from '@/api/panel/environment/php'
 import file from '@/api/panel/file'
+import home from '@/api/panel/home'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import PhpConfigTuneView from '@/views/environment/PhpConfigTuneView.vue'
@@ -16,6 +18,14 @@ const slug = Number(route.params.slug)
 const { $gettext } = useGettext()
 
 const currentTab = ref('status')
+
+// 走 LSAPI 时 PHP 由 OpenLiteSpeed 自己拉起，php-fpm 会被停掉，这里说明一下免得当成故障
+const lsapiTakeover = ref(false)
+useRequest(home.installedEnvironment()).onSuccess(async ({ data }: any) => {
+  if (data?.webserver !== 'openlitespeed') return
+  const list = await openlitespeed.php()
+  lsapiTakeover.value = (list ?? []).some((item: any) => item.version === slug && item.lsapi)
+})
 
 // phpinfo 相关状态
 const showPHPInfoModal = ref(false)
@@ -291,6 +301,13 @@ const handleSaveComposerMirror = async () => {
               </n-flex>
             </template>
           </n-card>
+          <n-alert v-if="lsapiTakeover" type="info" :show-icon="true">
+            {{
+              $gettext(
+                'PHP requests are handled by OpenLiteSpeed over LSAPI, php-fpm is not involved. It stays stopped on purpose.'
+              )
+            }}
+          </n-alert>
           <service-status :service="`php-fpm-${slug}`" show-reload />
         </n-flex>
       </n-tab-pane>
