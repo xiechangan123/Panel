@@ -255,7 +255,6 @@ func TestRequestStderr(t *testing.T) {
 	check.NotContains(t, err.Error(), "PID")
 }
 
-// 有正文时 stderr 里的 warning 不该让整个请求失败
 func TestRequestStderrWithBody(t *testing.T) {
 	socket := fakeLSPHP(t, [][]byte{
 		packet(typeStderrStream, []byte("PHP Warning: deprecated")),

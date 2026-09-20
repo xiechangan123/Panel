@@ -72,7 +72,6 @@ func Request(ctx context.Context, network, address string, params map[string]str
 			if _, rest, found := bytes.Cut(body, []byte("\r\n\r\n")); found {
 				body = rest
 			}
-			// 有正文就返回，一条 warning 不该让整个请求失败；与 pkg/lsapi 保持一致
 			if len(body) > 0 {
 				return body, nil
 			}

@@ -993,8 +993,6 @@ if (($_GET['action'] ?? '') === 'reset') {
 }
 echo json_encode(function_exists('opcache_get_status') ? opcache_get_status(false) : false);
 `
-	// PHP 以 www 用户执行，探针放在 /tmp 保证可读；先写临时文件再改名，避免并发读到半截。
-	// 路径固定，每次换名字会让 OPcache 把每一次探针都缓存成一条脚本
 	tmpPath := probePath + "." + str.Random(8)
 	if err := io.Write(tmpPath, probe, 0644); err != nil {
 		return nil, err

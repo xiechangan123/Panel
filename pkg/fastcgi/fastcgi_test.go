@@ -78,7 +78,6 @@ func TestRequestStderr(t *testing.T) {
 	check.Contains(t, err.Error(), "PHP Fatal error: boom")
 }
 
-// 有正文时 stderr 里的 warning 不该让整个请求失败，语义与 pkg/lsapi 一致
 func TestRequestStderrWithBody(t *testing.T) {
 	socket := fakeFPM(t,
 		record(typeStderr, []byte("PHP Warning: deprecated")),
