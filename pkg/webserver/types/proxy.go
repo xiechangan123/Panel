@@ -98,6 +98,25 @@ type Proxy struct {
 	AccessControl     *AccessControlConfig  `form:"access_control" json:"access_control"`                     // IP 访问控制配置
 }
 
+// 负载均衡算法的规范值，取 nginx 写法。各方言写入时映射到自己的语法，
+// 没有对应实现的降级为轮询并把原值留在注释里，换服务器时不丢
+const (
+	AlgoRoundRobin = ""           // 轮询
+	AlgoLeastConn  = "least_conn" // 最少连接
+	AlgoIPHash     = "ip_hash"    // 按客户端 IP
+	AlgoRandom     = "random"     // 随机
+)
+
+// NormalizeAlgo 收敛到规范算法名，无法识别的按轮询处理
+func NormalizeAlgo(algo string) string {
+	switch algo {
+	case AlgoLeastConn, AlgoIPHash, AlgoRandom:
+		return algo
+	default:
+		return AlgoRoundRobin
+	}
+}
+
 // Upstream 上游服务器配置
 type Upstream struct {
 	Name            string            `form:"name" json:"name" validate:"required"`       // 上游名称，如: "backend"

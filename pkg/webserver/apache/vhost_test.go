@@ -347,7 +347,7 @@ func TestPHPVhostListenProtocolDetection(t *testing.T) {
 	vhost, _ := newPHPVhost(t)
 
 	listens := []types.Listen{
-		{Address: "*:443"},
+		{Address: "*:443", Args: []string{"ssl"}},
 	}
 	check.NoError(t, vhost.SetListen(listens))
 
@@ -561,10 +561,10 @@ func TestProxyVhostUpstreams(t *testing.T) {
 		{
 			Name: "backend",
 			Servers: map[string]string{
-				"http://127.0.0.1:8080": "loadfactor=5",
-				"http://127.0.0.1:8081": "loadfactor=3",
+				"127.0.0.1:8080": "weight=5",
+				"127.0.0.1:8081": "weight=3",
 			},
-			Algo:      "bybusyness",
+			Algo:      "least_conn",
 			Keepalive: 32,
 		},
 	}
@@ -583,9 +583,9 @@ func TestProxyVhostBalancerConfig(t *testing.T) {
 		{
 			Name: "mybackend",
 			Servers: map[string]string{
-				"http://127.0.0.1:8080": "loadfactor=5",
+				"127.0.0.1:8080": "weight=5",
 			},
-			Algo:      "bybusyness",
+			Algo:      "least_conn",
 			Keepalive: 16,
 		},
 	}
@@ -706,7 +706,7 @@ func TestProxyVhostUpstreamMultipleServers(t *testing.T) {
 			Servers: map[string]string{
 				"127.0.0.1:8080": "",
 				"127.0.0.1:8081": "",
-				"127.0.0.1:8082": "loadfactor=5",
+				"127.0.0.1:8082": "weight=5",
 			},
 			Keepalive: 32,
 		},

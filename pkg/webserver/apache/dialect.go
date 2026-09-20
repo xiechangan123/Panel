@@ -107,8 +107,9 @@ func (Dialect) WriteDefaultSite(bool) error {
 	return nil
 }
 
+// HTPasswdLine 保持明文以便面板回读，保存站点时再转成 Apache 需要的 bcrypt 用户文件
 func (Dialect) HTPasswdLine(username, password string) string {
-	return username + ":" + password
+	return username + ":{PLAIN}" + password
 }
 
 func (Dialect) RewritesDir() string {
