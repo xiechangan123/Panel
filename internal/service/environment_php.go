@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/utils/str"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"resty.dev/v3"
@@ -587,7 +588,8 @@ func (s *EnvironmentPHPService) Opcache(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if _, err = os.Stat(s.phpFPMSocket(req.Version)); err != nil {
+	socket, _ := s.probeSocket(req.Version)
+	if _, err = os.Stat(socket); err != nil {
 		Success(w, types.EnvironmentPHPOpcache{Enabled: false})
 		return
 	}
@@ -989,8 +991,14 @@ if (($_GET['action'] ?? '') === 'reset') {
 }
 echo json_encode(function_exists('opcache_get_status') ? opcache_get_status(false) : false);
 `
-	// FPM 以 www 用户执行，探针放在 /tmp 保证可读，每次覆盖写入保证内容正确
-	if err := io.Write(probePath, probe, 0644); err != nil {
+	// PHP 以 www 用户执行，探针放在 /tmp 保证可读；先写临时文件再改名，避免并发读到半截。
+	// 路径固定，每次换名字会让 OPcache 把每一次探针都缓存成一条脚本
+	tmpPath := probePath + "." + str.Random(8)
+	if err := io.Write(tmpPath, probe, 0644); err != nil {
+		return nil, err
+	}
+	if err := os.Rename(tmpPath, probePath); err != nil {
+		_ = os.Remove(tmpPath)
 		return nil, err
 	}
 

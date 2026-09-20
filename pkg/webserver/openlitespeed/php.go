@@ -32,8 +32,13 @@ func LSPHPPath(version uint) string {
 	return fmt.Sprintf("/opt/ace/server/php/%d/bin/lsphp", version)
 }
 
+// LSAPIEnabled 标记在但 lsphp 不在时要当作没开，否则外部应用会指向不存在的二进制，
+// 而 php-fpm 又被停掉，该版本 PHP 就整体不可用了
 func LSAPIEnabled(version uint) bool {
-	_, err := os.Stat(filepath.Join(lsapiDir, strconv.FormatUint(uint64(version), 10)))
+	if _, err := os.Stat(filepath.Join(lsapiDir, strconv.FormatUint(uint64(version), 10))); err != nil {
+		return false
+	}
+	_, err := os.Stat(LSPHPPath(version))
 	return err == nil
 }
 
