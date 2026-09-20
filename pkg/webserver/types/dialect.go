@@ -10,25 +10,16 @@ type Features struct {
 
 // Dialect 收敛某种 Web 服务器在面板层面的全部差异，新增服务器只需实现此接口并在 webserver 包中注册
 type Dialect interface {
-	// Service systemd 服务名
 	Service() string
-	// ConfigTest 配置测试命令
 	ConfigTest() string
 	// HTMLDir 默认页目录，存放 index.html、stop.html 与 404.html
 	HTMLDir() string
-	// ConfigFile 站点配置目录中的主配置文件名
 	ConfigFile() string
-	// PanelACMEConf 面板证书 HTTP 验证使用的独立配置文件
 	PanelACMEConf() string
-	// Features 能力集
 	Features() Features
-	// HTTPSListenArgs 443 监听的附加参数
 	HTTPSListenArgs() []string
-	// ErrorPageConf 站点 404 页面片段
 	ErrorPageConf() string
-	// PHPCacheConf PHP 站点浏览器缓存与敏感文件拦截片段
 	PHPCacheConf() string
-	// SPAConf 静态站点单页应用路由回退片段
 	SPAConf() string
 	// LSCacheConf 站点级 LiteSpeed 页面缓存片段，name 为站点名
 	LSCacheConf(name string) string
@@ -38,7 +29,6 @@ type Dialect interface {
 	DefaultSiteConf() string
 	// WriteDefaultSite 写入内置默认站点配置，asDefault 为 false 时把默认位让给某个站点
 	WriteDefaultSite(asDefault bool) error
-	// HTPasswdLine 基本认证 htpasswd 单行
 	HTPasswdLine(username, password string) string
 	// RewritesDir 伪静态预置目录名，语法相同的服务器可共用
 	RewritesDir() string
@@ -56,6 +46,5 @@ type Dialect interface {
 	RemoveSiteChallenge(conf, path, token string) (bool, error)
 	// WritePanelChallenge 写入面板独立验证站点，用于 80 端口已被 Web 服务器占用时签发面板证书
 	WritePanelChallenge(conf string, names []string, tokens map[string]string) (bool, error)
-	// RemovePanelChallenge 清理面板独立验证站点
 	RemovePanelChallenge(conf string) (bool, error)
 }

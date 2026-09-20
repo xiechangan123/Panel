@@ -150,7 +150,6 @@ func (v *baseVhost) buildProxies(cfg *conf.Config) map[int]bool {
 	return consumed
 }
 
-// addProxyApp 与后端保持长连接
 func addProxyApp(ext *conf.Directive, address string, timeout int, buffering bool) {
 	ext.Add("type", "proxy")
 	ext.Add("address", address)
@@ -190,7 +189,6 @@ func parseHeaderValue(value string) string {
 	return types.ApacheVars.ToNginx(expr)
 }
 
-// upstreamHost 取代理地址里的主机名
 func upstreamHost(pass string) string {
 	u, err := url.Parse(pass)
 	if err != nil {

@@ -32,7 +32,6 @@ func ParseLocation(location string) (LocationKind, string) {
 	return LocationPrefix, location
 }
 
-// NormalizePath 补上开头的斜杠
 func NormalizePath(path string) string {
 	path = strings.TrimSpace(path)
 	if !strings.HasPrefix(path, "/") {

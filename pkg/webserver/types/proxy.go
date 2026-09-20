@@ -2,7 +2,6 @@ package types
 
 import "time"
 
-// CacheConfig 缓存配置
 type CacheConfig struct {
 	// 缓存时长，状态码 -> 时长，如: {"200 302": "10m", "404": "1m", "any": "5m"}
 	Valid map[string]string `form:"valid" json:"valid"`
@@ -31,14 +30,12 @@ type CacheConfig struct {
 	Key string `form:"key" json:"key"`
 }
 
-// TimeoutConfig 超时配置
 type TimeoutConfig struct {
 	Connect time.Duration `form:"connect" json:"connect"` // proxy_connect_timeout，默认 60s
 	Read    time.Duration `form:"read" json:"read"`       // proxy_read_timeout，默认 60s
 	Send    time.Duration `form:"send" json:"send"`       // proxy_send_timeout，默认 60s
 }
 
-// RetryConfig 重试配置
 type RetryConfig struct {
 	// 触发重试的条件 (proxy_next_upstream)
 	// 可选值: "error", "timeout", "invalid_header", "http_500", "http_502", "http_503", "http_504", "http_429", "non_idempotent", "off"
@@ -51,14 +48,12 @@ type RetryConfig struct {
 	Timeout time.Duration `form:"timeout" json:"timeout"`
 }
 
-// SSLBackendConfig SSL 后端验证配置
 type SSLBackendConfig struct {
 	Verify             bool   `form:"verify" json:"verify"`                           // proxy_ssl_verify on/off
 	TrustedCertificate string `form:"trusted_certificate" json:"trusted_certificate"` // proxy_ssl_trusted_certificate 路径
 	VerifyDepth        int    `form:"verify_depth" json:"verify_depth"`               // proxy_ssl_verify_depth，默认 1
 }
 
-// ResponseHeaderConfig 响应头修改配置
 type ResponseHeaderConfig struct {
 	// 隐藏的响应头 (proxy_hide_header)
 	Hide []string `form:"hide" json:"hide"`
@@ -68,7 +63,6 @@ type ResponseHeaderConfig struct {
 	Add map[string]string `form:"add" json:"add"`
 }
 
-// AccessControlConfig IP 访问控制配置
 type AccessControlConfig struct {
 	// 允许的 IP/CIDR 列表 (allow)
 	Allow []string `form:"allow" json:"allow"`
@@ -77,7 +71,6 @@ type AccessControlConfig struct {
 	Deny []string `form:"deny" json:"deny"`
 }
 
-// Proxy 反向代理配置
 type Proxy struct {
 	Location          string                `form:"location" json:"location" validate:"required"`             // 匹配路径，如: "/", "/api", "~ ^/api/v[0-9]+/"
 	Pass              string                `form:"pass" json:"pass" validate:"required"`                     // 代理地址，如: "http://example.com", "http://backend"
@@ -117,7 +110,6 @@ func NormalizeAlgo(algo string) string {
 	}
 }
 
-// Upstream 上游服务器配置
 type Upstream struct {
 	Name            string            `form:"name" json:"name" validate:"required"`       // 上游名称，如: "backend"
 	Servers         map[string]string `form:"servers" json:"servers" validate:"required"` // 上游服务器及配置，如: map["server1"] = "weight=5 resolve"

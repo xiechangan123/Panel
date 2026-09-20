@@ -18,7 +18,6 @@ import (
 // acmeConf mod_acme 配置，无状态 HTTP-01：按账户指纹直接应答 token.thumbprint
 const acmeConf = PanelConfDir + "/acme.conf"
 
-// acmeProbe 探测用 token
 const acmeProbe = "ace-probe"
 
 // acmeLeaseTTL 租约过期兜底，验证出错时 CleanUp 不会被调用
@@ -32,7 +31,6 @@ var acmeLease struct {
 	expires time.Time
 }
 
-// Dialect OpenLiteSpeed 方言
 type Dialect struct{}
 
 func (Dialect) Service() string {
@@ -105,7 +103,6 @@ func (Dialect) RewritesDir() string {
 	return "apache"
 }
 
-// BeforeReload 覆盖站点删除等未经 Save 的变更
 func (Dialect) BeforeReload() error {
 	return Sync()
 }

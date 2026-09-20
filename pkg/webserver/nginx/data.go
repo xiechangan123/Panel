@@ -1,15 +1,11 @@
 package nginx
 
-// HTMLDir 默认页目录
 const HTMLDir = "/opt/ace/server/nginx/html"
 
-// DisablePage 禁用页面路径
 const DisablePage = HTMLDir + "/stop.html"
 
-// SitesPath 网站目录
 const SitesPath = "/opt/ace/sites"
 
-// DefaultSiteConf 内置默认站点配置
 const DefaultSiteConf = "/opt/ace/server/nginx/conf/default.conf"
 
 // 配置文件序号范围
@@ -33,7 +29,6 @@ server {
 }
 `
 
-// order 定义 Nginx 指令的排序优先级
 var order = map[string]int{
 	"listen":      0,
 	"server_name": 1,

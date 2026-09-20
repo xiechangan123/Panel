@@ -34,7 +34,6 @@ location / {
 }
 `
 
-// Dialect Nginx 方言
 type Dialect struct{}
 
 func (Dialect) Service() string {

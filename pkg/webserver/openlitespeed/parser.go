@@ -14,7 +14,6 @@ import (
 
 const indentUnit = "  "
 
-// Parse 解析配置文本
 func Parse(content string) (*conf.Config, error) {
 	cfg := &conf.Config{}
 	stack := []*conf.Block{&cfg.Block}
@@ -93,7 +92,6 @@ func Parse(content string) (*conf.Config, error) {
 	return cfg, nil
 }
 
-// ParseFile 解析配置文件
 func ParseFile(path string) (*conf.Config, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -102,7 +100,6 @@ func ParseFile(path string) (*conf.Config, error) {
 	return Parse(string(content))
 }
 
-// splitKeyValue 按首个空白拆分键与值
 func splitKeyValue(line string) (string, string) {
 	idx := strings.IndexAny(line, " \t")
 	if idx < 0 {

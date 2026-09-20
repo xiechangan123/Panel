@@ -15,22 +15,18 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// StaticVhost 纯静态虚拟主机
 type StaticVhost struct {
 	*baseVhost
 }
 
-// PHPVhost PHP 虚拟主机
 type PHPVhost struct {
 	*baseVhost
 }
 
-// ProxyVhost 反向代理虚拟主机
 type ProxyVhost struct {
 	*baseVhost
 }
 
-// baseVhost Apache 虚拟主机基础实现
 type baseVhost struct {
 	config     *conf.Config
 	vhost      *conf.Directive // 主 VirtualHost 块，写盘时按端口拆成明文与 TLS 两个块
@@ -39,7 +35,6 @@ type baseVhost struct {
 	siteName   string
 }
 
-// newBaseVhost 创建基础虚拟主机实例
 func newBaseVhost(configDir string) (*baseVhost, error) {
 	if configDir == "" {
 		return nil, errors.New("config directory is required")
@@ -107,12 +102,10 @@ func (v *baseVhost) loadVhosts() {
 	v.vhost = main
 }
 
-// defaultConf 返回替换好站点名的默认配置模板
 func (v *baseVhost) defaultConf() string {
 	return strings.ReplaceAll(DefaultVhostConf, "/opt/ace/sites/default", "/opt/ace/sites/"+v.siteName)
 }
 
-// NewStaticVhost 创建纯静态虚拟主机实例
 func NewStaticVhost(configDir string) (*StaticVhost, error) {
 	base, err := newBaseVhost(configDir)
 	if err != nil {
@@ -121,7 +114,6 @@ func NewStaticVhost(configDir string) (*StaticVhost, error) {
 	return &StaticVhost{baseVhost: base}, nil
 }
 
-// NewPHPVhost 创建 PHP 虚拟主机实例
 func NewPHPVhost(configDir string) (*PHPVhost, error) {
 	base, err := newBaseVhost(configDir)
 	if err != nil {
@@ -130,7 +122,6 @@ func NewPHPVhost(configDir string) (*PHPVhost, error) {
 	return &PHPVhost{baseVhost: base}, nil
 }
 
-// NewProxyVhost 创建反向代理虚拟主机实例
 func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 	base, err := newBaseVhost(configDir)
 	if err != nil {
@@ -526,7 +517,6 @@ func (v *baseVhost) ClearSSL() error {
 	return nil
 }
 
-// hasPort 判断 VirtualHost 是否监听指定端口
 func (v *baseVhost) hasPort(port string) bool {
 	return slices.ContainsFunc(v.vhost.Values(), func(addr string) bool {
 		return portOf(addr) == port
@@ -673,8 +663,6 @@ func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
 	return writeRedirectFiles(filepath.Join(v.configDir, "site"), redirects)
 }
 
-// ========== PHPVhost ==========
-
 func (v *PHPVhost) PHP() uint {
 	cfg, err := ParseFragment(v.Config("010-php.conf", types.ScopeSite))
 	if err != nil {
@@ -700,7 +688,6 @@ func (v *PHPVhost) SetPHP(version uint) error {
 	return v.SetConfig("010-php.conf", "site", Export(cfg)+"\n")
 }
 
-// phpVersionFromHandler 从 SetHandler 值提取 PHP 版本号
 func phpVersionFromHandler(handler string) uint {
 	idx := strings.Index(handler, "php-cgi-")
 	if idx == -1 {
@@ -712,8 +699,6 @@ func phpVersionFromHandler(handler string) uint {
 	}
 	return version
 }
-
-// ========== ProxyVhost ==========
 
 func (v *ProxyVhost) Proxies() []types.Proxy {
 	proxies, _ := parseProxyFiles(filepath.Join(v.configDir, "site"))
@@ -746,12 +731,10 @@ func (v *ProxyVhost) ClearUpstreams() error {
 	return clearBalancerFiles(filepath.Join(v.configDir, "shared"))
 }
 
-// isHSTSHeader 判断是否为 HSTS 响应头指令
 func isHSTSHeader(d *conf.Directive) bool {
 	return argsContain(d.Args, "Strict-Transport-Security")
 }
 
-// argsContain 判断参数值中是否有任一含子串
 func argsContain(args []conf.Arg, sub string) bool {
 	for _, a := range args {
 		if strings.Contains(a.Value, sub) {

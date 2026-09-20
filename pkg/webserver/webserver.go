@@ -14,7 +14,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// dialects 已注册的 Web 服务器方言
 var dialects = map[Type]types.Dialect{
 	TypeNginx:         nginx.Dialect{},
 	TypeApache:        apache.Dialect{},
@@ -22,13 +21,11 @@ var dialects = map[Type]types.Dialect{
 	TypeCaddy:         caddy.Dialect{},
 }
 
-// Dialect 在具体方言之上补充与服务器无关的通用逻辑
 type Dialect struct {
 	types.Dialect
 	Type Type
 }
 
-// Get 按类型取方言
 func Get(t Type) (Dialect, error) {
 	d, ok := dialects[t]
 	if !ok {
@@ -38,7 +35,6 @@ func Get(t Type) (Dialect, error) {
 	return Dialect{Dialect: d, Type: t}, nil
 }
 
-// Types 已注册的 Web 服务器类型
 func Types() []Type {
 	keys := make([]Type, 0, len(dialects))
 	for t := range dialects {

@@ -9,7 +9,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// Dialect Caddy 方言
 type Dialect struct{}
 
 func (Dialect) Service() string {

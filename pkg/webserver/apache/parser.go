@@ -8,7 +8,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 )
 
-// ParseOptions 控制解析行为
 type ParseOptions struct {
 	// Tolerant 容错模式：遇到结构错误（孤立闭合标签、未闭合块）记录后尽力继续，不致命
 	Tolerant bool
@@ -33,7 +32,6 @@ func ParseFragment(content string) (*conf.Config, error) {
 	return parse(content, ParseOptions{Tolerant: true})
 }
 
-// parse 将配置文本解析为 AST
 func parse(content string, opts ParseOptions) (*conf.Config, error) {
 	p := &parser{lines: scanLogicalLines(content), opts: opts}
 	nodes, err := p.parseNodes("")

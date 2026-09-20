@@ -22,17 +22,14 @@ const (
 
 var phpHandlerPattern = regexp.MustCompile(`/php/(\d+)\.conf$`)
 
-// phpHandlerFile 站点引用的脚本处理器文件
 func phpHandlerFile(version uint) string {
 	return filepath.Join(phpHandlerDir, strconv.FormatUint(uint64(version), 10)+".conf")
 }
 
-// LSPHPPath 面板 PHP 附带的 lsphp 二进制路径
 func LSPHPPath(version uint) string {
 	return fmt.Sprintf("/opt/ace/server/php/%d/bin/lsphp", version)
 }
 
-// LSAPIEnabled 该 PHP 版本是否以 LSAPI 协议运行
 func LSAPIEnabled(version uint) bool {
 	_, err := os.Stat(filepath.Join(lsapiDir, strconv.FormatUint(uint64(version), 10)))
 	return err == nil
@@ -117,7 +114,6 @@ func syncPHP() error {
 	return os.WriteFile(phpConf, []byte(Export(cfg)), 0600)
 }
 
-// installedPHPVersions 扫描面板已安装的 PHP 版本
 func installedPHPVersions() []uint {
 	var versions []uint
 	matches, _ := filepath.Glob("/opt/ace/server/php/*/bin/php")

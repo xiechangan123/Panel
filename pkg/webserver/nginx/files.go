@@ -37,7 +37,6 @@ func listFiles(dir string, pattern *regexp.Regexp, from, to int) []string {
 	return files
 }
 
-// clearFiles 删除区间内的片段文件
 func clearFiles(dir string, pattern *regexp.Regexp, from, to int) error {
 	for _, file := range listFiles(dir, pattern, from, to) {
 		if err := os.Remove(file); err != nil && !os.IsNotExist(err) {

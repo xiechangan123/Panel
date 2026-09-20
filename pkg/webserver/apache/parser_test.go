@@ -257,7 +257,6 @@ func TestAddDirectiveAutoQuote(t *testing.T) {
 	check.NotContains(t, out, `"`)
 }
 
-// collectComments 递归收集节点树中的所有注释
 func collectComments(nodes []conf.Node) []*conf.Comment {
 	var out []*conf.Comment
 	for _, n := range nodes {

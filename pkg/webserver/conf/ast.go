@@ -49,7 +49,6 @@ type Block struct {
 	Nodes []Node
 }
 
-// Config 配置文件根
 type Config struct {
 	Block
 }
@@ -58,12 +57,10 @@ func (*Comment) node()   {}
 func (*Blank) node()     {}
 func (*Directive) node() {}
 
-// Dir 构造一条指令
 func Dir(name string, args ...string) *Directive {
 	return &Directive{Name: name, Args: Args(args...)}
 }
 
-// Blk 构造一条带子块的指令
 func Blk(name string, args ...string) *Directive {
 	return &Directive{Name: name, Args: Args(args...), Block: &Block{}}
 }
@@ -73,7 +70,6 @@ func Cmt(text string) *Comment {
 	return &Comment{Text: " " + text}
 }
 
-// Args 由纯值构造参数
 func Args(values ...string) []Arg {
 	if len(values) == 0 {
 		return nil
@@ -85,7 +81,6 @@ func Args(values ...string) []Arg {
 	return out
 }
 
-// Values 取参数的纯值
 func Values(args []Arg) []string {
 	if len(args) == 0 {
 		return nil
@@ -105,7 +100,6 @@ func (d *Directive) Arg(i int) string {
 	return d.Args[i].Value
 }
 
-// Values 全部参数的值
 func (d *Directive) Values() []string {
 	if d == nil {
 		return nil
@@ -121,12 +115,10 @@ func (d *Directive) ArgsFrom(i int) []string {
 	return Values(d.Args[i:])
 }
 
-// SetArgs 替换参数
 func (d *Directive) SetArgs(values ...string) {
 	d.Args = Args(values...)
 }
 
-// AppendArg 追加参数
 func (d *Directive) AppendArg(value string) {
 	d.Args = append(d.Args, Arg{Value: value})
 }
@@ -152,7 +144,6 @@ func (b *Block) Clone() *Block {
 	return out
 }
 
-// Clone 深拷贝指令及其子块
 func (d *Directive) Clone() *Directive {
 	if d == nil {
 		return nil

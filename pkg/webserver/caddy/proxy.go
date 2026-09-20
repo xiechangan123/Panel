@@ -388,7 +388,6 @@ const (
 	realIPValue  = "{remote_host}"
 )
 
-// denyAll nginx `deny all` 的等价写法
 var denyAll = []string{"0.0.0.0/0", "::/0"}
 
 // accessLists nginx 习惯的 all：允许列表里等于不限制，有允许列表时 deny all 已隐含，否则展开为全部网段

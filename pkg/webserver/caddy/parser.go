@@ -23,7 +23,6 @@ type token struct {
 
 var heredocMarker = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
-// Parse 解析配置文本
 func Parse(content string) (*conf.Config, error) {
 	tokens, err := lex(content)
 	if err != nil {
@@ -99,7 +98,6 @@ func Parse(content string) (*conf.Config, error) {
 	return cfg, nil
 }
 
-// ParseFile 解析配置文件
 func ParseFile(path string) (*conf.Config, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -229,8 +227,6 @@ func splitAddresses(tokens []token) []string {
 	return out
 }
 
-// ========== 渲染 ==========
-
 // Export 渲染为配置文本，顶层块之间空一行
 func Export(c *conf.Config) string {
 	var b strings.Builder
@@ -299,8 +295,6 @@ func quote(t, indent string) string {
 	}
 	return t
 }
-
-// ========== 站点块 ==========
 
 // isSite 带块且不是片段或全局选项的顶层指令，Name 与 Args 为地址列表
 func isSite(d *conf.Directive) bool {

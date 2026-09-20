@@ -22,7 +22,6 @@ func Supported() bool {
 	return true
 }
 
-// kernelVersion 返回形如 6.12.0 的内核版本
 func kernelVersion() string {
 	var uts unix.Utsname
 	if err := unix.Uname(&uts); err != nil {
@@ -31,7 +30,6 @@ func kernelVersion() string {
 	return string(uts.Release[:bytes.IndexByte(uts.Release[:], 0)])
 }
 
-// kernelAtLeast 判断内核是否 >= major.minor
 func kernelAtLeast(major, minor int) bool {
 	v := kernelVersion()
 	parts := strings.SplitN(v, ".", 3)
@@ -57,7 +55,6 @@ func kernelAtLeast(major, minor int) bool {
 	return minNum >= minor
 }
 
-// activeLSM 读取当前激活的 LSM 列表
 func activeLSM() string {
 	data, err := os.ReadFile("/sys/kernel/security/lsm")
 	if err != nil {
@@ -66,7 +63,6 @@ func activeLSM() string {
 	return strings.TrimSpace(string(data))
 }
 
-// DetectEBPF 检测 eBPF-LSM 模式可用性
 func DetectEBPF() EBPFStatus {
 	st := EBPFStatus{
 		KernelVersion: kernelVersion(),
@@ -95,7 +91,6 @@ func DetectEBPF() EBPFStatus {
 	return st
 }
 
-// grubCmdlineRe 匹配 grub 的内核命令行配置项
 var grubCmdlineRe = regexp.MustCompile(`(?m)^(GRUB_CMDLINE_LINUX(?:_DEFAULT)?=)"([^"]*)"`)
 
 // injectLSMBpf 在 grub 内核命令行中注入 bpf LSM

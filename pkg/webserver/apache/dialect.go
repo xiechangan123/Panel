@@ -14,7 +14,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// panelTokenDir 面板证书验证的 token 目录
 const panelTokenDir = "/tmp/acme-challenge"
 
 const phpCacheConf = `# browser cache
@@ -50,7 +49,6 @@ const spaConf = `# single-page application route fallback, remove if not needed
 FallbackResource /index.html
 `
 
-// Dialect Apache 方言
 type Dialect struct{}
 
 func (Dialect) Service() string {

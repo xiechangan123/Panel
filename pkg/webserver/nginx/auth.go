@@ -10,7 +10,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// AuthConfName 基本认证 map 片段文件名
 const AuthConfName = "011-auth.conf"
 
 // 基本认证 map 变量名前缀
@@ -46,7 +45,6 @@ func authPathPattern(path string) string {
 	return "~^" + regexp.QuoteMeta(path) + "(/.*)?$"
 }
 
-// authPatternPath 将 map 正则还原为路径
 func authPatternPath(pattern string) string {
 	path := strings.TrimPrefix(pattern, "~^")
 	path = strings.TrimSuffix(path, "(/.*)?$")
@@ -83,7 +81,6 @@ func generateAuthMaps(siteName string, auths []types.BasicAuth) string {
 	return Export(cfg)
 }
 
-// parseAuthMaps 从 file map 还原认证规则
 func parseAuthMaps(content string) []types.BasicAuth {
 	cfg, err := Parse(content)
 	if err != nil {

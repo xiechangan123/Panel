@@ -10,7 +10,6 @@ import (
 
 // nginx 配置：分号结尾的指令、花括号块、单双引号（反斜杠转义）、# 注释，*_by_lua_block 的块体按 Lua 词法原样保留
 
-// Parse 解析配置文本
 func Parse(content string) (*conf.Config, error) {
 	p := &parser{s: strings.ReplaceAll(content, "\r\n", "\n"), line: 1}
 	nodes, err := p.parseNodes(true)
@@ -20,7 +19,6 @@ func Parse(content string) (*conf.Config, error) {
 	return &conf.Config{Block: conf.Block{Nodes: nodes}}, nil
 }
 
-// ParseFile 解析配置文件
 func ParseFile(path string) (*conf.Config, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -217,7 +215,6 @@ func (p *parser) readQuoted(quote byte) (string, error) {
 	return "", p.errorf("unterminated quoted string")
 }
 
-// trailingComment 取同一行紧随其后的注释
 func (p *parser) trailingComment() string {
 	j := p.i
 	for j < len(p.s) && (p.s[j] == ' ' || p.s[j] == '\t') {
@@ -307,7 +304,6 @@ func (p *parser) skipLongBracket(level int) {
 	p.i += end + len(closing)
 }
 
-// skipLuaString 跳过 Lua 短字符串
 func (p *parser) skipLuaString(quote byte) {
 	p.i++
 	for p.i < len(p.s) {

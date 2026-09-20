@@ -40,7 +40,6 @@ func waitEvent(ch <-chan Event, want func(Event) bool) *Event {
 	}
 }
 
-// requireEBPF 跳过无法跑 eBPF 全功能测试的环境
 func requireEBPF(t *testing.T) {
 	t.Helper()
 	if os.Geteuid() != 0 {

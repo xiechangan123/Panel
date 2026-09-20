@@ -10,7 +10,6 @@ import (
 	"github.com/libtnb/assert/must"
 )
 
-// realWorldConfig 汇集真实 apache 配置里最难解析的语法
 const realWorldConfig = `# main config
 ServerRoot "/etc/httpd"
 Listen 80

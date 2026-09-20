@@ -11,7 +11,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// WithIPv6Listens 为每个监听补充同端口的 IPv6 监听
 func WithIPv6Listens(listens []types.Listen) []types.Listen {
 	ipv6 := lo.FilterMap(listens, func(listen types.Listen, _ int) (types.Listen, bool) {
 		port := listen.Address

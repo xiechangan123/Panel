@@ -166,7 +166,6 @@ func syncListeners() error {
 	return nil
 }
 
-// ensureDefaultCert 生成缺失的默认自签名证书
 func ensureDefaultCert() error {
 	if _, err := os.Stat(defaultCert); err == nil {
 		if _, err = os.Stat(defaultKey); err == nil {

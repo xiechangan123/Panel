@@ -46,10 +46,8 @@ func parseDurationToSeconds(duration string) int {
 // proxyFilePattern 匹配代理配置文件名 (200-299)
 var proxyFilePattern = regexp.MustCompile(`^(\d{3})-proxy\.conf$`)
 
-// balancerFilePattern 匹配负载均衡配置文件名
 var balancerFilePattern = regexp.MustCompile(`^(\d{3})-balancer-(.+)\.conf$`)
 
-// parseProxyFiles 从 site 目录解析所有代理配置
 func parseProxyFiles(siteDir string) ([]types.Proxy, error) {
 	entries, err := os.ReadDir(siteDir)
 	if err != nil {
@@ -87,7 +85,6 @@ func parseProxyFiles(siteDir string) ([]types.Proxy, error) {
 	return proxies, nil
 }
 
-// parseProxyFile 解析单个代理配置文件为结构体（基于 AST 遍历）
 func parseProxyFile(filePath string) (*types.Proxy, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
@@ -178,7 +175,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	return proxy, nil
 }
 
-// parseCacheBlock 从 mod_cache 块提取缓存配置
 func parseCacheBlock(blk *conf.Directive) *types.CacheConfig {
 	cache := &types.CacheConfig{
 		Valid:             make(map[string]string),
@@ -211,7 +207,6 @@ func parseSubstitute(rule string) (from, to string, ok bool) {
 	return "", "", false
 }
 
-// writeProxyFiles 将代理配置写入文件
 func writeProxyFiles(siteDir string, proxies []types.Proxy, upstreams []string) error {
 	if err := clearProxyFiles(siteDir); err != nil {
 		return err
@@ -232,7 +227,6 @@ func writeProxyFiles(siteDir string, proxies []types.Proxy, upstreams []string) 
 	return nil
 }
 
-// clearProxyFiles 清除所有代理配置文件
 func clearProxyFiles(siteDir string) error {
 	entries, err := os.ReadDir(siteDir)
 	if err != nil {
@@ -443,7 +437,6 @@ func parseResponseHeaders(blk *conf.Directive) *types.ResponseHeaderConfig {
 	return headers
 }
 
-// generateProxyConfig 构建代理配置 AST 并序列化
 func generateProxyConfig(proxy types.Proxy, upstreams []string) string {
 	loc := parseLocation(proxy.Location)
 	pass := balancerPass(proxy.Pass, upstreams)
@@ -611,7 +604,6 @@ func parseBalancerFiles(sharedDir string) ([]types.Upstream, error) {
 	return upstreams, nil
 }
 
-// parseBalancerFile 解析单个负载均衡配置文件为结构体（基于 AST 遍历）
 func parseBalancerFile(filePath string, name string) (*types.Upstream, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
@@ -760,7 +752,6 @@ func balancerNames(sharedDir string) []string {
 	return names
 }
 
-// writeBalancerFiles 将负载均衡配置写入文件
 func writeBalancerFiles(sharedDir string, upstreams []types.Upstream) error {
 	if err := clearBalancerFiles(sharedDir); err != nil {
 		return err
@@ -777,7 +768,6 @@ func writeBalancerFiles(sharedDir string, upstreams []types.Upstream) error {
 	return nil
 }
 
-// clearBalancerFiles 清除所有负载均衡配置文件
 func clearBalancerFiles(sharedDir string) error {
 	entries, err := os.ReadDir(sharedDir)
 	if err != nil {
@@ -802,7 +792,6 @@ func clearBalancerFiles(sharedDir string) error {
 	return nil
 }
 
-// generateBalancerConfig 构建负载均衡配置 AST 并序列化
 func generateBalancerConfig(upstream types.Upstream) string {
 	proxy := conf.Blk("Proxy", "balancer://"+upstream.Name)
 	for _, addr := range slices.Sorted(maps.Keys(upstream.Servers)) {

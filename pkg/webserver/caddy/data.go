@@ -1,12 +1,9 @@
 package caddy
 
-// ServerRoot 安装根目录
 const ServerRoot = "/opt/ace/server/caddy"
 
-// MainConf 主配置文件
 const MainConf = ServerRoot + "/Caddyfile"
 
-// HTMLDir 默认页目录
 const HTMLDir = ServerRoot + "/html"
 
 // ACMEDir HTTP-01 验证目录，站点与兜底站点以它为根提供 token
@@ -18,10 +15,8 @@ const ErrorLogPath = ServerRoot + "/logs/error.log"
 // panelACMEConf 面板验证写入的 token 文件名，供清理
 const panelACMEConf = ServerRoot + "/conf/acme-tokens"
 
-// ConfName 站点配置文件名
 const ConfName = "caddy.conf"
 
-// acmeURI HTTP-01 验证路径
 const acmeURI = "/.well-known/acme-challenge/"
 
 const phpCacheConf = `# browser cache

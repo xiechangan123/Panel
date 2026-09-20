@@ -4,12 +4,10 @@ import "strings"
 
 // 名称比较一律大小写不敏感：apache 与 OLS 本身不区分，nginx 与 Caddy 的指令名全小写
 
-// Append 追加节点
 func (b *Block) Append(nodes ...Node) {
 	b.Nodes = append(b.Nodes, nodes...)
 }
 
-// Len 节点数
 func (b *Block) Len() int {
 	if b == nil {
 		return 0
@@ -17,7 +15,6 @@ func (b *Block) Len() int {
 	return len(b.Nodes)
 }
 
-// All 全部指令
 func (b *Block) All() []*Directive {
 	if b == nil {
 		return nil
@@ -31,7 +28,6 @@ func (b *Block) All() []*Directive {
 	return out
 }
 
-// Get 首个同名指令
 func (b *Block) Get(name string) *Directive {
 	if b == nil {
 		return nil
@@ -44,7 +40,6 @@ func (b *Block) Get(name string) *Directive {
 	return nil
 }
 
-// GetAll 全部同名指令
 func (b *Block) GetAll(name string) []*Directive {
 	if b == nil {
 		return nil
@@ -58,24 +53,20 @@ func (b *Block) GetAll(name string) []*Directive {
 	return out
 }
 
-// Has 是否存在同名指令
 func (b *Block) Has(name string) bool {
 	return b.Get(name) != nil
 }
 
-// Value 首个同名指令的首个参数
 func (b *Block) Value(name string) string {
 	return b.Get(name).Arg(0)
 }
 
-// Add 追加一条指令
 func (b *Block) Add(name string, args ...string) *Directive {
 	d := Dir(name, args...)
 	b.Nodes = append(b.Nodes, d)
 	return d
 }
 
-// AddBlock 追加一条带子块的指令
 func (b *Block) AddBlock(name string, args ...string) *Directive {
 	d := Blk(name, args...)
 	b.Nodes = append(b.Nodes, d)
@@ -114,7 +105,6 @@ func (b *Block) RemoveFunc(name string, pred func(*Directive) bool) int {
 	return count
 }
 
-// Filter 只保留满足条件的节点
 func (b *Block) Filter(keep func(Node) bool) {
 	if b == nil {
 		return
@@ -138,7 +128,6 @@ func (b *Block) GetBlock(name string, args ...string) *Directive {
 	return nil
 }
 
-// Blocks 全部带子块的同名指令
 func (b *Block) Blocks(name string) []*Directive {
 	var out []*Directive
 	for _, d := range b.GetAll(name) {
@@ -172,7 +161,6 @@ func (b *Block) Find(path string) []*Directive {
 	return out
 }
 
-// FindOne 点路径命中的首个指令
 func (b *Block) FindOne(path string) *Directive {
 	if ds := b.Find(path); len(ds) > 0 {
 		return ds[0]
@@ -180,7 +168,6 @@ func (b *Block) FindOne(path string) *Directive {
 	return nil
 }
 
-// FindBlocks 点路径命中的带子块指令
 func (b *Block) FindBlocks(path string) []*Directive {
 	var out []*Directive
 	for _, d := range b.Find(path) {
@@ -215,7 +202,6 @@ func (b *Block) Meta(key string) string {
 	return ""
 }
 
-// AddMeta 写入元数据注释
 func (b *Block) AddMeta(key, value string) {
 	b.Nodes = append(b.Nodes, &Comment{Text: " ace:" + key + " " + value})
 }

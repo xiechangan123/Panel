@@ -15,7 +15,6 @@ import (
 // redirectFilePattern 匹配重定向配置文件名 (100-199)
 var redirectFilePattern = regexp.MustCompile(`^(\d{3})-redirect\.conf$`)
 
-// parseRedirectFiles 从 site 目录解析所有重定向配置
 func parseRedirectFiles(siteDir string) ([]types.Redirect, error) {
 	entries, err := os.ReadDir(siteDir)
 	if err != nil {
@@ -53,7 +52,6 @@ func parseRedirectFiles(siteDir string) ([]types.Redirect, error) {
 	return redirects, nil
 }
 
-// parseRedirectFile 解析单个重定向配置文件为结构体（基于 AST 遍历）
 func parseRedirectFile(filePath string) (*types.Redirect, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
@@ -155,7 +153,6 @@ func parseRewriteStatus(flag string) int {
 	return 0
 }
 
-// writeRedirectFiles 将重定向配置写入文件
 func writeRedirectFiles(siteDir string, redirects []types.Redirect) error {
 	if err := clearRedirectFiles(siteDir); err != nil {
 		return err
@@ -176,7 +173,6 @@ func writeRedirectFiles(siteDir string, redirects []types.Redirect) error {
 	return nil
 }
 
-// clearRedirectFiles 清除所有重定向配置文件
 func clearRedirectFiles(siteDir string) error {
 	entries, err := os.ReadDir(siteDir)
 	if err != nil {
@@ -207,7 +203,6 @@ func clearRedirectFiles(siteDir string) error {
 	return nil
 }
 
-// generateRedirectConfig 构建重定向配置 AST 并序列化
 func generateRedirectConfig(redirect types.Redirect) string {
 	statusCode := redirect.StatusCode
 	if statusCode == 0 {

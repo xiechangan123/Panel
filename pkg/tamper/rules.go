@@ -39,7 +39,6 @@ func ExcludeMatches(ex, path string) bool {
 	return slices.Contains(strings.Split(path, string(os.PathSeparator)), ex)
 }
 
-// isExcluded 判断路径是否落在排除项内
 func isExcluded(path string, excludes []string) bool {
 	for _, ex := range excludes {
 		if ExcludeMatches(ex, path) {

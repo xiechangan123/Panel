@@ -1,6 +1,5 @@
 package types
 
-// RedirectType 重定向类型
 type RedirectType string
 
 const (
@@ -9,7 +8,6 @@ const (
 	RedirectTypeURL  RedirectType = "url"  // URL 重定向
 )
 
-// Redirect 重定向配置
 type Redirect struct {
 	Type       RedirectType `json:"type"`        // 重定向类型
 	From       string       `json:"from"`        // 源地址，如: "example.com", "http://example.com", "/old"

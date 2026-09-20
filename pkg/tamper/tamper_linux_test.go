@@ -33,7 +33,6 @@ func tryWrite(path string) bool {
 	return false
 }
 
-// chattrSupported 检测当前文件系统是否支持 immutable 属性
 func chattrSupported(dir string) bool {
 	p := filepath.Join(dir, ".chattr_probe")
 	if err := os.WriteFile(p, []byte("x"), 0644); err != nil {

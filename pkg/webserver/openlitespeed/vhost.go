@@ -14,22 +14,18 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// StaticVhost 纯静态虚拟主机
 type StaticVhost struct {
 	*baseVhost
 }
 
-// PHPVhost PHP 虚拟主机
 type PHPVhost struct {
 	*baseVhost
 }
 
-// ProxyVhost 反向代理虚拟主机
 type ProxyVhost struct {
 	*baseVhost
 }
 
-// baseVhost OpenLiteSpeed 虚拟主机基础实现
 // vhconf 由内存状态整体生成，加载时解析回来；监听与域名属于主配置的 listener，单独记在 listen 文件
 type baseVhost struct {
 	configDir string
@@ -52,7 +48,6 @@ type baseVhost struct {
 	redirects []types.Redirect
 }
 
-// newBaseVhost 创建基础虚拟主机实例
 func newBaseVhost(configDir string) (*baseVhost, error) {
 	if configDir == "" {
 		return nil, errors.New("config directory is required")
@@ -91,7 +86,6 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 	return v, nil
 }
 
-// NewStaticVhost 创建纯静态虚拟主机实例
 func NewStaticVhost(configDir string) (*StaticVhost, error) {
 	base, err := newBaseVhost(configDir)
 	if err != nil {
@@ -100,7 +94,6 @@ func NewStaticVhost(configDir string) (*StaticVhost, error) {
 	return &StaticVhost{baseVhost: base}, nil
 }
 
-// NewPHPVhost 创建 PHP 虚拟主机实例
 func NewPHPVhost(configDir string) (*PHPVhost, error) {
 	base, err := newBaseVhost(configDir)
 	if err != nil {
@@ -109,7 +102,6 @@ func NewPHPVhost(configDir string) (*PHPVhost, error) {
 	return &PHPVhost{baseVhost: base}, nil
 }
 
-// NewProxyVhost 创建反向代理虚拟主机实例
 func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 	base, err := newBaseVhost(configDir)
 	if err != nil {
@@ -117,8 +109,6 @@ func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 	}
 	return &ProxyVhost{baseVhost: base}, nil
 }
-
-// ========== 加载 ==========
 
 func (v *baseVhost) load(cfg *conf.Config) {
 	if root := cfg.Value("docRoot"); root != "" {
@@ -221,8 +211,6 @@ func (v *baseVhost) loadAuths(cfg *conf.Config) {
 		v.auths = append(v.auths, types.BasicAuth{Path: path, UserFile: userFile})
 	}
 }
-
-// ========== 核心方法 ==========
 
 func (v *baseVhost) Enable() bool {
 	_, err := os.Stat(filepath.Join(v.configDir, "site", "00-disable.conf"))
@@ -386,8 +374,6 @@ func (v *baseVhost) RemoveConfig(name string, scope types.ConfigScope) error {
 	return nil
 }
 
-// ========== SSL ==========
-
 func (v *baseVhost) SSL() bool {
 	return v.ssl != nil
 }
@@ -416,8 +402,6 @@ func (v *baseVhost) ClearSSL() error {
 	v.ssl = nil
 	return nil
 }
-
-// ========== 高级功能 ==========
 
 // RateLimit OLS 限速只有服务器级，站点级不支持
 func (v *baseVhost) RateLimit() *types.RateLimit {
@@ -468,8 +452,6 @@ func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
 	return nil
 }
 
-// ========== PHPVhost ==========
-
 func (v *PHPVhost) PHP() uint {
 	return v.php
 }
@@ -478,8 +460,6 @@ func (v *PHPVhost) SetPHP(version uint) error {
 	v.php = version
 	return nil
 }
-
-// ========== ProxyVhost ==========
 
 func (v *ProxyVhost) Proxies() []types.Proxy {
 	return v.proxies
@@ -508,8 +488,6 @@ func (v *ProxyVhost) ClearUpstreams() error {
 	v.upstreams = nil
 	return nil
 }
-
-// ========== 生成 ==========
 
 // build 由内存状态生成完整 vhconf
 func (v *baseVhost) build() *conf.Config {
@@ -760,8 +738,6 @@ func (v *baseVhost) buildListen() *conf.Config {
 	return cfg
 }
 
-// ========== 辅助 ==========
-
 type fragmentType int
 
 const (
@@ -772,7 +748,6 @@ const (
 
 var rewriteDirectivePattern = regexp.MustCompile(`(?i)^rewrite(rule|cond|base|engine|options|map)\b`)
 
-// fragmentKind 按内容判断片段类型
 func fragmentKind(content string) fragmentType {
 	kind := fragmentEmpty
 	for line := range strings.SplitSeq(content, "\n") {
@@ -806,7 +781,6 @@ func parseIfExists(path string) (*conf.Config, error) {
 	return ParseFile(path)
 }
 
-// splitList 拆分逗号分隔的值
 func splitList(value string) []string {
 	out := make([]string, 0)
 	for item := range strings.SplitSeq(value, ",") {

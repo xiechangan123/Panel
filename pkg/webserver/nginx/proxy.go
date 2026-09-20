@@ -66,7 +66,6 @@ func parseSize(s string) int64 {
 	return value * unit
 }
 
-// formatSize 用最大整除单位表示大小
 func formatSize(bytes int64) string {
 	for _, u := range []struct {
 		size   int64

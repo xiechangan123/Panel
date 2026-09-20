@@ -131,7 +131,6 @@ func cachedMountDevs() []mountDev {
 	return m
 }
 
-// refreshMountDevs 强制刷新缓存
 func refreshMountDevs() {
 	mountsMu.Lock()
 	mounts = loadMountDevs()

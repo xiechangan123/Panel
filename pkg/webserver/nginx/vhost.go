@@ -13,22 +13,18 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// StaticVhost 纯静态虚拟主机
 type StaticVhost struct {
 	*baseVhost
 }
 
-// PHPVhost PHP 虚拟主机
 type PHPVhost struct {
 	*baseVhost
 }
 
-// ProxyVhost 反向代理虚拟主机
 type ProxyVhost struct {
 	*baseVhost
 }
 
-// baseVhost Nginx 虚拟主机基础实现
 // 主文件解析成语法树后就地修改，用户手写的指令得以保留；保存时按 order 表排序输出
 type baseVhost struct {
 	cfg       *conf.Config
@@ -37,7 +33,6 @@ type baseVhost struct {
 	siteName  string
 }
 
-// newBaseVhost 创建基础虚拟主机实例
 func newBaseVhost(configDir string) (*baseVhost, error) {
 	if configDir == "" {
 		return nil, errors.New("config directory is required")
@@ -64,7 +59,6 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 	return v, nil
 }
 
-// NewStaticVhost 创建纯静态虚拟主机实例
 func NewStaticVhost(configDir string) (*StaticVhost, error) {
 	base, err := newBaseVhost(configDir)
 	if err != nil {
@@ -74,7 +68,6 @@ func NewStaticVhost(configDir string) (*StaticVhost, error) {
 	return &StaticVhost{baseVhost: base}, nil
 }
 
-// NewPHPVhost 创建 PHP 虚拟主机实例
 func NewPHPVhost(configDir string) (*PHPVhost, error) {
 	base, err := newBaseVhost(configDir)
 	if err != nil {
@@ -84,7 +77,6 @@ func NewPHPVhost(configDir string) (*PHPVhost, error) {
 	return &PHPVhost{baseVhost: base}, nil
 }
 
-// NewProxyVhost 创建反向代理虚拟主机实例
 func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 	base, err := newBaseVhost(configDir)
 	if err != nil {
@@ -294,7 +286,6 @@ func (v *baseVhost) SetErrorLog(errorLog string) error {
 	return v.SetConfig("020-error-log.conf", types.ScopeSite, "error_log "+errorLog+";\n")
 }
 
-// fragmentValue 取站点级片段中某条指令的首个参数
 func (v *baseVhost) fragmentValue(name, directive string) string {
 	cfg, err := Parse(v.Config(name, types.ScopeSite))
 	if err != nil {
@@ -348,8 +339,6 @@ func (v *baseVhost) RemoveConfig(name string, scope types.ConfigScope) error {
 	}
 	return nil
 }
-
-// ========== SSL ==========
 
 const (
 	hstsHeader     = "Strict-Transport-Security"
@@ -459,14 +448,11 @@ func (v *baseVhost) setHTTPSRedirect(enable bool) {
 	}
 }
 
-// hasReturnTo 块内是否有跳转到指定目标的 return
 func hasReturnTo(d *conf.Directive, target string) bool {
 	return slices.ContainsFunc(d.GetAll("return"), func(r *conf.Directive) bool {
 		return slices.Contains(r.Values(), target)
 	})
 }
-
-// ========== 高级功能 ==========
 
 func (v *baseVhost) RateLimit() *types.RateLimit {
 	limit := &types.RateLimit{}
@@ -600,8 +586,6 @@ func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
 	return writeRedirectFiles(filepath.Join(v.configDir, "site"), redirects)
 }
 
-// ========== PHPVhost ==========
-
 func (v *PHPVhost) PHP() uint {
 	content := v.Config("010-php.conf", types.ScopeSite)
 	idx := strings.Index(content, "php-cgi-")
@@ -633,8 +617,6 @@ func (v *PHPVhost) SetPHP(version uint) error {
 
 	return v.SetConfig("010-php.conf", types.ScopeSite, content)
 }
-
-// ========== ProxyVhost ==========
 
 func (v *ProxyVhost) Proxies() []types.Proxy {
 	return parseProxyFiles(filepath.Join(v.configDir, "site"))

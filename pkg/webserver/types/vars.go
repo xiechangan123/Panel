@@ -10,7 +10,6 @@ type VarMap struct {
 	toNginx  *strings.Replacer
 }
 
-// NewVarMap 由 nginx 变量到方言占位符的有序表构造双向映射
 func NewVarMap(pairs [][2]string) *VarMap {
 	native := make([]string, 0, len(pairs)*2)
 	nginx := make([]string, 0, len(pairs)*2)
@@ -26,12 +25,10 @@ func NewVarMap(pairs [][2]string) *VarMap {
 	return &VarMap{toNative: strings.NewReplacer(native...), toNginx: strings.NewReplacer(nginx...)}
 }
 
-// ToNative 面板存的 nginx 写法转成方言占位符
 func (m *VarMap) ToNative(value string) string {
 	return m.toNative.Replace(value)
 }
 
-// ToNginx 方言占位符转回 nginx 写法
 func (m *VarMap) ToNginx(value string) string {
 	return m.toNginx.Replace(value)
 }

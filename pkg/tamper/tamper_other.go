@@ -23,7 +23,6 @@ func EnableBPFLSMGrub(_ context.Context) error {
 	return errors.New("only supported on Linux")
 }
 
-// Manager 非 Linux 占位
 type Manager struct{}
 
 // NewManager 非 Linux 平台不支持
