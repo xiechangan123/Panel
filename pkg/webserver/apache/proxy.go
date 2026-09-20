@@ -287,8 +287,6 @@ func generateProxyConfig(proxy types.Proxy) string {
 		conf.Dir("ProxyPassReverse", location, pass),
 	)
 
-	// 未设置时与 nginx 的默认值 $proxy_host 一致，发上游主机名；Apache 默认 ProxyPreserveHost Off 即为此语义，
-	// 显式保留访客 Host 要在面板里把 Host 填成 $host
 	switch host := strings.TrimSpace(proxy.Host); host {
 	case "$host":
 		inner.Append(conf.Dir("ProxyPreserveHost", "On"))

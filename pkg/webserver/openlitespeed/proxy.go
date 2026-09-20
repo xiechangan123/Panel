@@ -159,8 +159,6 @@ func addProxyApp(ext *conf.Directive, address string, timeout int, buffering boo
 	ext.Add("respBuffer", map[bool]string{true: "1", false: "0"}[buffering])
 }
 
-// proxyHost 代理请求发往上游的 Host，未设置时与 nginx 的默认值 $proxy_host 一致，
-// 发上游主机名而不是访客 Host，否则按名字分流的外部站点会直接拒绝请求
 func proxyHost(p types.Proxy) string {
 	switch host := strings.TrimSpace(p.Host); host {
 	case "$host":
