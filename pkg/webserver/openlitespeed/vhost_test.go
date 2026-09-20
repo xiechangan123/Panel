@@ -334,3 +334,23 @@ func TestListenerNaming(t *testing.T) {
 	check.Equal(t, listenerAddress("0.0.0.0:8080"), "*:8080")
 	check.Equal(t, listenerName("[::]:443"), "ace_ip6_443")
 }
+
+// 代理站点上的子路径认证必须仍走代理，静态上下文会让该路径去磁盘找文件而 404
+func TestProxyAuthContext(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	must.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "/", Pass: "http://127.0.0.1:8080"}}))
+	must.NoError(t, vhost.SetBasicAuth([]types.BasicAuth{{Path: "/secret", UserFile: filepath.Join(configDir, "htpasswd_0")}}))
+	must.NoError(t, vhost.Save())
+
+	content := readConf(t, configDir)
+	_, secret, ok := strings.Cut(content, "context /secret/ {")
+	must.True(t, ok)
+	secret, _, _ = strings.Cut(secret, "\n}")
+	check.Contains(t, secret, "type                     proxy")
+	check.Contains(t, secret, "realm                    ")
+	check.NotContains(t, secret, "$DOC_ROOT")
+
+	check.DeepEqual(t, vhost.BasicAuth(), []types.BasicAuth{{Path: "/secret", UserFile: filepath.Join(configDir, "htpasswd_0")}}, cmpopts.EquateEmpty())
+}
