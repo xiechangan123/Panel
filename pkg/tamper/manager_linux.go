@@ -20,7 +20,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-const rescanInterval = 1 * time.Minute
+const rescanInterval = 5 * time.Minute
 
 type fileEntry struct {
 	path  string
@@ -644,8 +644,31 @@ func (m *Manager) Relock(paths []string) {
 			}
 		}
 	}
+	m.dropReplaced(entries)
 	m.remember(entries)
 	_ = m.eng.apply(entries)
+}
+
+// dropReplaced 摘掉这些路径上已经换掉的旧对象。集合按 (dev, inode) 下发到内核,
+// 只加不减的话旧 inode 会一直留着,被回收复用给别的文件就误拦到毫不相干的路径
+func (m *Manager) dropReplaced(entries []fileEntry) {
+	m.mu.RLock()
+	var stale []fileEntry
+	for _, e := range entries {
+		if old, ok := m.entries[e.path]; ok && !old.sameObject(e) {
+			stale = append(stale, old)
+		}
+	}
+	m.mu.RUnlock()
+
+	if len(stale) == 0 {
+		return
+	}
+	if err := m.eng.remove(stale); err != nil {
+		m.log.Warn("failed to drop replaced tamper entries", slog.Any("err", err))
+		return
+	}
+	m.forget(stale)
 }
 
 func (m *Manager) Stop() error {

@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 	"golang.org/x/sys/unix"
 
 	"github.com/acepanel/panel/v3/pkg/chattr"
@@ -264,4 +266,84 @@ func TestScanExcludeAndExt(t *testing.T) {
 		}
 	}
 	t.Log("扫描: 后缀过滤 + 排除目录 + inode 采集 + 重叠规则合并 ✓")
+}
+
+// fakeEngine 记录下发给内核的增删，用于断言集合的同步
+type fakeEngine struct {
+	applied []fileEntry
+	removed []fileEntry
+}
+
+func (e *fakeEngine) apply(entries []fileEntry) error {
+	e.applied = append(e.applied, entries...)
+	return nil
+}
+
+func (e *fakeEngine) remove(entries []fileEntry) error {
+	e.removed = append(e.removed, entries...)
+	return nil
+}
+
+func (e *fakeEngine) start() error         { return nil }
+func (e *fakeEngine) events() <-chan Event { return nil }
+func (e *fakeEngine) close() error         { return nil }
+
+// 同一路径换掉 inode 后旧的必须离开集合，否则它被回收复用给别的文件就会误拦
+func TestRelockDropsReplacedInode(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "index.php")
+	writeFile(t, path, "one")
+
+	eng := &fakeEngine{}
+	m := &Manager{
+		cfg:       Config{Rules: []Rule{{Paths: []string{dir}}}},
+		log:       newLogger(),
+		eng:       eng,
+		entries:   make(map[string]fileEntry),
+		inodePath: make(map[fileKey]string),
+	}
+
+	m.Relock([]string{path})
+	must.Len(t, m.entries, 1)
+	old := m.entries[path]
+	check.Equal(t, m.inodePath[fileKey{old.dev, old.inode}], path)
+
+	// 写临时文件再改名，面板保存文件就是这么做的，路径不变但换了 inode
+	tmp := path + ".tmp"
+	writeFile(t, tmp, "two")
+	must.NoError(t, os.Rename(tmp, path))
+
+	m.Relock([]string{path})
+
+	cur := m.entries[path]
+	must.False(t, cur.sameObject(old))
+	must.Len(t, eng.removed, 1)
+	check.True(t, eng.removed[0].sameObject(old))
+	check.Equal(t, m.inodePath[fileKey{cur.dev, cur.inode}], path)
+	// 旧 inode 不能再留在回填表里，否则内核里的陈旧条目也无从摘除
+	_, stale := m.inodePath[fileKey{old.dev, old.inode}]
+	check.False(t, stale)
+	check.Len(t, m.entries, 1)
+}
+
+// inode 没变时不该产生多余的摘除
+func TestRelockKeepsSameInode(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "index.php")
+	writeFile(t, path, "one")
+
+	eng := &fakeEngine{}
+	m := &Manager{
+		cfg:       Config{Rules: []Rule{{Paths: []string{dir}}}},
+		log:       newLogger(),
+		eng:       eng,
+		entries:   make(map[string]fileEntry),
+		inodePath: make(map[fileKey]string),
+	}
+
+	m.Relock([]string{path})
+	m.Relock([]string{path})
+
+	check.Empty(t, eng.removed)
+	check.Len(t, m.entries, 1)
 }
