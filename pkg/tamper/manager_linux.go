@@ -20,6 +20,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+const rescanInterval = 1 * time.Minute
+
 type fileEntry struct {
 	path  string
 	dev   uint64
@@ -289,11 +291,6 @@ func (m *Manager) Start() error {
 		slog.Int("dirs", st.ProtectedDirs))
 	return nil
 }
-
-// rescanInterval 存量对象的重扫周期。保护集合按 (dev, inode) 下发到内核，
-// 受保护文件被删除后 inode 会被回收，不及时摘除就会在新文件复用到同一 inode 时误拦，
-// 表现为毫不相干的路径连 root 都改不动
-const rescanInterval = 5 * time.Minute
 
 func (m *Manager) rescanLoop() {
 	ticker := time.NewTicker(rescanInterval)
