@@ -391,14 +391,7 @@ const handleSaveComposerMirror = async () => {
       </n-tab-pane>
       <n-tab-pane name="opcache" tab="OPcache">
         <n-flex vertical>
-          <n-alert v-if="lsapiTakeover && !opcache.enabled" type="info">
-            {{
-              $gettext(
-                'OPcache status is read through php-fpm, which stays stopped under LSAPI, so it cannot be shown here.',
-              )
-            }}
-          </n-alert>
-          <n-alert v-else-if="!opcache.enabled" type="info">
+          <n-alert v-if="!opcache.enabled" type="info">
             {{
               $gettext(
                 'OPcache is not enabled. Install the Zend OPcache module in Module Management to significantly improve PHP performance.',

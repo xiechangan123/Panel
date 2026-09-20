@@ -83,7 +83,7 @@ func syncPHP() error {
 			handler = "lsapi:" + name
 			children := fpmMaxChildren(version)
 			ext.Add("type", "lsapi")
-			ext.Add("address", fmt.Sprintf("uds://tmp/lshttpd/%s.sock", name))
+			ext.Add("address", "uds:/"+LSAPISocket(version))
 			ext.Add("maxConns", strconv.Itoa(children))
 			ext.Add("env", fmt.Sprintf("PHP_LSAPI_CHILDREN=%d", children))
 			ext.Add("env", "LSAPI_AVOID_FORK=200M")
@@ -114,6 +114,11 @@ func syncPHP() error {
 	}
 
 	return os.WriteFile(phpConf, []byte(Export(cfg)), 0600)
+}
+
+// LSAPISocket lsphp 监听的套接字
+func LSAPISocket(version uint) string {
+	return fmt.Sprintf("/tmp/lshttpd/php%d.sock", version)
 }
 
 // SyncFPM 按 LSAPI 的启用情况开停 php-fpm

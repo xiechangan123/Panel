@@ -25,9 +25,11 @@ import (
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/fastcgi"
 	"github.com/acepanel/panel/v3/pkg/io"
+	"github.com/acepanel/panel/v3/pkg/lsapi"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/webserver/openlitespeed"
 )
 
 type EnvironmentPHPService struct {
@@ -638,8 +640,9 @@ func (s *EnvironmentPHPService) ResetOpcache(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if _, err = os.Stat(s.phpFPMSocket(req.Version)); err != nil {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("php-fpm for PHP-%d is not running", req.Version))
+	socket, _ := s.probeSocket(req.Version)
+	if _, err = os.Stat(socket); err != nil {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d backend is not running", req.Version))
 		return
 	}
 
@@ -993,7 +996,9 @@ echo json_encode(function_exists('opcache_get_status') ? opcache_get_status(fals
 
 	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
-	return fastcgi.Request(timeoutCtx, "unix", s.phpFPMSocket(version), map[string]string{
+
+	socket, viaLSAPI := s.probeSocket(version)
+	params := map[string]string{
 		"SCRIPT_FILENAME":   probePath,
 		"SCRIPT_NAME":       "/acepanel_opcache_probe.php",
 		"REQUEST_METHOD":    "GET",
@@ -1004,7 +1009,12 @@ echo json_encode(function_exists('opcache_get_status') ? opcache_get_status(fals
 		"SERVER_ADDR":       "127.0.0.1",
 		"SERVER_PORT":       "80",
 		"SERVER_NAME":       "localhost",
-	})
+	}
+
+	if viaLSAPI {
+		return lsapi.Request(timeoutCtx, "unix", socket, params)
+	}
+	return fastcgi.Request(timeoutCtx, "unix", socket, params)
 }
 
 func (s *EnvironmentPHPService) composerMirror() string {
@@ -1033,4 +1043,12 @@ func (s *EnvironmentPHPService) composerMirror() string {
 
 func (s *EnvironmentPHPService) phpFPMSocket(version uint) string {
 	return fmt.Sprintf("/tmp/php-cgi-%d.sock", version)
+}
+
+// probeSocket 探针要连的套接字
+func (s *EnvironmentPHPService) probeSocket(version uint) (string, bool) {
+	if openlitespeed.LSAPIEnabled(version) {
+		return openlitespeed.LSAPISocket(version), true
+	}
+	return s.phpFPMSocket(version), false
 }
