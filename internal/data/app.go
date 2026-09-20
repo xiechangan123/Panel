@@ -225,6 +225,11 @@ func (r *appRepo) SaveCustom(ctx context.Context, slug string, custom *biz.AppCu
 }
 
 func (r *appRepo) PreCheck(app *api.App, catalog api.Apps) error {
+	// 没写依赖表达式的应用直接放行，空串在 expr 里是语法错误
+	if strings.TrimSpace(app.Depends) == "" {
+		return nil
+	}
+
 	var apps []string
 	var installed []string
 
@@ -243,6 +248,7 @@ func (r *appRepo) PreCheck(app *api.App, catalog api.Apps) error {
 	env := map[string]any{
 		"apps":      apps,
 		"installed": installed,
+		"self":      app.Slug, // 让同一互斥组的应用共用一条表达式
 	}
 	output, err := expr.Eval(app.Depends, env)
 	if err != nil {
