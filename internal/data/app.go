@@ -247,7 +247,9 @@ func (r *appRepo) PreCheck(app *api.App, catalog api.Apps) error {
 	env := map[string]any{
 		"apps":      apps,
 		"installed": installed,
-		"self":      app.Slug, // 让同一互斥组的应用共用一条表达式
+		// 同组互斥本可共用一条表达式，但旧版面板没有这个变量，缺失时会被当成 nil 而把自己算进冲突，
+		// 共享的应用目录里先别用，等最低面板版本能保证了再说
+		"self": app.Slug,
 	}
 	output, err := expr.Eval(app.Depends, env)
 	if err != nil {
