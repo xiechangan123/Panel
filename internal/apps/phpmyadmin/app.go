@@ -32,12 +32,6 @@ import (
 	webservertypes "github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// configDir phpMyAdmin 站点配置目录，由安装脚本按当前 Web 服务器写入。
-// app.Root 是启动时才赋值的，写成包级变量会在包初始化阶段拼出没有前缀的路径
-func configDir() string {
-	return app.Root + "/sites/phpmyadmin/config"
-}
-
 type App struct {
 	t                  *gotext.Locale
 	conf               *config.Config
@@ -103,7 +97,7 @@ func (s *App) info() (string, int, error) {
 	if err != nil {
 		return "", 0, err
 	}
-	vhost, err := d.NewPHPVhost(configDir())
+	vhost, err := d.NewPHPVhost(app.Root + "/sites/phpmyadmin/config")
 	if err != nil {
 		return "", 0, err
 	}
@@ -282,7 +276,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	vhost, err := d.NewPHPVhost(configDir())
+	vhost, err := d.NewPHPVhost(app.Root + "/sites/phpmyadmin/config")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -325,7 +319,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	config, err := io.Read(filepath.Join(configDir(), d.ConfigFile()))
+	config, err := io.Read(filepath.Join(app.Root, "sites/phpmyadmin/config", d.ConfigFile()))
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -346,7 +340,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Write(filepath.Join(configDir(), d.ConfigFile()), req.Config, 0600); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites/phpmyadmin/config", d.ConfigFile()), req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
