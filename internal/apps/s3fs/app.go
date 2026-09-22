@@ -159,7 +159,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Remove(ctx, "/etc/passwd-s3fs-"+cast.ToString(mount.ID)); err != nil {
+	if err = io.Remove("/etc/passwd-s3fs-" + cast.ToString(mount.ID)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

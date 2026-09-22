@@ -70,10 +70,11 @@ type FileRemoteDownload struct {
 }
 
 type FilePermission struct {
-	Path  string `form:"path" json:"path" validate:"required && unix_path"`
-	Mode  string `form:"mode" json:"mode" validate:"required"`
-	Owner string `form:"owner" json:"owner" validate:"required"`
-	Group string `form:"group" json:"group" validate:"required"`
+	Path      string `form:"path" json:"path" validate:"required && unix_path"`
+	Mode      string `form:"mode" json:"mode" validate:"required"`
+	Owner     string `form:"owner" json:"owner" validate:"required"`
+	Group     string `form:"group" json:"group" validate:"required"`
+	Recursive bool   `form:"recursive" json:"recursive"`
 }
 
 type FileCompress struct {

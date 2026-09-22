@@ -100,14 +100,14 @@ func (r *cronRepo) Dos2Unix(ctx context.Context, path string) error {
 
 // RemoveScriptFiles 清理脚本及关联的 .lock、_wrapper.sh 文件
 func (r *cronRepo) RemoveScriptFiles(ctx context.Context, shellPath string) error {
-	if err := io.Remove(ctx, shellPath); err != nil {
+	if err := io.Remove(shellPath); err != nil {
 		return err
 	}
 	// 清理 .lock 文件和 _wrapper.sh 文件
 	lockFile := strings.TrimSuffix(shellPath, ".sh") + ".lock"
-	_ = io.Remove(ctx, lockFile)
+	_ = io.Remove(lockFile)
 	wrapperFile := strings.TrimSuffix(shellPath, ".sh") + "_wrapper.sh"
-	_ = io.Remove(ctx, wrapperFile)
+	_ = io.Remove(wrapperFile)
 
 	return nil
 }
@@ -145,7 +145,7 @@ func (r *cronRepo) DeleteFromSystem(ctx context.Context, cron *biz.Cron) error {
 	// 清理秒级任务的 wrapper 条目和脚本
 	wrapperPath := strings.TrimSuffix(cron.Shell, ".sh") + "_wrapper.sh"
 	_, _ = shell.Execf(ctx, `( crontab -l | grep -v -F "%s" ) | crontab -`, wrapperPath)
-	_ = io.Remove(ctx, wrapperPath)
+	_ = io.Remove(wrapperPath)
 
 	// 清理普通任务的 crontab 条目
 	if _, err := shell.Execf(ctx, `( crontab -l | grep -v -F "%s >> %s 2>&1" ) | crontab -`, cron.Shell, cron.Log); err != nil {

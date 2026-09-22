@@ -2,48 +2,141 @@ package io
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/acepanel/panel/v3/pkg/chattr"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
-// Remove 删除文件/目录
-// 不响应取消：RemoveAll 无法中途停下，解锁被取消只会让删除撞上 immutable 文件半途失败
-func Remove(ctx context.Context, path string) error {
-	_, _ = shell.Execf(context.WithoutCancel(ctx), "chattr -R -ia '%s'", path)
+// Remove 撞上 +i/+a 属性时解锁子树重试
+func Remove(path string) error {
+	err := os.RemoveAll(path)
+	if !errors.Is(err, fs.ErrPermission) {
+		return err
+	}
+	unlockTree(path)
 	return os.RemoveAll(path)
 }
 
-// Chmod 修改文件/目录权限
-func Chmod(ctx context.Context, path string, permission os.FileMode) error {
-	return withUnlock(path, func() (string, error) {
-		return shell.Execf(ctx, "chmod -R '%o' '%s'", permission, path)
-	})
-}
-
-// Chown 修改文件或目录所有者
-func Chown(ctx context.Context, path, user, group string) error {
-	return withUnlock(path, func() (string, error) {
-		return shell.Execf(ctx, "chown -R '%s:%s' '%s'", user, group, path)
-	})
-}
-
-// withUnlock 执行 chmod/chown 等递归命令，若被 immutable/append 锁定文件（如 .user.ini）阻挡，
-// 则解锁后重试并在完成后恢复锁定属性
-func withUnlock(path string, run func() (string, error)) error {
-	_, err := run()
-	if err == nil || !strings.Contains(err.Error(), "Operation not permitted") {
+// Chmod 只改 path 自身，mode 是 chmod 命令的原始八进制值（可含 setuid/sticky 位）
+func Chmod(path string, mode os.FileMode) error {
+	info, err := os.Lstat(path)
+	if err != nil {
 		return err
 	}
-	locked := unlockAttr(path)
-	_, err = run()
-	relockAttr(locked)
-	return err
+	return applyEntry(path, info.Mode().Type(), chmodFn(mode))
+}
+
+// ChmodR 递归修改权限，跳过符号链接
+func ChmodR(ctx context.Context, path string, mode os.FileMode) error {
+	return walkApply(ctx, path, chmodFn(mode))
+}
+
+// Chown 只改 path 自身，owner/group 可为名称或数字 id
+func Chown(path, owner, group string) error {
+	fn, err := chownFn(owner, group)
+	if err != nil {
+		return err
+	}
+	info, err := os.Lstat(path)
+	if err != nil {
+		return err
+	}
+	return applyEntry(path, info.Mode().Type(), fn)
+}
+
+// ChownR 递归修改属主
+func ChownR(ctx context.Context, path, owner, group string) error {
+	fn, err := chownFn(owner, group)
+	if err != nil {
+		return err
+	}
+	return walkApply(ctx, path, fn)
+}
+
+type applyFunc func(path string, typ fs.FileMode) error
+
+func chmodFn(mode os.FileMode) applyFunc {
+	return func(path string, typ fs.FileMode) error {
+		if typ&os.ModeSymlink != 0 {
+			return nil
+		}
+		if err := syscall.Chmod(path, uint32(mode)); err != nil {
+			return &os.PathError{Op: "chmod", Path: path, Err: err}
+		}
+		return nil
+	}
+}
+
+func chownFn(owner, group string) (applyFunc, error) {
+	uid, err := lookupID(owner, func(name string) (string, error) {
+		u, err := user.Lookup(name)
+		if err != nil {
+			return "", err
+		}
+		return u.Uid, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	gid, err := lookupID(group, func(name string) (string, error) {
+		g, err := user.LookupGroup(name)
+		if err != nil {
+			return "", err
+		}
+		return g.Gid, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return func(path string, _ fs.FileMode) error {
+		return os.Lchown(path, uid, gid)
+	}, nil
+}
+
+func lookupID(name string, lookup func(string) (string, error)) (int, error) {
+	if id, err := strconv.Atoi(name); err == nil {
+		return id, nil
+	}
+	id, err := lookup(name)
+	if err != nil {
+		return 0, err
+	}
+	return strconv.Atoi(id)
+}
+
+// applyEntry 被 +i/+a 属性挡住时解锁重试并恢复
+func applyEntry(path string, typ fs.FileMode, fn applyFunc) error {
+	err := fn(path, typ)
+	if !errors.Is(err, fs.ErrPermission) {
+		return err
+	}
+	lf, ok := unlockEntry(path)
+	if !ok {
+		return err
+	}
+	defer relockAttr([]lockedFile{lf})
+	return fn(path, typ)
+}
+
+func walkApply(ctx context.Context, path string, fn applyFunc) error {
+	return filepath.WalkDir(path, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if err = ctx.Err(); err != nil {
+			return err
+		}
+		return applyEntry(p, d.Type(), fn)
+	})
 }
 
 type lockedFile struct {
@@ -51,35 +144,42 @@ type lockedFile struct {
 	attrs uint32
 }
 
-// unlockAttr 递归解除 path 下文件的 immutable/append 属性，返回解除记录用于后续恢复
-func unlockAttr(path string) []lockedFile {
+// unlockEntry 解除 +i/+a 属性并返回记录供恢复；只碰常规文件和目录，打开 FIFO 会阻塞、符号链接会跟到树外
+func unlockEntry(path string) (lockedFile, bool) {
+	info, err := os.Lstat(path)
+	if err != nil || (!info.Mode().IsRegular() && !info.IsDir()) {
+		return lockedFile{}, false
+	}
+	file, err := os.OpenFile(path, os.O_RDONLY, 0)
+	if err != nil {
+		return lockedFile{}, false
+	}
+	defer func() { _ = file.Close() }()
+	attrs, err := chattr.GetAttrs(file)
+	if err != nil {
+		return lockedFile{}, false
+	}
+	attrs &= chattr.FS_IMMUTABLE_FL | chattr.FS_APPEND_FL
+	if attrs == 0 || chattr.UnsetAttr(file, attrs) != nil {
+		return lockedFile{}, false
+	}
+	return lockedFile{path: path, attrs: attrs}, true
+}
+
+func unlockTree(path string) []lockedFile {
 	var locked []lockedFile
-	_ = filepath.WalkDir(path, func(p string, d os.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
-			return nil //nolint:nilerr
-		}
-		file, err := os.OpenFile(p, os.O_RDONLY, 0) //nolint:gosec
+	_ = filepath.WalkDir(path, func(p string, _ fs.DirEntry, err error) error {
 		if err != nil {
 			return nil //nolint:nilerr
 		}
-		var attrs uint32
-		if ok, _ := chattr.IsAttr(file, chattr.FS_IMMUTABLE_FL); ok {
-			attrs |= chattr.FS_IMMUTABLE_FL
+		if lf, ok := unlockEntry(p); ok {
+			locked = append(locked, lf)
 		}
-		if ok, _ := chattr.IsAttr(file, chattr.FS_APPEND_FL); ok {
-			attrs |= chattr.FS_APPEND_FL
-		}
-		if attrs != 0 {
-			_ = chattr.UnsetAttr(file, attrs)
-			locked = append(locked, lockedFile{path: p, attrs: attrs})
-		}
-		_ = file.Close()
 		return nil
 	})
 	return locked
 }
 
-// relockAttr 恢复 unlockAttr 解除的 immutable/append 属性
 func relockAttr(files []lockedFile) {
 	for _, f := range files {
 		file, err := os.OpenFile(f.path, os.O_RDONLY, 0)
@@ -107,32 +207,6 @@ func Empty(path string) bool {
 	return len(files) == 0
 }
 
-func Mv(ctx context.Context, src, dst string) error {
-	_, err := shell.Execf(ctx, `mv -f '%s' '%s'`, src, dst)
-	return err
-}
-
-// Cp 复制文件或目录（保留所有权和权限）
-func Cp(ctx context.Context, src, dst string) error {
-	_, err := shell.Execf(ctx, `cp -arf '%s' '%s'`, src, dst)
-	return err
-}
-
-// Size 获取路径大小
-func Size(path string) (int64, error) {
-	var size int64
-
-	err := filepath.Walk(path, func(filePath string, info os.FileInfo, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		size += info.Size()
-		return nil
-	})
-
-	return size, err
-}
-
 // IsDir 判断是否为目录
 func IsDir(path string) bool {
 	info, err := os.Stat(path)
@@ -142,9 +216,78 @@ func IsDir(path string) bool {
 	return info.IsDir()
 }
 
-// SizeX 获取路径大小（du命令）
-func SizeX(ctx context.Context, path string) (int64, error) {
-	out, err := shell.Execf(ctx, "du -sb '%s'", path)
+// isRealDir 不跟随符号链接的 IsDir
+func isRealDir(path string) bool {
+	info, err := os.Lstat(path)
+	return err == nil && info.IsDir()
+}
+
+// Mv 目标是最终落点而非父目录，已存在的目录会被合并
+func Mv(ctx context.Context, src, dst string) error {
+	if err := rename(src, dst); err == nil {
+		return nil
+	}
+	if isRealDir(src) && isRealDir(dst) {
+		return mergeDir(ctx, src, dst)
+	}
+	// 跨分区等 rename 做不到的交给 mv
+	_, err := shell.Execf(ctx, "mv -fT %s %s", shell.Quote(src), shell.Quote(dst))
+	return err
+}
+
+// rename 源或目标带 +i/+a（如 .user.ini）时 EPERM，解锁重试后把属性落到新路径
+func rename(src, dst string) error {
+	err := os.Rename(src, dst)
+	if !errors.Is(err, fs.ErrPermission) {
+		return err
+	}
+	var locked []lockedFile
+	for _, p := range []string{src, dst} {
+		if lf, ok := unlockEntry(p); ok {
+			locked = append(locked, lf)
+		}
+	}
+	if len(locked) == 0 {
+		return err
+	}
+	if err = os.Rename(src, dst); err != nil {
+		relockAttr(locked)
+		return err
+	}
+	var attrs uint32
+	for _, lf := range locked {
+		attrs |= lf.attrs
+	}
+	relockAttr([]lockedFile{{path: dst, attrs: attrs}})
+	return nil
+}
+
+// mergeDir 同名目录递归合并，其余条目直接覆盖
+func mergeDir(ctx context.Context, src, dst string) error {
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return err
+	}
+	for _, e := range entries {
+		if err = ctx.Err(); err != nil {
+			return err
+		}
+		if err = Mv(ctx, filepath.Join(src, e.Name()), filepath.Join(dst, e.Name())); err != nil {
+			return err
+		}
+	}
+	return os.Remove(src)
+}
+
+// Cp 语义同 Mv；--remove-destination 让目标是符号链接时替换链接本身，而不是顺着链接写别处的文件
+func Cp(ctx context.Context, src, dst string) error {
+	_, err := shell.Execf(ctx, "cp -a --remove-destination -T %s %s", shell.Quote(src), shell.Quote(dst))
+	return err
+}
+
+// Size 用 du 统计，硬链接只计一次
+func Size(ctx context.Context, path string) (int64, error) {
+	out, err := shell.Execf(ctx, "du -sb %s", shell.Quote(path))
 	if err != nil {
 		return 0, err
 	}
@@ -157,13 +300,15 @@ func SizeX(ctx context.Context, path string) (int64, error) {
 	return strconv.ParseInt(parts[0], 10, 64)
 }
 
-// CountX 统计目录下文件数
-func CountX(ctx context.Context, path string) (int64, error) {
-	out, err := shell.Execf(ctx, "find '%s' -printf '.'", path)
-	if err != nil {
-		return 0, err
-	}
-
-	count := len(out)
-	return int64(count), nil
+// Count 统计条目数，含目录与 path 本身
+func Count(ctx context.Context, path string) (int64, error) {
+	var n int64
+	err := filepath.WalkDir(path, func(_ string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		n++
+		return ctx.Err()
+	})
+	return n, err
 }

@@ -327,7 +327,7 @@ func (s *App) DeleteProxy(w http.ResponseWriter, r *http.Request) {
 
 	// 配置已删除，重启不跟随请求取消，否则代理仍在运行的 frpc 里生效
 	ctx := context.WithoutCancel(r.Context())
-	if err = io.Remove(ctx, itemPath(proxyPrefix, req.Name)); err != nil {
+	if err = io.Remove(itemPath(proxyPrefix, req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -414,7 +414,7 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.WithoutCancel(r.Context())
-	if err = io.Remove(ctx, itemPath(visitorPrefix, req.Name)); err != nil {
+	if err = io.Remove(itemPath(visitorPrefix, req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -227,7 +227,7 @@ func (s *App) existingServers(ctx context.Context, email string) (map[string]str
 // dumpExistingServers 通过 CLI 导出查询已注册服务器,直读配置库失败时的回退路径
 func (s *App) dumpExistingServers(ctx context.Context, email string) map[string]struct{} {
 	dump := filepath.Join(os.TempDir(), "pgadmin-servers.json")
-	defer func() { _ = io.Remove(ctx, dump) }()
+	defer func() { _ = io.Remove(dump) }()
 	_, _ = shell.Execf(ctx, "%s/cli dump-servers '%s' --user '%s'", s.path(), dump, email)
 
 	existing := make(map[string]struct{})
@@ -320,7 +320,7 @@ func (s *App) syncServers(ctx context.Context, email string) error {
 	}
 	if len(missing) > 0 {
 		load := filepath.Join(os.TempDir(), "pgadmin-servers-add.json")
-		defer func() { _ = io.Remove(ctx, load) }()
+		defer func() { _ = io.Remove(load) }()
 		payload, err := json.Marshal(serversFile{Servers: missing})
 		if err != nil {
 			return err
@@ -340,11 +340,8 @@ func (s *App) syncServers(ctx context.Context, email string) error {
 		return nil
 	}
 
-	// 常态路径仅写入了 pgpass,精确修正属主即可
-	if err = io.Chown(ctx, storageDir, "www", "www"); err != nil {
-		return err
-	}
-	return io.Chown(ctx, pgpass, "www", "www")
+	// 常态路径仅写入了 pgpass，修正其所在目录属主即可
+	return io.ChownR(ctx, storageDir, "www", "www")
 }
 
 // Login 同步面板全部 PostgreSQL 服务器后代理登录 pgAdmin 并将会话 Cookie 转发给浏览器
@@ -487,7 +484,7 @@ func (s *App) UpdateUsername(w http.ResponseWriter, r *http.Request) {
 
 	// 迁移服务器连接配置到新账号
 	dump := filepath.Join(os.TempDir(), "pgadmin-servers-migrate.json")
-	defer func() { _ = io.Remove(ctx, dump) }()
+	defer func() { _ = io.Remove(dump) }()
 	_, _ = shell.Execf(ctx, "%s/cli dump-servers '%s' --user '%s'", s.path(), dump, oldEmail)
 	if io.Exists(dump) {
 		_, _ = shell.Execf(ctx, "%s/cli load-servers '%s' --user '%s'", s.path(), dump, req.Username)

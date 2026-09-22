@@ -9,7 +9,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/io"
 )
 
 type EnvironmentJavaService struct {
@@ -36,7 +35,7 @@ func (s *EnvironmentJavaService) SetCli(w http.ResponseWriter, r *http.Request) 
 	}
 
 	binPath := fmt.Sprintf("%s/server/java/%s/bin", app.Root, req.Slug)
-	if err = io.LinkCLIBinaries(r.Context(), binPath, []string{"java", "javac", "jar", "jshell"}); err != nil {
+	if err = linkCLIBinaries(binPath, "java", "javac", "jar", "jshell"); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -43,8 +43,8 @@ export default {
   // 获取目录/文件大小
   size: (path: string): any => http.Get('/file/size', { params: { path } }),
   // 修改文件权限
-  permission: (path: string, mode: string, owner: string, group: string): any =>
-    http.Post('/file/permission', { path, mode, owner, group }),
+  permission: (path: string, mode: string, owner: string, group: string, recursive: boolean): any =>
+    http.Post('/file/permission', { path, mode, owner, group, recursive }),
   // 压缩文件
   compress: (dir: string, paths: string[], file: string): any =>
     http.Post('/file/compress', { dir, paths, file }),

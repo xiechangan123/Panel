@@ -12,6 +12,7 @@ import (
 	"github.com/libtnb/utils/str"
 
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 // ImagePullShell 生成拉取镜像的命令，需要认证时返回配套的清理命令
@@ -26,12 +27,12 @@ func ImagePullShell(sock string, req *request.ContainerImagePull) (string, strin
 	}
 
 	configDir := filepath.Join(os.TempDir(), "ace-docker-task-"+str.Random(16))
-	cleanup := "rm -rf " + shellQuote(configDir)
+	cleanup := "rm -rf " + shell.Quote(configDir)
 	shell := strings.Join([]string{
 		"set -e",
-		"mkdir -p " + shellQuote(configDir),
-		"trap " + shellQuote(cleanup) + " EXIT",
-		"printf %s " + shellQuote(req.Password) + " | " + Command(sock, "--config", configDir, "login", "--username", req.Username, "--password-stdin", reference.Domain(named)),
+		"mkdir -p " + shell.Quote(configDir),
+		"trap " + shell.Quote(cleanup) + " EXIT",
+		"printf %s " + shell.Quote(req.Password) + " | " + Command(sock, "--config", configDir, "login", "--username", req.Username, "--password-stdin", reference.Domain(named)),
 		Command(sock, "--config", configDir, "pull", req.Name),
 	}, "\n")
 
@@ -219,11 +220,7 @@ func mountSpec(source, target, option string) string {
 func Command(sock string, args ...string) string {
 	args = append([]string{"docker", "--host", sock}, args...)
 	for i := range args {
-		args[i] = shellQuote(args[i])
+		args[i] = shell.Quote(args[i])
 	}
 	return strings.Join(args, " ")
-}
-
-func shellQuote(value string) string {
-	return "'" + strings.ReplaceAll(value, "'", `'"'"'`) + "'"
 }

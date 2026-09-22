@@ -93,11 +93,11 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 
 	// 删模块与重启不跟随请求取消，否则配置已删而运行中的 rsyncd 仍在提供该模块
 	ctx := context.WithoutCancel(r.Context())
-	if err = io.Remove(ctx, modulePath(req.Name)); err != nil {
+	if err = io.Remove(modulePath(req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Remove(ctx, secretsPath(req.Name)); err != nil {
+	if err = io.Remove(secretsPath(req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

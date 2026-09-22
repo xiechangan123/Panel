@@ -19,7 +19,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/config"
-	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/tools"
 )
 
@@ -101,7 +100,7 @@ func (r *PanelTask) Run(ctx context.Context) error {
 	// 非离线模式下任务
 	if offline, err := r.settingRepo.GetBool(biz.SettingKeyOfflineMode); err == nil && !offline {
 		// 更新 IPDB 订阅
-		r.updateIPDB()
+		r.updateIPDB(ctx)
 		// 同步云端数据
 		r.updateCategories()
 		r.updateApps()
@@ -201,7 +200,7 @@ func (r *PanelTask) updatePanel(ctx context.Context) {
 }
 
 // updateIPDB 更新 IPDB 订阅文件
-func (r *PanelTask) updateIPDB() {
+func (r *PanelTask) updateIPDB(ctx context.Context) {
 	// 文件已存在时每周五更新，不存在则立即下载
 	destPath := filepath.Join(app.Root, "panel/storage/geo.ipdb")
 	if _, err := os.Stat(destPath); err == nil && time.Now().Weekday() != time.Friday {
@@ -217,7 +216,9 @@ func (r *PanelTask) updateIPDB() {
 		return
 	}
 
-	if err := io.DownloadFile(ipdbURL, destPath); err != nil {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
+	defer cancel()
+	if err := tools.DownloadFile(ctx, ipdbURL, destPath); err != nil {
 		r.log.Warn("failed to download ipdb", slog.String("url", ipdbURL), slog.Any("err", err))
 		return
 	}

@@ -196,8 +196,10 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 	// 订阅模式后台下载 IPDB
 	if req.IPDBType == "subscribe" && ipdbURL != "" {
 		go func() {
+			ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Minute)
+			defer cancel()
 			destPath := filepath.Join(app.Root, "panel/storage/geo.ipdb")
-			if err := io.DownloadFile(ipdbURL, destPath); err != nil {
+			if err := tools.DownloadFile(ctx, ipdbURL, destPath); err != nil {
 				uc.log.Warn("failed to download ipdb", slog.String("url", ipdbURL), slog.Any("err", err))
 			} else {
 				uc.log.Info("ipdb downloaded", slog.String("url", ipdbURL))

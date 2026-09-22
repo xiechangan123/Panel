@@ -280,6 +280,10 @@ func (s *WebsiteService) Create(w http.ResponseWriter, r *http.Request) {
 		req.Path, _ = s.settingRepo.Get(biz.SettingKeyWebsitePath)
 		req.Path = filepath.Join(req.Path, req.Name, "public")
 	}
+	if protectedPath(req.Path) {
+		Error(w, http.StatusForbidden, s.t.Get("please don't do this"))
+		return
+	}
 
 	if _, err = s.websiteRepo.Create(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -309,6 +313,10 @@ func (s *WebsiteService) Update(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.WebsiteUpdate](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if protectedPath(req.Path) {
+		Error(w, http.StatusForbidden, s.t.Get("please don't do this"))
 		return
 	}
 

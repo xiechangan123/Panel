@@ -304,11 +304,11 @@ func (s *App) DeleteProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Remove(ctx, confPath(name)); err != nil {
+	if err = io.Remove(confPath(name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Remove(ctx, logPath); err != nil {
+	if err = io.Remove(logPath); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

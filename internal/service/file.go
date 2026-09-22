@@ -26,7 +26,6 @@ import (
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/utils/file"
 	"github.com/samber/lo"
-	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -63,10 +62,12 @@ func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !req.Dir {
-		if _, err = shell.Execf(r.Context(), "touch %s", req.Path); err != nil {
+		f, err := stdos.OpenFile(req.Path, stdos.O_CREATE|stdos.O_WRONLY, 0644)
+		if err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
+		_ = f.Close()
 	} else {
 		if err = stdos.MkdirAll(req.Path, 0755); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
@@ -74,7 +75,7 @@ func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	s.setPermission(r.Context(), req.Path, 0755, "www", "www")
+	s.setPermission(req.Path, 0755, "www", "www")
 	Success(w, nil)
 }
 
@@ -288,6 +289,17 @@ func (s *FileService) Save(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+// protectedPath 面板所在路径及其祖先，不能删也不能当网站目录递归改权限
+func protectedPath(path string) bool {
+	path = filepath.Clean(path)
+	for _, p := range []string{app.Root, filepath.Join(app.Root, "server"), filepath.Join(app.Root, "panel")} {
+		if p == path || strings.HasPrefix(p, strings.TrimSuffix(path, "/")+"/") {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.FilePath](r)
 	if err != nil {
@@ -295,15 +307,14 @@ func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	banned := []string{"/", app.Root, filepath.Join(app.Root, "server"), filepath.Join(app.Root, "panel")}
-	if slices.Contains(banned, req.Path) {
+	if protectedPath(req.Path) {
 		Error(w, http.StatusForbidden, s.t.Get("please don't do this"))
 		return
 	}
 
 	// 解除防篡改保护后再删除
 	unlocked := s.tamperRepo.Unlock(req.Path)
-	if err = io.Remove(r.Context(), req.Path); err != nil {
+	if err = io.Remove(req.Path); err != nil {
 		if unlocked {
 			s.tamperRepo.Relock(req.Path)
 		}
@@ -354,7 +365,7 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
-	if err = s.replaceFile(r.Context(), tmp.Name(), req.Path); err != nil {
+	if err = s.replaceFile(tmp.Name(), req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
@@ -364,14 +375,14 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 
 // replaceFile 用临时文件原子替换目标文件；目标受防篡改保护时先解锁，替换后重新登记
 // rename 不会打开目标文件，覆盖运行中的二进制也不会遇到 ETXTBSY
-func (s *FileService) replaceFile(ctx context.Context, tmp, target string) error {
+func (s *FileService) replaceFile(tmp, target string) error {
 	if io.Exists(target) && s.tamperRepo.Unlock(target) {
 		defer s.tamperRepo.Relock(target)
 	}
 	if err := stdos.Rename(tmp, target); err != nil {
 		return err
 	}
-	s.setPermission(ctx, target, 0755, "www", "www")
+	s.setPermission(target, 0755, "www", "www")
 	return nil
 }
 
@@ -559,9 +570,9 @@ func (s *FileService) Info(w http.ResponseWriter, r *http.Request) {
 		"group":     os.GetGroup(stat.Gid),
 		"uid":       stat.Uid,
 		"gid":       stat.Gid,
-		"hidden":    io.IsHidden(info.Name()),
-		"symlink":   io.IsSymlink(info.Mode()),
-		"link":      io.GetSymlink(req.Path),
+		"hidden":    strings.HasPrefix(info.Name(), "."),
+		"symlink":   info.Mode()&stdos.ModeSymlink != 0,
+		"link":      readlink(req.Path),
 		"dir":       info.IsDir(),
 		"modify":    info.ModTime().Format(time.DateTime),
 		"immutable": immutable,
@@ -590,13 +601,13 @@ func (s *FileService) Size(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 计算目录大小
-	output, err := shell.Execf(r.Context(), "du -sb '%s' | awk '{print $1}'", req.Path)
+	size, err := io.Size(r.Context(), req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	Success(w, tools.FormatBytes(cast.ToFloat64(output)))
+	Success(w, tools.FormatBytes(float64(size)))
 }
 
 func (s *FileService) Permission(w http.ResponseWriter, r *http.Request) {
@@ -613,11 +624,14 @@ func (s *FileService) Permission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Chmod(r.Context(), req.Path, stdos.FileMode(mode)); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+	if req.Recursive {
+		if err = io.ChmodR(r.Context(), req.Path, stdos.FileMode(mode)); err == nil {
+			err = io.ChownR(r.Context(), req.Path, req.Owner, req.Group)
+		}
+	} else if err = io.Chmod(req.Path, stdos.FileMode(mode)); err == nil {
+		err = io.Chown(req.Path, req.Owner, req.Group)
 	}
-	if err = io.Chown(r.Context(), req.Path, req.Owner, req.Group); err != nil {
+	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -642,8 +656,8 @@ func (s *FileService) Compress(w http.ResponseWriter, r *http.Request) {
 	task.Key = "compress:" + req.File
 	task.Name = s.t.Get("Compress %v", filepath.Base(req.File))
 	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`%s && chmod 0755 '%s' && chown www:www '%s'`, cmd, req.File, req.File)
-	task.CancelShell = fmt.Sprintf(`rm -f '%s'`, req.File)
+	task.Shell = fmt.Sprintf("%s && chmod 0755 %s && chown www:www %s", cmd, shell.Quote(req.File), shell.Quote(req.File))
+	task.CancelShell = "rm -f " + shell.Quote(req.File)
 
 	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -670,9 +684,8 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 	task.Key = fmt.Sprintf("uncompress:%s:%s", req.File, req.Path)
 	task.Name = s.t.Get("Uncompress %v", filepath.Base(req.File))
 	task.Status = biz.TaskStatusWaiting
-	// 权限失败不影响任务结果：目标目录里可能有带不可变属性的文件（如 PHP 站点的 .user.ini），
-	// 用 && 串联时会让已经解压成功的任务报失败
-	task.Shell = fmt.Sprintf(`%s; chmod -R 0755 '%s'; chown -R www:www '%s'; true`, cmd, req.Path, req.Path)
+	// 目标里可能有 +i 的 .user.ini，单条目失败不能让整个任务报失败
+	task.Shell = fmt.Sprintf("%s; chmod -R 0755 %s; chown -R www:www %s; true", cmd, shell.Quote(req.Path), shell.Quote(req.Path))
 
 	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -689,19 +702,27 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var list []stdos.DirEntry
+	var entries []fileEntry
 	if req.Keyword != "" {
-		list, err = io.SearchX(r.Context(), req.Path, req.Keyword, req.Sub)
+		found, err := io.Search(r.Context(), req.Path, req.Keyword, req.Sub)
 		if err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
+		entries = lo.Map(found, func(e io.Entry, _ int) fileEntry { return fileEntry{path: e.Path, info: e.Info} })
 	} else {
-		list, err = stdos.ReadDir(req.Path)
+		list, err := stdos.ReadDir(req.Path)
 		if err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
+		entries = lo.FilterMap(list, func(d stdos.DirEntry, _ int) (fileEntry, bool) {
+			info, err := d.Info()
+			if err != nil {
+				return fileEntry{}, false
+			}
+			return fileEntry{path: filepath.Join(req.Path, d.Name()), info: info}, true
+		})
 	}
 
 	// 前缀 - 表示降序
@@ -712,21 +733,7 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		sortKey = strings.TrimPrefix(sortKey, "-")
 	}
 
-	// 获取文件信息用于排序
-	type entryWithInfo struct {
-		entry stdos.DirEntry
-		info  stdos.FileInfo
-	}
-	entriesWithInfo := lo.FilterMap(list, func(entry stdos.DirEntry, _ int) (entryWithInfo, bool) {
-		info, err := entry.Info()
-		if err != nil {
-			return entryWithInfo{}, false
-		}
-		return entryWithInfo{entry: entry, info: info}, true
-	})
-
-	// 排序
-	slices.SortFunc(entriesWithInfo, func(a, b entryWithInfo) int {
+	slices.SortFunc(entries, func(a, b fileEntry) int {
 		// 文件夹始终排在前面（除非按特定字段排序）
 		if sortKey == "" {
 			if a.info.IsDir() && !b.info.IsDir() {
@@ -740,13 +747,10 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		var order int
 		switch sortKey {
 		case "size":
-			// 按大小排序
 			order = cmp.Compare(a.info.Size(), b.info.Size())
 		case "modify":
-			// 按修改时间排序
 			order = a.info.ModTime().Compare(b.info.ModTime())
 		default:
-			// 默认按名称排序
 			order = strings.Compare(strings.ToLower(a.info.Name()), strings.ToLower(b.info.Name()))
 		}
 
@@ -756,13 +760,7 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		return order
 	})
 
-	// 转换回 DirEntry 列表
-	sortedList := make([]stdos.DirEntry, len(entriesWithInfo))
-	for i, e := range entriesWithInfo {
-		sortedList[i] = e.entry
-	}
-
-	paged, total := Paginate(r, s.formatDir(req.Path, sortedList))
+	paged, total := Paginate(r, s.formatEntries(entries))
 
 	Success(w, chix.M{
 		"total": total,
@@ -917,7 +915,7 @@ func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) 
 		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", targetPath))
 		return
 	}
-	if err = s.replaceFile(r.Context(), part, targetPath); err != nil {
+	if err = s.replaceFile(part, targetPath); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
@@ -943,18 +941,15 @@ func (s *FileService) ChunkUploadCancel(w http.ResponseWriter, r *http.Request) 
 	Success(w, nil)
 }
 
-// formatDir 格式化目录信息
-func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
-	var paths []any
-	for item := range slices.Values(entries) {
-		info, err := item.Info()
-		if err != nil {
-			continue // 直接跳过，不返回错误，不然很烦人的
-		}
-		if de, ok := item.(*io.SearchEntry); ok {
-			base = filepath.Dir(de.Path())
-		}
+type fileEntry struct {
+	path string
+	info stdos.FileInfo
+}
 
+func (s *FileService) formatEntries(entries []fileEntry) []any {
+	var paths []any
+	for e := range slices.Values(entries) {
+		info := e.info
 		// Linux 下 Sys() 必定是 *syscall.Stat_t
 		stat, ok := info.Sys().(*syscall.Stat_t)
 		if !ok {
@@ -967,16 +962,15 @@ func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 		}
 
 		// 检查是否有 immutable 属性
-		fullPath := filepath.Join(base, info.Name())
 		immutable := false
-		if f, err := stdos.OpenFile(fullPath, stdos.O_RDONLY, 0); err == nil {
+		if f, err := stdos.OpenFile(e.path, stdos.O_RDONLY, 0); err == nil {
 			immutable, _ = chattr.IsAttr(f, chattr.FS_IMMUTABLE_FL)
 			_ = f.Close()
 		}
 
 		paths = append(paths, map[string]any{
 			"name":      info.Name(),
-			"full":      fullPath,
+			"full":      e.path,
 			"size":      size,
 			"mode_str":  info.Mode().String(),
 			"mode":      fmt.Sprintf("%04o", info.Mode().Perm()),
@@ -984,9 +978,9 @@ func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 			"group":     os.GetGroup(stat.Gid),
 			"uid":       stat.Uid,
 			"gid":       stat.Gid,
-			"hidden":    io.IsHidden(info.Name()),
-			"symlink":   io.IsSymlink(info.Mode()),
-			"link":      io.GetSymlink(fullPath),
+			"hidden":    strings.HasPrefix(info.Name(), "."),
+			"symlink":   info.Mode()&stdos.ModeSymlink != 0,
+			"link":      readlink(e.path),
 			"dir":       info.IsDir(),
 			"modify":    info.ModTime().Format(time.DateTime),
 			"immutable": immutable,
@@ -996,12 +990,15 @@ func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 	return paths
 }
 
+func readlink(path string) string {
+	link, _ := stdos.Readlink(path)
+	return link
+}
+
 // setPermission 设置权限
-func (s *FileService) setPermission(ctx context.Context, path string, mode stdos.FileMode, owner, group string) {
-	// 文件已经落盘，属主权限必须补上，否则请求取消会留下 root 属主的文件
-	ctx = context.WithoutCancel(ctx)
-	_ = io.Chmod(ctx, path, mode)
-	_ = io.Chown(ctx, path, owner, group)
+func (s *FileService) setPermission(path string, mode stdos.FileMode, owner, group string) {
+	_ = io.Chmod(path, mode)
+	_ = io.Chown(path, owner, group)
 }
 
 // chunkTempPaths 分块上传的临时文件：同目录下的稀疏数据文件和位图文件

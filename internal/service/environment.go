@@ -2,6 +2,8 @@ package service
 
 import (
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
@@ -23,6 +25,18 @@ func NewEnvironmentService(environmentUsecase *biz.EnvironmentUsecase, taskUseca
 		environmentRepo: environmentUsecase,
 		taskRepo:        taskUsecase,
 	}
+}
+
+// linkCLIBinaries 软链接到 /usr/local/bin，已有的先删
+func linkCLIBinaries(binPath string, names ...string) error {
+	for _, name := range names {
+		link := filepath.Join("/usr/local/bin", name)
+		_ = os.Remove(link)
+		if err := os.Symlink(filepath.Join(binPath, name), link); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *EnvironmentService) Types(w http.ResponseWriter, r *http.Request) {

@@ -303,7 +303,7 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 	defer func() {
 		if err != nil {
 			_ = r.db.Delete(w).Error
-			_ = io.Remove(context.WithoutCancel(ctx), filepath.Join(app.Root, "sites", req.Name))
+			_ = io.Remove(filepath.Join(app.Root, "sites", req.Name))
 		}
 	}()
 
@@ -454,19 +454,19 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 	// sites/site_name/config 0600 root
 	// sites/site_name/log 0701 root
 	// sites/site_name/public 0755 www
-	if err = io.Chmod(ctx, filepath.Join(app.Root, "sites", req.Name), 0755); err != nil {
+	if err = io.ChmodR(ctx, filepath.Join(app.Root, "sites", req.Name), 0755); err != nil {
 		return nil, err
 	}
-	if err = io.Chmod(ctx, req.Path, 0755); err != nil {
+	if err = io.ChmodR(ctx, req.Path, 0755); err != nil {
 		return nil, err
 	}
-	if err = io.Chown(ctx, req.Path, "www", "www"); err != nil {
+	if err = io.ChownR(ctx, req.Path, "www", "www"); err != nil {
 		return nil, err
 	}
-	if err = io.Chmod(ctx, filepath.Join(app.Root, "sites", req.Name, "log"), 0701); err != nil {
+	if err = io.ChmodR(ctx, filepath.Join(app.Root, "sites", req.Name, "log"), 0701); err != nil {
 		return nil, err
 	}
-	if err = io.Chmod(ctx, filepath.Join(app.Root, "sites", req.Name, "config"), 0600); err != nil {
+	if err = io.ChmodR(ctx, filepath.Join(app.Root, "sites", req.Name, "config"), 0600); err != nil {
 		return nil, err
 	}
 
@@ -570,12 +570,12 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 	// 回滚需还原备份的配置目录，被取消会把站点配置留在中间态
 	restoreCtx := context.WithoutCancel(ctx)
 	if err = os.MkdirAll(filepath.Join(configDir, "site"), 0600); err != nil {
-		_ = io.Remove(restoreCtx, configDir)
+		_ = io.Remove(configDir)
 		_ = os.Rename(backupDir, configDir)
 		return nil, err
 	}
 	if err = os.MkdirAll(filepath.Join(configDir, "shared"), 0600); err != nil {
-		_ = io.Remove(restoreCtx, configDir)
+		_ = io.Remove(configDir)
 		_ = os.Rename(backupDir, configDir)
 		return nil, err
 	}
@@ -587,7 +587,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 	userIniPath := filepath.Join(setting.Root, ".user.ini")
 	oldUserIni, userIniErr := os.ReadFile(userIniPath)
 	if userIniErr != nil && !os.IsNotExist(userIniErr) {
-		_ = io.Remove(restoreCtx, configDir)
+		_ = io.Remove(configDir)
 		_ = os.Rename(backupDir, configDir)
 		return nil, userIniErr
 	}
@@ -595,7 +595,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 	databaseUpdated := false
 	restore := func(switchErr error) (*biz.Website, error) {
 		var restoreErr error
-		restoreErr = errors.Join(restoreErr, io.Remove(restoreCtx, configDir))
+		restoreErr = errors.Join(restoreErr, io.Remove(configDir))
 		restoreErr = errors.Join(restoreErr, os.Rename(backupDir, configDir))
 		if databaseUpdated {
 			restoreErr = errors.Join(restoreErr, r.db.Model(&biz.Website{}).Where("id = ?", website.ID).UpdateColumns(map[string]any{
@@ -605,7 +605,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 				"updated_at": oldUpdatedAt,
 			}).Error)
 		}
-		restoreErr = errors.Join(restoreErr, io.Remove(restoreCtx, userIniPath))
+		restoreErr = errors.Join(restoreErr, io.Remove(userIniPath))
 		if oldUserIniExists {
 			restoreErr = errors.Join(restoreErr, io.Write(userIniPath, string(oldUserIni), 0644))
 			if setting.OpenBasedir {
@@ -640,7 +640,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 	}
 
 	if oldType == biz.WebsiteTypePHP && targetType != biz.WebsiteTypePHP && setting.OpenBasedir {
-		if err = io.Remove(ctx, userIniPath); err != nil {
+		if err = io.Remove(userIniPath); err != nil {
 			return restore(err)
 		}
 	}
@@ -652,7 +652,7 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 		return nil, switchErr
 	}
 
-	_ = io.Remove(restoreCtx, backupDir)
+	_ = io.Remove(backupDir)
 	return website, nil
 }
 
@@ -727,9 +727,8 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 	if err = os.Rename(configDir, backupDir); err != nil {
 		return false, nil, err
 	}
-	restoreCtx := context.WithoutCancel(ctx)
 	restore := func(rebuildErr error) (bool, []string, error) {
-		removeErr := io.Remove(restoreCtx, configDir)
+		removeErr := io.Remove(configDir)
 		return false, nil, errors.Join(rebuildErr, removeErr, os.Rename(backupDir, configDir))
 	}
 	for _, scope := range []string{"site", "shared"} {
@@ -757,7 +756,7 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 		return restore(err)
 	}
 
-	_ = io.Remove(restoreCtx, backupDir)
+	_ = io.Remove(backupDir)
 	return true, notes, nil
 }
 
@@ -926,7 +925,7 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 			}
 			_, _ = shell.Execf(ctx, `chattr +i '%s'`, userIni)
 		} else if io.Exists(userIni) {
-			if err = io.Remove(ctx, userIni); err != nil {
+			if err = io.Remove(userIni); err != nil {
 				return err
 			}
 		}
@@ -982,7 +981,7 @@ func (r *websiteRepo) applyUpdate(ctx context.Context, req *request.WebsiteUpdat
 		}
 	}
 	// 基本认证：每条规则一个独立的 htpasswd 文件
-	r.removeBasicAuthFiles(ctx, website.Name)
+	r.removeBasicAuthFiles(website.Name)
 	auths := make([]webservertypes.BasicAuth, 0, len(req.BasicAuth))
 	for i, rule := range req.BasicAuth {
 		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, fmt.Sprintf("htpasswd_%d", i))
@@ -1046,12 +1045,12 @@ func (r *websiteRepo) GetForDelete(id uint) (*biz.Website, error) {
 
 func (r *websiteRepo) RemoveFiles(ctx context.Context, name string, removePath bool) error {
 	if removePath {
-		_ = io.Remove(ctx, filepath.Join(app.Root, "sites", name))
+		_ = io.Remove(filepath.Join(app.Root, "sites", name))
 	} else {
 		// 仅删除配置和日志
-		_ = io.Remove(ctx, filepath.Join(app.Root, "sites", name, "config"))
-		_ = io.Remove(ctx, filepath.Join(app.Root, "sites", name, "log"))
-		r.removeBasicAuthFiles(ctx, name)
+		_ = io.Remove(filepath.Join(app.Root, "sites", name, "config"))
+		_ = io.Remove(filepath.Join(app.Root, "sites", name, "log"))
+		r.removeBasicAuthFiles(name)
 	}
 	return nil
 }
@@ -1142,7 +1141,7 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 	// 配置目录是删掉重建的，中途取消会让站点配置凭空消失且无处可恢复，这段不可取消
 	resetCtx := context.WithoutCancel(ctx)
 	if website.Type == biz.WebsiteTypePHP {
-		if err = io.Remove(resetCtx, filepath.Join(setting.Root, ".user.ini")); err != nil {
+		if err = io.Remove(filepath.Join(setting.Root, ".user.ini")); err != nil {
 			return err
 		}
 	}
@@ -1152,7 +1151,7 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 		return err
 	}
 	restore := func(resetErr error) error {
-		return errors.Join(resetErr, io.Remove(resetCtx, configDir), os.Rename(backupDir, configDir))
+		return errors.Join(resetErr, io.Remove(configDir), os.Rename(backupDir, configDir))
 	}
 	for _, scope := range []string{"site", "shared"} {
 		if err = os.MkdirAll(filepath.Join(configDir, scope), 0600); err != nil {
@@ -1178,10 +1177,10 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 	if err = vhost.Save(); err != nil {
 		return restore(err)
 	}
-	if err = io.Chmod(resetCtx, configDir, 0600); err != nil {
+	if err = io.ChmodR(resetCtx, configDir, 0600); err != nil {
 		return restore(err)
 	}
-	_ = io.Remove(resetCtx, backupDir)
+	_ = io.Remove(backupDir)
 
 	return r.ReloadWebServer(resetCtx)
 }
@@ -1473,10 +1472,10 @@ func (r *websiteRepo) readBasicAuthUsers(htpasswdPath string) map[string]string 
 }
 
 // removeBasicAuthFiles 删除站点的所有 htpasswd 文件
-func (r *websiteRepo) removeBasicAuthFiles(ctx context.Context, siteName string) {
+func (r *websiteRepo) removeBasicAuthFiles(siteName string) {
 	matches, _ := filepath.Glob(filepath.Join(app.Root, "sites", siteName, "htpasswd*"))
 	for _, match := range matches {
-		_ = io.Remove(ctx, match)
+		_ = io.Remove(match)
 	}
 }
 

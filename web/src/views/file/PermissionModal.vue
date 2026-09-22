@@ -12,6 +12,7 @@ const selected = computed(() => fileStore.activeTab?.selected ?? [])
 const mode = ref('755')
 const owner = ref('www')
 const group = ref('www')
+const recursive = ref(false)
 
 const checkbox = ref({
   owner: ['read', 'write', 'execute'],
@@ -32,6 +33,7 @@ watch(
   () => show.value,
   (newVal) => {
     if (!newVal || !selected.value.length) return
+    recursive.value = false
     useRequest(file.info(selected.value[0]!)).onSuccess(({ data }) => {
       mode.value = normalizeMode(data.mode)
       owner.value = data.owner || 'www'
@@ -44,7 +46,7 @@ watch(
 const handlePermission = async () => {
   // allSettled 保证部分失败时也刷新列表，失败的错误弹窗由全局拦截器负责
   const results = await Promise.allSettled(
-    selected.value.map((path) => file.permission(path, `0${mode.value}`, owner.value, group.value)),
+    selected.value.map((path) => file.permission(path, `0${mode.value}`, owner.value, group.value, recursive.value)),
   )
 
   window.$bus.emit('file:refresh')
@@ -151,6 +153,11 @@ watch(mode, updateCheckboxes, { immediate: true })
         </n-form-item>
         <n-form-item :label="$gettext('Group')">
           <n-input v-model:value="group" />
+        </n-form-item>
+        <n-form-item :show-label="false">
+          <n-checkbox v-model:checked="recursive">
+            {{ $gettext('Apply to all files and subdirectories') }}
+          </n-checkbox>
         </n-form-item>
       </n-form>
       <n-button type="primary" @click="handlePermission"> {{ $gettext('Modify') }} </n-button>

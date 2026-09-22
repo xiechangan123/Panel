@@ -129,11 +129,11 @@ func (l *Local) fullPath(path string) string {
 }
 
 func (l *Local) preCheckPath(ctx context.Context, path string) error {
-	size, err := pkgio.SizeX(ctx, path)
+	size, err := pkgio.Size(ctx, path)
 	if err != nil {
 		return err
 	}
-	files, err := pkgio.CountX(ctx, path)
+	files, err := pkgio.Count(ctx, path)
 	if err != nil {
 		return err
 	}

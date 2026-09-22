@@ -194,7 +194,7 @@ func (r *appRepo) SaveCustom(ctx context.Context, slug string, custom *biz.AppCu
 	dir := customDir(slug)
 	// 全部为空时直接清理目录
 	if strings.TrimSpace(custom.PreScript) == "" && strings.TrimSpace(custom.Args) == "" {
-		return io.Remove(ctx, dir)
+		return io.Remove(dir)
 	}
 
 	if err := os.MkdirAll(dir, 0700); err != nil {
@@ -202,7 +202,7 @@ func (r *appRepo) SaveCustom(ctx context.Context, slug string, custom *biz.AppCu
 	}
 	pre := filepath.Join(dir, "pre.sh")
 	if strings.TrimSpace(custom.PreScript) == "" {
-		if err := io.Remove(ctx, pre); err != nil {
+		if err := io.Remove(pre); err != nil {
 			return err
 		}
 	} else {
@@ -212,7 +212,7 @@ func (r *appRepo) SaveCustom(ctx context.Context, slug string, custom *biz.AppCu
 	}
 	args := filepath.Join(dir, "args")
 	if strings.TrimSpace(custom.Args) == "" {
-		if err := io.Remove(ctx, args); err != nil {
+		if err := io.Remove(args); err != nil {
 			return err
 		}
 	} else {

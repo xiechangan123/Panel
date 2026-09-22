@@ -228,7 +228,7 @@ func (r *backupRepo) CreatePanel(ctx context.Context) error {
 	); err != nil {
 		return err
 	}
-	if err := io.Chmod(ctx, tmp, 0600); err != nil {
+	if err := io.Chmod(tmp, 0600); err != nil {
 		return err
 	}
 	if err := os.Rename(tmp, backup); err != nil {
@@ -248,7 +248,7 @@ func (r *backupRepo) Delete(ctx context.Context, typ biz.BackupType, name string
 	path := r.GetDefaultPath(typ)
 
 	file := filepath.Join(path, name)
-	if err := io.Remove(ctx, file); err != nil {
+	if err := io.Remove(file); err != nil {
 		return err
 	}
 
@@ -911,16 +911,11 @@ func (r *backupRepo) restoreWebsite(ctx context.Context, backup, target string) 
 		fmt.Println(r.t.Get("|-Website path: %s", website.Path))
 		fmt.Println(r.t.Get("|-Uncompressing backup..."))
 	}
-	cmd, err := io.UnCompressShell(backup, stage)
-	if err != nil {
-		return err
-	}
-	if _, err = shell.Exec(ctx, cmd); err != nil {
+	if err = io.UnCompress(ctx, backup, stage); err != nil {
 		return err
 	}
 
-	// 解压命令容忍单条目失败（如 .user.ini 带 chattr +i），这里用产物非空兜底，
-	// 避免归档损坏或磁盘写满时清空网站却报告成功
+	// 空包不能拿去替换站点
 	entries, err := os.ReadDir(stage)
 	if err != nil {
 		return err
@@ -939,7 +934,7 @@ func (r *backupRepo) restoreWebsite(ctx context.Context, backup, target string) 
 	}
 	// 站点目录已删、暂存产物还没就位时被取消，会连 defer 一起把还原内容也清掉，这段不可取消
 	replaceCtx := context.WithoutCancel(ctx)
-	if err = io.Remove(replaceCtx, website.Path); err != nil {
+	if err = io.Remove(website.Path); err != nil {
 		return err
 	}
 	if err = os.Rename(content, website.Path); err != nil {
@@ -949,10 +944,10 @@ func (r *backupRepo) restoreWebsite(ctx context.Context, backup, target string) 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Fixing file permissions..."))
 	}
-	if err = io.Chmod(replaceCtx, website.Path, 0755); err != nil {
+	if err = io.ChmodR(replaceCtx, website.Path, 0755); err != nil {
 		return err
 	}
-	if err = io.Chown(replaceCtx, website.Path, "www", "www"); err != nil {
+	if err = io.ChownR(replaceCtx, website.Path, "www", "www"); err != nil {
 		return err
 	}
 
@@ -1298,8 +1293,8 @@ func (r *backupRepo) restoreRedisLike(ctx context.Context, backup, kind string) 
 	}
 
 	// 清理旧 AOF（多部件目录与旧式单文件），避免 AOF 优先于 RDB 被加载
-	_ = io.Remove(restoreCtx, filepath.Join(conf.dataDir, "appendonlydir"))
-	_ = io.Remove(restoreCtx, filepath.Join(conf.dataDir, "appendonly.aof"))
+	_ = io.Remove(filepath.Join(conf.dataDir, "appendonlydir"))
+	_ = io.Remove(filepath.Join(conf.dataDir, "appendonly.aof"))
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Replacing dump.rdb..."))
@@ -1310,8 +1305,8 @@ func (r *backupRepo) restoreRedisLike(ctx context.Context, backup, kind string) 
 		_ = systemctl.Start(restoreCtx, conf.kind) // 尽力恢复服务
 		return err
 	}
-	_ = io.Chown(restoreCtx, target, kind, kind)
-	_ = io.Chmod(restoreCtx, target, 0640)
+	_ = io.Chown(target, kind, kind)
+	_ = io.Chmod(target, 0640)
 
 	// 若原本开启 AOF，必须先以 appendonly no 启动加载 RDB，否则会建空 AOF 以空库覆盖
 	if conf.appendonly {
@@ -1681,7 +1676,7 @@ func (r *backupRepo) FixPanel(ctx context.Context) error {
 	// 删除损坏的辅助数据库（会自动重建）
 	for _, name := range brokenAuxDBs {
 		dbPath := filepath.Join(app.Root, "panel", "storage", name+".db")
-		if removeErr := io.Remove(ctx, dbPath); removeErr != nil {
+		if removeErr := io.Remove(dbPath); removeErr != nil {
 			return errors.New(r.t.Get("Failed to remove %s.db: %v", name, removeErr))
 		}
 		if app.IsCli {
@@ -1737,7 +1732,7 @@ func (r *backupRepo) restorePanel(ctx context.Context, backup string) error {
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Unzip backup file..."))
 	}
-	if err := io.Remove(ctx, "/tmp/panel-fix"); err != nil {
+	if err := io.Remove("/tmp/panel-fix"); err != nil {
 		return errors.New(r.t.Get("Cleaning temporary directory failed: %v", err))
 	}
 	if err := io.UnCompress(ctx, backup, "/tmp/panel-fix"); err != nil {
@@ -1752,18 +1747,18 @@ func (r *backupRepo) restorePanel(ctx context.Context, backup string) error {
 		// 整体替换 panel 目录前先保住自定义编译参数
 		customize := filepath.Join(app.Root, "panel", "storage", "customize")
 		keep := filepath.Join(app.Root, ".customize-keep")
-		_ = io.Remove(ctx, keep)
+		_ = io.Remove(keep)
 		if io.Exists(customize) {
 			_ = io.Mv(ctx, customize, keep)
 		}
-		if err := io.Remove(ctx, filepath.Join(app.Root, "panel")); err != nil {
+		if err := io.Remove(filepath.Join(app.Root, "panel")); err != nil {
 			return errors.New(r.t.Get("Remove panel file failed: %v", err))
 		}
-		if err := io.Mv(ctx, filepath.Join("/tmp/panel-fix", "panel"), filepath.Clean(app.Root)); err != nil {
+		if err := io.Mv(ctx, filepath.Join("/tmp/panel-fix", "panel"), filepath.Join(app.Root, "panel")); err != nil {
 			return errors.New(r.t.Get("Move panel file failed: %v", err))
 		}
 		if io.Exists(keep) {
-			_ = io.Remove(ctx, customize)
+			_ = io.Remove(customize)
 			_ = io.Mv(ctx, keep, customize)
 		}
 	}
@@ -1784,23 +1779,23 @@ func (r *backupRepo) restorePanel(ctx context.Context, backup string) error {
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Set key file permissions..."))
 	}
-	if err := io.Chmod(ctx, filepath.Join(app.Root, "panel", "storage", "config.yml"), 0600); err != nil {
+	if err := io.ChmodR(ctx, filepath.Join(app.Root, "panel"), 0700); err != nil {
 		return err
 	}
-	if err := io.Chmod(ctx, filepath.Join(app.Root, "panel", "storage", "panel.db"), 0600); err != nil {
+	if err := io.Chmod(filepath.Join(app.Root, "panel", "storage", "config.yml"), 0600); err != nil {
 		return err
 	}
-	if err := io.Chmod(ctx, "/etc/systemd/system/acepanel.service", 0644); err != nil {
+	if err := io.Chmod(filepath.Join(app.Root, "panel", "storage", "panel.db"), 0600); err != nil {
 		return err
 	}
-	if err := io.Chmod(ctx, "/usr/local/sbin/acepanel", 0700); err != nil {
+	if err := io.Chmod("/etc/systemd/system/acepanel.service", 0644); err != nil {
 		return err
 	}
-	if err := io.Chmod(ctx, filepath.Join(app.Root, "panel"), 0700); err != nil {
+	if err := io.Chmod("/usr/local/sbin/acepanel", 0700); err != nil {
 		return err
 	}
 
-	if err := io.Remove(ctx, "/tmp/panel-fix"); err != nil {
+	if err := io.Remove("/tmp/panel-fix"); err != nil {
 		return err
 	}
 
@@ -1831,7 +1826,7 @@ func (r *backupRepo) UpdatePanel(ctx context.Context, version, url, checksum str
 
 	// 失败回滚
 	rollback := func(err error) error {
-		_ = io.Remove(ctx, workDir)
+		_ = io.Remove(workDir)
 		app.Status = app.StatusNormal
 		return err
 	}
@@ -1839,7 +1834,7 @@ func (r *backupRepo) UpdatePanel(ctx context.Context, version, url, checksum str
 	app.Status = app.StatusUpgrade
 
 	progress(r.t.Get("Preparing to update to %s...", version))
-	if err := io.Remove(ctx, workDir); err != nil {
+	if err := io.Remove(workDir); err != nil {
 		return rollback(errors.New(r.t.Get("Failed to clean up temporary directory: %v", err)))
 	}
 	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
@@ -1897,7 +1892,7 @@ func (r *backupRepo) UpdatePanel(ctx context.Context, version, url, checksum str
 		return rollback(errors.New(r.t.Get("Finishing update failed: %v", err)))
 	}
 
-	_ = io.Remove(applyCtx, workDir)
+	_ = io.Remove(workDir)
 	r.log.Info("panel updated", slog.String("version", version))
 	progress(r.t.Get("Update completed"))
 
@@ -1953,7 +1948,7 @@ func (r *backupRepo) finishUpdate(ctx context.Context, version string) error {
 			_ = io.Mv(ctx, tmpService, serviceFile) // 同在 /etc/systemd/system → 同分区 rename
 		}
 	}
-	_ = io.Remove(ctx, tmpService)
+	_ = io.Remove(tmpService)
 	if !io.Exists(serviceFile) {
 		return errors.New(r.t.Get("panel service file is missing"))
 	}
@@ -1972,10 +1967,10 @@ func (r *backupRepo) finishUpdate(ctx context.Context, version string) error {
 	}
 
 	// 设置权限
-	_ = io.Chmod(ctx, filepath.Join(panelDir, "ace"), 0700)
-	_ = io.Chmod(ctx, "/usr/local/sbin/acepanel", 0700)
-	_ = io.Chmod(ctx, serviceFile, 0644)
-	_ = io.Remove(ctx, filepath.Join(panelDir, "config.example.yml"))
+	_ = io.Chmod(filepath.Join(panelDir, "ace"), 0700)
+	_ = io.Chmod("/usr/local/sbin/acepanel", 0700)
+	_ = io.Chmod(serviceFile, 0644)
+	_ = io.Remove(filepath.Join(panelDir, "config.example.yml"))
 
 	// 修正可能从 staging 继承的错误 SELinux 上下文
 	_, _ = shell.Execf(ctx, "restorecon %s /usr/local/sbin/acepanel %s", filepath.Join(panelDir, "ace"), serviceFile)

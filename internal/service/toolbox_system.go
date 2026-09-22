@@ -119,7 +119,7 @@ func (s *ToolboxSystemService) UpdateSWAP(w http.ResponseWriter, r *http.Request
 				Error(w, http.StatusInternalServerError, "%v", err)
 				return
 			}
-			if err = io.Chmod(ctx, filepath.Join(app.Root, "swap"), 0600); err != nil {
+			if err = io.Chmod(filepath.Join(app.Root, "swap"), 0600); err != nil {
 				Error(w, http.StatusInternalServerError, s.t.Get("failed to set SWAP permission: %v", err))
 				return
 			}

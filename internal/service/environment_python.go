@@ -10,7 +10,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
@@ -38,7 +37,7 @@ func (s *EnvironmentPythonService) SetCli(w http.ResponseWriter, r *http.Request
 	}
 
 	binPath := fmt.Sprintf("%s/server/python/%s/bin", app.Root, req.Slug)
-	if err = io.LinkCLIBinaries(r.Context(), binPath, []string{"python3", "pip3"}); err != nil {
+	if err = linkCLIBinaries(binPath, "python3", "pip3"); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

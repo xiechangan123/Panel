@@ -196,13 +196,13 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 
 	// 规则与配套过滤器要一起删掉，中途取消会留下孤立的过滤器文件
 	ctx := context.WithoutCancel(r.Context())
-	if err = io.Remove(ctx, jailPath(jail.Name)); err != nil {
+	if err = io.Remove(jailPath(jail.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	// 面板生成的过滤器随规则一起删除，fail2ban 自带的保留
 	if strings.HasPrefix(jail.Filter, panelFilterPrefix) {
-		if err = io.Remove(ctx, filterPath(jail.Filter)); err != nil {
+		if err = io.Remove(filterPath(jail.Filter)); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
