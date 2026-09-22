@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -35,16 +34,12 @@ func newCmd(ctx context.Context, shell string) *exec.Cmd {
 	return cmd
 }
 
-// buildShell 校验参数并格式化命令
-func buildShell(format string, args ...any) (string, error) {
-	if !preCheckArg(args) {
-		return "", errors.New("command contains illegal characters")
-	}
+// buildShell 格式化命令，参数由调用方用 Quote 处理
+func buildShell(format string, args ...any) string {
 	if len(args) == 0 {
-		return format, nil
+		return format
 	}
-
-	return fmt.Sprintf(format, args...), nil
+	return fmt.Sprintf(format, args...)
 }
 
 // runBuffered 执行命令并返回 stdout，失败时附带 stderr
@@ -67,20 +62,14 @@ func Exec(ctx context.Context, shell string) (string, error) {
 
 // Execf 按格式串拼出 shell 命令后执行
 func Execf(ctx context.Context, format string, args ...any) (string, error) {
-	shell, err := buildShell(format, args...)
-	if err != nil {
-		return "", err
-	}
+	shell := buildShell(format, args...)
 
 	return Exec(ctx, shell)
 }
 
 // ExecfWithEnv 安全执行 shell 命令，环境变量仅注入子进程
 func ExecfWithEnv(ctx context.Context, env []string, format string, args ...any) (string, error) {
-	shell, err := buildShell(format, args...)
-	if err != nil {
-		return "", err
-	}
+	shell := buildShell(format, args...)
 
 	cmd := newCmd(ctx, shell)
 	ApplyEnv(cmd, env...)
@@ -90,10 +79,7 @@ func ExecfWithEnv(ctx context.Context, env []string, format string, args ...any)
 
 // ExecfWithDir 在指定目录下执行 shell 命令
 func ExecfWithDir(ctx context.Context, dir, format string, args ...any) (string, error) {
-	shell, err := buildShell(format, args...)
-	if err != nil {
-		return "", err
-	}
+	shell := buildShell(format, args...)
 
 	cmd := newCmd(ctx, shell)
 	cmd.Dir = dir
@@ -103,10 +89,7 @@ func ExecfWithDir(ctx context.Context, dir, format string, args ...any) (string,
 
 // ExecfWithTimeout 执行 shell 命令并设置超时时间，ctx 取消或超时到期均终止进程
 func ExecfWithTimeout(ctx context.Context, timeout time.Duration, format string, args ...any) (string, error) {
-	shell, err := buildShell(format, args...)
-	if err != nil {
-		return "", err
-	}
+	shell := buildShell(format, args...)
 
 	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
@@ -124,17 +107,14 @@ func ExecfWithTimeout(ctx context.Context, timeout time.Duration, format string,
 // 异步即命令要活过调用方，入口断开取消链，否则 sleep 1 && systemctl restart acepanel 这类自杀式操作
 // 会在 HTTP 响应写完的瞬间被杀且无人察觉
 func ExecfAsync(ctx context.Context, format string, args ...any) error {
-	shell, err := buildShell(format, args...)
-	if err != nil {
-		return err
-	}
+	shell := buildShell(format, args...)
 
 	cmd := exec.CommandContext(context.WithoutCancel(ctx), "bash", "-c", shell)
 	ApplyEnv(cmd)
 	// 独立进程组，面板自身被信号终止时不牵连它
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
-	if err = cmd.Start(); err != nil {
+	if err := cmd.Start(); err != nil {
 		return err
 	}
 
@@ -158,10 +138,7 @@ func ExecWithOutput(ctx context.Context, shell string) error {
 
 // ExecfWithOutput 按格式串拼出 shell 命令后执行并输出到终端
 func ExecfWithOutput(ctx context.Context, format string, args ...any) error {
-	shell, err := buildShell(format, args...)
-	if err != nil {
-		return err
-	}
+	shell := buildShell(format, args...)
 
 	return ExecWithOutput(ctx, shell)
 }
@@ -191,10 +168,7 @@ func ExecWithPipe(ctx context.Context, shell string) (io.ReadCloser, error) {
 
 // ExecfWithPipe 按格式串拼出 shell 命令后执行并返回管道
 func ExecfWithPipe(ctx context.Context, format string, args ...any) (io.ReadCloser, error) {
-	shell, err := buildShell(format, args...)
-	if err != nil {
-		return nil, err
-	}
+	shell := buildShell(format, args...)
 
 	return ExecWithPipe(ctx, shell)
 }
@@ -228,15 +202,4 @@ func execWithLog(ctx context.Context, shell string, logFile string, flag int) er
 	}
 
 	return nil
-}
-
-func preCheckArg(args []any) bool {
-	illegals := []any{`&`, `|`, `;`, `$`, `'`, `"`, "`", `(`, `)`, "\n", "\r", `>`, `<`}
-	for arg := range slices.Values(args) {
-		if slices.Contains(illegals, arg) {
-			return false
-		}
-	}
-
-	return true
 }

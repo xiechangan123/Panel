@@ -41,9 +41,6 @@ type Turn struct {
 // NewPTYTurn 使用 PTY 执行命令，返回 Turn 用于流式读取输出
 // 调用方需要负责调用 Close() 和 Wait()
 func NewPTYTurn(ctx context.Context, ws *websocket.Conn, shell string, args ...any) (*Turn, error) {
-	if !preCheckArg(args) {
-		return nil, errors.New("command contains illegal characters")
-	}
 	if len(args) > 0 {
 		shell = fmt.Sprintf(shell, args...)
 	}
