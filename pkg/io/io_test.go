@@ -136,11 +136,27 @@ func TestCompressOverwritesExistingArchive(t *testing.T) {
 func TestCompressShellQuotesArguments(t *testing.T) {
 	cmd, err := CompressShell("/data/site dir", []string{"it's.txt", "-dash.txt"}, "/data/out's.tar.gz")
 	must.NoError(t, err)
-	check.Equal(t, cmd, `mkdir -p '/data' && cd '/data/site dir' && rm -f '/data/out'\''s.tar.gz' && tar -c -z -f '/data/out'\''s.tar.gz' -- 'it'\''s.txt' '-dash.txt' || [ $? -eq 1 ]`)
+	check.Equal(t, cmd, `mkdir -p '/data' && cd '/data/site dir' && rm -f '/data/out'\''s.tar.gz' && { tar -c -z -f '/data/out'\''s.tar.gz' -- 'it'\''s.txt' '-dash.txt' || [ $? -eq 1 ]; }`)
 
 	cmd, err = UnCompressShell("/data/it's.zip", "/data/out dir")
 	must.NoError(t, err)
 	check.Equal(t, cmd, `mkdir -p '/data/out dir' && 7z x -y -snld '/data/it'\''s.zip' -o'/data/out dir'`)
+}
+
+// 容错只针对压缩命令自身，目录不存在这类前置失败必须报错
+func TestCompressFailsWhenDirMissing(t *testing.T) {
+	archive := filepath.Join(t.TempDir(), "x.tar.gz")
+	check.Error(t, Compress(t.Context(), filepath.Join(t.TempDir(), "missing"), nil, archive))
+	check.False(t, Exists(archive), check.Msgf("不应产出归档"))
+}
+
+// 目标是源的父目录时不能合并，否则会把自己搬进自己
+func TestMvRefusesAncestorTarget(t *testing.T) {
+	dir := t.TempDir()
+	writeTree(t, dir, map[string]string{"a/x": "1", "a/b/x": "2", "a/b/b/x": "3"})
+
+	check.Error(t, Mv(t.Context(), filepath.Join(dir, "a", "b"), filepath.Join(dir, "a")))
+	checkTree(t, dir, map[string]string{"a/x": "1", "a/b/x": "2", "a/b/b/x": "3"})
 }
 
 func TestFormatArchiveByPath(t *testing.T) {

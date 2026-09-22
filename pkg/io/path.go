@@ -26,17 +26,20 @@ func Remove(path string) error {
 	return os.RemoveAll(path)
 }
 
-// Chmod 只改 path 自身，mode 是 chmod 命令的原始八进制值（可含 setuid/sticky 位）
+// Chmod 只改 path 自身，path 是符号链接时改其指向的目标（同 chmod 命令）；mode 是原始八进制值（可含 setuid/sticky 位）
 func Chmod(path string, mode os.FileMode) error {
-	info, err := os.Lstat(path)
+	info, err := os.Stat(path)
 	if err != nil {
 		return err
 	}
 	return applyEntry(path, info.Mode().Type(), chmodFn(mode))
 }
 
-// ChmodR 递归修改权限，跳过符号链接
+// ChmodR 递归修改权限，起点是符号链接时跟随，遍历中遇到的符号链接跳过（同 chmod -R）
 func ChmodR(ctx context.Context, path string, mode os.FileMode) error {
+	if resolved, err := filepath.EvalSymlinks(path); err == nil {
+		path = resolved
+	}
 	return walkApply(ctx, path, chmodFn(mode))
 }
 
@@ -227,10 +230,10 @@ func Mv(ctx context.Context, src, dst string) error {
 	if err := rename(src, dst); err == nil {
 		return nil
 	}
-	if isRealDir(src) && isRealDir(dst) {
+	// 源和目标互为祖先时合并会把自己搬进自己，连同跨分区等 rename 做不到的情况一起交给 mv 处理或报错
+	if isRealDir(src) && isRealDir(dst) && !strings.HasPrefix(src, dst+"/") && !strings.HasPrefix(dst, src+"/") {
 		return mergeDir(ctx, src, dst)
 	}
-	// 跨分区等 rename 做不到的交给 mv
 	_, err := shell.Execf(ctx, "mv -fT %s %s", shell.Quote(src), shell.Quote(dst))
 	return err
 }

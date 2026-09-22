@@ -49,7 +49,8 @@ func UnCompress(ctx context.Context, src, dst string) error {
 }
 
 // CompressShell 生成压缩命令供后台任务执行
-// 先删旧包，zip/7z 对已存在的目标是追加更新；tar/7z 退出码 1 只是警告，包是完整的
+// 先删旧包，zip/7z 对已存在的目标是追加更新；tar/7z 退出码 1 只是警告（文件在打包时被改动、悬空链接），
+// 容错要括在压缩命令自身上，否则前面 cd/rm 的失败也会被吞掉
 func CompressShell(dir string, src []string, dst string) (string, error) {
 	if !filepath.IsAbs(dir) || !filepath.IsAbs(dst) {
 		return "", errors.New("dir and dst must be absolute path")
@@ -69,9 +70,9 @@ func CompressShell(dir string, src []string, dst string) (string, error) {
 	case Zip:
 		cmd = fmt.Sprintf("zip -qr %s -- %s", target, sources)
 	case SevenZip:
-		cmd = fmt.Sprintf("7z a -y %s -- %s || [ $? -eq 1 ]", target, sources)
+		cmd = fmt.Sprintf("{ 7z a -y %s -- %s || [ $? -eq 1 ]; }", target, sources)
 	case Tar, TGz, TBz2, TXz, TZst:
-		cmd = fmt.Sprintf("tar -c %s -f %s -- %s || [ $? -eq 1 ]", tarFilter(format), target, sources)
+		cmd = fmt.Sprintf("{ tar -c %s -f %s -- %s || [ $? -eq 1 ]; }", tarFilter(format), target, sources)
 	case Gz, Bz2, Xz, Zst:
 		// 单文件压缩格式仅支持压缩单个文件
 		if len(src) != 1 {

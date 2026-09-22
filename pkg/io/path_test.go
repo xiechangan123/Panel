@@ -68,6 +68,23 @@ func TestChmodOnlyTouchesItself(t *testing.T) {
 	check.Equal(t, info.Mode().Perm(), os.FileMode(0644))
 }
 
+func TestChmodFollowsRootSymlink(t *testing.T) {
+	dir := t.TempDir()
+	target, link := filepath.Join(dir, "real"), filepath.Join(dir, "link")
+	must.NoError(t, Write(filepath.Join(target, "f.txt"), "x", 0644))
+	must.NoError(t, os.Symlink(target, link))
+
+	check.NoError(t, Chmod(link, 0700))
+	info, err := os.Stat(target)
+	must.NoError(t, err)
+	check.Equal(t, info.Mode().Perm(), os.FileMode(0700))
+
+	check.NoError(t, ChmodR(t.Context(), link, 0600))
+	info, err = os.Stat(filepath.Join(target, "f.txt"))
+	must.NoError(t, err)
+	check.Equal(t, info.Mode().Perm(), os.FileMode(0600))
+}
+
 func TestChmodKeepsSpecialBits(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "f.txt")
 	must.NoError(t, Write(file, "x", 0644))

@@ -116,16 +116,25 @@ func (r *webhookRepo) Call(key string) (string, error) {
 		return "", errors.New(r.t.Get("webhook script not found"))
 	}
 
-	// 执行脚本
-	// 脚本通常是部署任务，不能跟着调用方的请求一起被取消
+	// 脚本通常是部署任务，不能跟着调用方的请求一起被取消；输出落文件而不是管道，
+	// 脚本留下的后台进程占着 stdout 时不会等宽限期报错，也不会在读端关闭后死于 SIGPIPE
+	out, err := os.CreateTemp("", "webhook-*.log")
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = os.Remove(out.Name()) }()
+
 	var cmd *exec.Cmd
 	if webhook.User == "" || webhook.User == "root" {
 		cmd = shell.Command(context.Background(), "bash", scriptFile)
 	} else {
 		cmd = shell.Command(context.Background(), "su", "-s", "/bin/bash", "-c", "bash "+scriptFile, webhook.User)
 	}
-
-	output, err := cmd.CombinedOutput()
+	cmd.Stdout, cmd.Stderr = out, out
+	err = cmd.Run()
+	_ = out.Close()
+	raw, _ := os.ReadFile(out.Name())
+	output := string(raw)
 
 	// 更新调用统计
 	_ = r.db.Model(&biz.WebHook{}).Where("`key` = ?", key).Updates(map[string]any{
@@ -134,10 +143,10 @@ func (r *webhookRepo) Call(key string) (string, error) {
 	}).Error
 
 	if err != nil {
-		return string(output), fmt.Errorf("script execution failed: %w, output: %s", err, string(output))
+		return output, fmt.Errorf("script execution failed: %w, output: %s", err, output)
 	}
 
-	return string(output), nil
+	return output, nil
 }
 
 // webhookDir 返回 webhook 脚本存储目录
