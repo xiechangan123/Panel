@@ -77,7 +77,7 @@ func (s *EnvironmentNodejsService) SetRegistry(w http.ResponseWriter, r *http.Re
 	}
 
 	npmBin := fmt.Sprintf("%s/server/nodejs/%s/bin/npm", app.Root, req.Slug)
-	if _, err = shell.Execf(r.Context(), "%s config set --global registry %s", npmBin, req.Registry); err != nil {
+	if _, err = shell.Execf(r.Context(), "%s config set --global registry %s", npmBin, shell.Quote(req.Registry)); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

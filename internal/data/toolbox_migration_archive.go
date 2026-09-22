@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -33,8 +32,7 @@ func (r *migrationArchiveRepo) Extract(ctx context.Context, archive, target stri
 	if err := os.MkdirAll(target, 0755); err != nil {
 		return "", err
 	}
-	untar := exec.CommandContext(ctx, "tar", "-xf", archive, "-C", target)
-	shell.ApplyEnv(untar)
+	untar := shell.Command(ctx, "tar", "-xf", archive, "-C", target)
 	if output, err := untar.CombinedOutput(); err != nil {
 		return "", fmt.Errorf("extract archive: %s", strings.TrimSpace(string(output)))
 	}
@@ -50,8 +48,7 @@ func (r *migrationArchiveRepo) Compress(ctx context.Context, source, archive str
 	if err := os.MkdirAll(filepath.Dir(archive), 0755); err != nil {
 		return err
 	}
-	tar := exec.CommandContext(ctx, "tar", "-czf", archive, "-C", source, ".")
-	shell.ApplyEnv(tar)
+	tar := shell.Command(ctx, "tar", "-czf", archive, "-C", source, ".")
 	output, err := tar.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("compress directory: %s", strings.TrimSpace(string(output)))
@@ -65,8 +62,7 @@ func (r *migrationArchiveRepo) CopyTree(ctx context.Context, source, target stri
 		return err
 	}
 	// 必须以 /. 结尾才是复制目录内容，filepath.Join 会把尾部的点清理掉
-	cp := exec.CommandContext(ctx, "cp", "-a", source+"/.", target)
-	shell.ApplyEnv(cp)
+	cp := shell.Command(ctx, "cp", "-a", source+"/.", target)
 	output, err := cp.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("copy directory: %s", strings.TrimSpace(string(output)))

@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os/exec"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -19,8 +18,8 @@ func ExecWithStdinProgress(
 	interval time.Duration,
 	progress func(written, total int64, rate float64),
 ) (string, error) {
-	cmd := exec.CommandContext(ctx, name, args...)
-	ApplyEnv(cmd, env...)
+	cmd := Command(ctx, name, args...)
+	cmd.Env = append(cmd.Env, env...)
 	pr := &progressReader{r: stdin}
 	cmd.Stdin = pr
 

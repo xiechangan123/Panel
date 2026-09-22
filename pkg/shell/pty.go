@@ -40,13 +40,9 @@ type Turn struct {
 
 // NewPTYTurn 使用 PTY 执行命令，返回 Turn 用于流式读取输出
 // 调用方需要负责调用 Close() 和 Wait()
-func NewPTYTurn(ctx context.Context, ws *websocket.Conn, shell string, args ...any) (*Turn, error) {
-	if len(args) > 0 {
-		shell = fmt.Sprintf(shell, args...)
-	}
-
+func NewPTYTurn(ctx context.Context, ws *websocket.Conn, shell string) (*Turn, error) {
 	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
-	ApplyEnv(cmd)
+	applyEnv(cmd)
 
 	ptmx, err := pty.Start(cmd)
 	if err != nil {
@@ -138,7 +134,7 @@ func (t *Turn) Pipe(ctx context.Context) error {
 		default:
 			n, err := t.ptmx.Read(buf)
 			if err != nil {
-				if err = IsPTYError(err); err != nil {
+				if err = isPTYError(err); err != nil {
 					return fmt.Errorf("failed to read from pty: %w", err)
 				}
 				return nil
@@ -160,10 +156,10 @@ func (t *Turn) Resize(rows, cols uint16) error {
 	})
 }
 
-// IsPTYError Linux kernel return EIO when attempting to read from a master pseudo
+// isPTYError Linux kernel return EIO when attempting to read from a master pseudo
 // terminal which no longer has an open slave. So ignore error here.
 // See https://github.com/creack/pty/issues/21
-func IsPTYError(err error) error {
+func isPTYError(err error) error {
 	if pathErr, ok := errors.AsType[*os.PathError](err); !ok || !errors.Is(pathErr.Err, syscall.EIO) || !errors.Is(err, io.EOF) {
 		return err
 	}

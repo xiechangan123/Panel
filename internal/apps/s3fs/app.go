@@ -106,13 +106,13 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, err = shell.Execf(ctx, "mount -a"); err != nil {
-		_, _ = shell.Execf(ctx, `sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
+		_, _ = shell.Execf(ctx, `sed -E -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, regexp.QuoteMeta(req.Bucket), regexp.QuoteMeta(req.Path))
 		_ = os.Remove("/etc/passwd-s3fs-" + cast.ToString(id))
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	if _, err = shell.Execf(ctx, `df -h | grep '%s'`, req.Path); err != nil {
-		_, _ = shell.Execf(ctx, `sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
+		_, _ = shell.Execf(ctx, `sed -E -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, regexp.QuoteMeta(req.Bucket), regexp.QuoteMeta(req.Path))
 		_ = os.Remove("/etc/passwd-s3fs-" + cast.ToString(id))
 		service.Error(w, http.StatusInternalServerError, s.t.Get("mount failed: %v", err))
 		return
@@ -151,7 +151,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(ctx, `sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, mount.Bucket, mount.Path); err != nil {
+	if _, err = shell.Execf(ctx, `sed -E -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, regexp.QuoteMeta(mount.Bucket), regexp.QuoteMeta(mount.Path)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

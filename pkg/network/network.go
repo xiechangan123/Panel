@@ -493,8 +493,7 @@ func hasCommand(name string) bool {
 }
 
 func run(ctx context.Context, name string, args ...string) (string, error) {
-	cmd := exec.CommandContext(ctx, name, args...)
-	shell.ApplyEnv(cmd)
+	cmd := shell.Command(ctx, name, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("%s: %w: %s", name, err, strings.TrimSpace(string(output)))

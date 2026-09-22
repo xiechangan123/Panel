@@ -77,7 +77,7 @@ func (s *EnvironmentPythonService) SetMirror(w http.ResponseWriter, r *http.Requ
 	}
 
 	pipBin := fmt.Sprintf("%s/server/python/%s/bin/pip3", app.Root, req.Slug)
-	if _, err = shell.Execf(r.Context(), "%s config --global set global.index-url %s", pipBin, req.Mirror); err != nil {
+	if _, err = shell.Execf(r.Context(), "%s config --global set global.index-url %s", pipBin, shell.Quote(req.Mirror)); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

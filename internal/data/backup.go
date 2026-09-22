@@ -8,7 +8,6 @@ import (
 	stdio "io"
 	"log/slog"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -1055,8 +1054,8 @@ func (r *backupRepo) restorePostgres(ctx context.Context, backup, target string)
 		fmt.Println(r.t.Get("|-Importing PostgreSQL backup..."))
 	}
 	if archive {
-		command := exec.CommandContext(ctx, "pg_restore", "--exit-on-error", "-h", "127.0.0.1", "-p", cast.ToString(port), "-U", "postgres", "--dbname="+target, backup)
-		shell.ApplyEnv(command, "PGPASSWORD="+postgresPassword)
+		command := shell.Command(ctx, "pg_restore", "--exit-on-error", "-h", "127.0.0.1", "-p", cast.ToString(port), "-U", "postgres", "--dbname="+target, backup)
+		command.Env = append(command.Env, "PGPASSWORD="+postgresPassword)
 		if output, restoreErr := command.CombinedOutput(); restoreErr != nil {
 			return fmt.Errorf("%w: %s", restoreErr, strings.TrimSpace(string(output)))
 		}

@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -116,13 +117,13 @@ func (r *webhookRepo) Call(key string) (string, error) {
 	}
 
 	// 执行脚本
+	// 脚本通常是部署任务，不能跟着调用方的请求一起被取消
 	var cmd *exec.Cmd
 	if webhook.User == "" || webhook.User == "root" {
-		cmd = exec.Command("bash", scriptFile) //nolint:noctx
+		cmd = shell.Command(context.Background(), "bash", scriptFile)
 	} else {
-		cmd = exec.Command("su", "-s", "/bin/bash", "-c", "bash "+scriptFile, webhook.User) //nolint:noctx
+		cmd = shell.Command(context.Background(), "su", "-s", "/bin/bash", "-c", "bash "+scriptFile, webhook.User)
 	}
-	shell.ApplyEnv(cmd)
 
 	output, err := cmd.CombinedOutput()
 

@@ -132,14 +132,13 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 	var cmd *exec.Cmd
 	switch {
 	case req.Service != "":
-		cmd = exec.CommandContext(ctx, "journalctl", "--no-pager", "-n", "0", "-f", "-u", req.Service)
+		cmd = shell.Command(ctx, "journalctl", "--no-pager", "-n", "0", "-f", "-u", req.Service)
 	case req.Offset > 0:
 		// 从首屏锚点接着跟踪，补上首屏读取到建立连接之间写入的日志（-c 的字节偏移从 1 开始）
-		cmd = exec.CommandContext(ctx, "tail", "-c", fmt.Sprintf("+%d", req.Offset+1), "-F", req.Path)
+		cmd = shell.Command(ctx, "tail", "-c", fmt.Sprintf("+%d", req.Offset+1), "-F", req.Path)
 	default:
-		cmd = exec.CommandContext(ctx, "tail", "-n", "0", "-F", req.Path)
+		cmd = shell.Command(ctx, "tail", "-n", "0", "-F", req.Path)
 	}
-	shell.ApplyEnv(cmd)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, err.Error())

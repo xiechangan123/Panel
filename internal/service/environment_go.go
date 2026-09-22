@@ -77,7 +77,7 @@ func (s *EnvironmentGoService) SetProxy(w http.ResponseWriter, r *http.Request) 
 	}
 
 	goBin := fmt.Sprintf("%s/server/go/%s/bin/go", app.Root, req.Slug)
-	if _, err = shell.Execf(r.Context(), "%s env -w GOPROXY=%s", goBin, req.Proxy); err != nil {
+	if _, err = shell.Execf(r.Context(), "%s env -w GOPROXY=%s", goBin, shell.Quote(req.Proxy)); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

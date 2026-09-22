@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -81,20 +80,17 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 检查密码
-	withPassword := ""
 	config, err := io.Read(s.confPath())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	re := regexp.MustCompile(`(?m)^requirepass\s+(.+)`)
-	matches := re.FindStringSubmatch(config)
-	if len(matches) == 2 {
-		withPassword = " -a " + matches[1]
+	var env []string
+	if password := confval.Directive.Get(config, "requirepass"); password != "" {
+		env = append(env, "REDISCLI_AUTH="+password)
 	}
 
-	raw, err := shell.Execf(r.Context(), "%s%s info", s.slug+"-cli", withPassword)
+	raw, err := shell.ExecfWithEnv(r.Context(), env, "%s-cli info", s.slug)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s info: %v", s.name, err))
 		return
@@ -413,22 +409,13 @@ func (s *App) MemoryStatus(w http.ResponseWriter, r *http.Request) {
 
 // ScanBigKeys 扫描大 Key（异步任务）
 func (s *App) ScanBigKeys(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(s.confPath())
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	withPassword := ""
-	if password := confval.Directive.Get(config, "requirepass"); password != "" {
-		withPassword = " -a " + password
-	}
-
 	task := new(biz.Task)
 	task.Key = s.slug + ":bigkeys"
 	task.Name = s.t.Get("Scan %s big keys", s.name)
 	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf("%s-cli%s --bigkeys", s.slug, withPassword)
-	if err = s.taskRepo.Push(task); err != nil {
+	// 密码在运行时从配置取，不落进任务表
+	task.Shell = fmt.Sprintf(`pw=$(sed -n 's/^requirepass[[:space:]]\+//p' %s | head -n 1); [ -n "$pw" ] && export REDISCLI_AUTH="$pw"; %s-cli --bigkeys`, shell.Quote(s.confPath()), s.slug)
+	if err := s.taskRepo.Push(task); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

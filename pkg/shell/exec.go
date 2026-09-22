@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
@@ -17,21 +18,25 @@ import (
 // 用 setsid 逃出进程组的孙子进程杀不掉，它占着管道写端会让 Wait 永不返回，超过宽限期就截断输出并报错
 const waitDelay = 3 * time.Second
 
-func ApplyEnv(cmd *exec.Cmd, env ...string) {
-	cmd.Env = append(os.Environ(), append([]string{"LC_ALL=C"}, env...)...)
-}
-
-// newCmd 构造受 ctx 控制的 bash 命令
-// bash 遇到管道和 && 会 fork，CommandContext 默认只 Kill bash 本身，孙子进程不但活着还会拖住 Wait，
-// 因此统一放进独立进程组整组杀死
-func newCmd(ctx context.Context, shell string) *exec.Cmd {
-	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
-	ApplyEnv(cmd)
+// Command 构造受 ctx 控制的命令
+// 子进程还会 fork（bash 遇到管道和 &&、tar 起 gzip、用户脚本起守护进程），CommandContext 默认只 Kill 它本身，
+// 孙子进程不但活着还会拖住 Wait，因此统一放进独立进程组整组杀死
+func Command(ctx context.Context, name string, args ...string) *exec.Cmd {
+	cmd := exec.CommandContext(ctx, name, args...)
+	applyEnv(cmd)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
 	cmd.WaitDelay = waitDelay
 
 	return cmd
+}
+
+func applyEnv(cmd *exec.Cmd) {
+	cmd.Env = append(os.Environ(), "LC_ALL=C")
+}
+
+func newCmd(ctx context.Context, shell string) *exec.Cmd {
+	return Command(ctx, "bash", "-c", shell)
 }
 
 // buildShell 格式化命令，参数由调用方用 Quote 处理
@@ -62,35 +67,30 @@ func Exec(ctx context.Context, shell string) (string, error) {
 
 // Execf 按格式串拼出 shell 命令后执行
 func Execf(ctx context.Context, format string, args ...any) (string, error) {
-	shell := buildShell(format, args...)
-
-	return Exec(ctx, shell)
+	return Exec(ctx, buildShell(format, args...))
 }
 
-// ExecfWithEnv 安全执行 shell 命令，环境变量仅注入子进程
+// ExecfWithEnv 环境变量仅注入子进程
 func ExecfWithEnv(ctx context.Context, env []string, format string, args ...any) (string, error) {
 	shell := buildShell(format, args...)
-
 	cmd := newCmd(ctx, shell)
-	ApplyEnv(cmd, env...)
+	cmd.Env = append(cmd.Env, env...)
 
 	return runBuffered(cmd, shell)
 }
 
-// ExecfWithDir 在指定目录下执行 shell 命令
+// ExecfWithDir 在指定目录下执行
 func ExecfWithDir(ctx context.Context, dir, format string, args ...any) (string, error) {
 	shell := buildShell(format, args...)
-
 	cmd := newCmd(ctx, shell)
 	cmd.Dir = dir
 
 	return runBuffered(cmd, shell)
 }
 
-// ExecfWithTimeout 执行 shell 命令并设置超时时间，ctx 取消或超时到期均终止进程
+// ExecfWithTimeout ctx 取消或超时到期均终止进程
 func ExecfWithTimeout(ctx context.Context, timeout time.Duration, format string, args ...any) (string, error) {
 	shell := buildShell(format, args...)
-
 	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -103,24 +103,18 @@ func ExecfWithTimeout(ctx context.Context, timeout time.Duration, format string,
 	return out, err
 }
 
-// ExecfAsync 异步执行 shell 命令
-// 异步即命令要活过调用方，入口断开取消链，否则 sleep 1 && systemctl restart acepanel 这类自杀式操作
-// 会在 HTTP 响应写完的瞬间被杀且无人察觉
+// ExecfAsync 异步执行，命令要活过调用方
+// 入口断开取消链，否则 sleep 1 && systemctl restart acepanel 这类自杀式操作会在 HTTP 响应写完的瞬间被杀且无人察觉
 func ExecfAsync(ctx context.Context, format string, args ...any) error {
 	shell := buildShell(format, args...)
-
-	cmd := exec.CommandContext(context.WithoutCancel(ctx), "bash", "-c", shell)
-	ApplyEnv(cmd)
-	// 独立进程组，面板自身被信号终止时不牵连它
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-
+	cmd := Command(context.WithoutCancel(ctx), "bash", "-c", shell)
 	if err := cmd.Start(); err != nil {
 		return err
 	}
 
 	go func() {
 		if err := cmd.Wait(); err != nil {
-			fmt.Println(fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(err.Error())))
+			slog.Warn("async command failed", slog.String("cmd", shell), slog.Any("err", err))
 		}
 	}()
 
@@ -136,14 +130,7 @@ func ExecWithOutput(ctx context.Context, shell string) error {
 	return cmd.Run()
 }
 
-// ExecfWithOutput 按格式串拼出 shell 命令后执行并输出到终端
-func ExecfWithOutput(ctx context.Context, format string, args ...any) error {
-	shell := buildShell(format, args...)
-
-	return ExecWithOutput(ctx, shell)
-}
-
-// ExecWithPipe 执行已拼好的 shell 命令并返回管道
+// ExecWithPipe 执行已拼好的 shell 命令，stdout 与 stderr 合并成流返回，命令失败时读端会收到错误
 func ExecWithPipe(ctx context.Context, shell string) (io.ReadCloser, error) {
 	cmd := newCmd(ctx, shell)
 	stdout, err := cmd.StdoutPipe()
@@ -159,26 +146,18 @@ func ExecWithPipe(ctx context.Context, shell string) (io.ReadCloser, error) {
 	pr, pw := io.Pipe()
 	go func() {
 		_, _ = io.Copy(pw, stdout)
-		_ = cmd.Wait()
-		_ = pw.Close()
+		_ = pw.CloseWithError(cmd.Wait())
 	}()
 
 	return pr, nil
 }
 
-// ExecfWithPipe 按格式串拼出 shell 命令后执行并返回管道
-func ExecfWithPipe(ctx context.Context, format string, args ...any) (io.ReadCloser, error) {
-	shell := buildShell(format, args...)
-
-	return ExecWithPipe(ctx, shell)
-}
-
-// ExecWithLog 执行 shell 命令并将输出覆盖写入指定的日志文件
+// ExecWithLog 输出覆盖写入日志文件
 func ExecWithLog(ctx context.Context, shell string, logFile string) error {
 	return execWithLog(ctx, shell, logFile, os.O_TRUNC)
 }
 
-// ExecWithLogAppend 执行 shell 命令并将输出追加到指定的日志文件
+// ExecWithLogAppend 输出追加到日志文件
 func ExecWithLogAppend(ctx context.Context, shell string, logFile string) error {
 	return execWithLog(ctx, shell, logFile, os.O_APPEND)
 }

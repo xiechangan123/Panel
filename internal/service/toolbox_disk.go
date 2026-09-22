@@ -143,7 +143,7 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// 检查 fstab 中是否已存在该挂载点
-		existCheck, _ := shell.Execf(ctx, "grep -E '^[^#].*\\s+%s\\s+' /etc/fstab", req.Path)
+		existCheck, _ := shell.Execf(ctx, "grep -E '^[^#].*\\s+%s\\s+' /etc/fstab", regexp.QuoteMeta(req.Path))
 		if strings.TrimSpace(existCheck) != "" {
 			Error(w, http.StatusBadRequest, s.t.Get("mount point %s already exists in fstab", req.Path))
 			return
@@ -568,7 +568,7 @@ func (s *ToolboxDiskService) DeleteFstab(w http.ResponseWriter, r *http.Request)
 	// 改完 fstab 必须接着 mount -a 生效，中断会让挂载状态和 fstab 对不上
 	ctx := context.WithoutCancel(r.Context())
 
-	if _, err = shell.Execf(ctx, `sed -i 's@^[^#].*\s%s\s.*$@@g' /etc/fstab`, req.MountPoint); err != nil {
+	if _, err = shell.Execf(ctx, `sed -E -i 's@^[^#].*\s%s\s.*$@@g' /etc/fstab`, regexp.QuoteMeta(req.MountPoint)); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to delete fstab entry: %v", err))
 		return
 	}
