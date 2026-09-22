@@ -340,7 +340,6 @@ func (s *App) syncServers(ctx context.Context, email string) error {
 		return nil
 	}
 
-	// 常态路径仅写入了 pgpass，修正其所在目录属主即可
 	return io.ChownR(ctx, storageDir, "www", "www")
 }
 

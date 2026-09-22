@@ -9,7 +9,7 @@ import (
 	"resty.dev/v3"
 )
 
-// DownloadFile 先落到同目录临时文件再原子替换，超时由 ctx 控制
+// DownloadFile 先落同目录临时文件再原子替换
 func DownloadFile(ctx context.Context, url, dest string) error {
 	if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)

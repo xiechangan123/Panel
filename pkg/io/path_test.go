@@ -35,7 +35,7 @@ func isImmutable(path string) bool {
 	return ok
 }
 
-// requireImmutable 不支持时跳过用例；结束后解锁，TempDir 才能清理
+// requireImmutable 不支持时跳过用例
 func requireImmutable(t *testing.T, path string) {
 	t.Helper()
 	if !setImmutable(path) {

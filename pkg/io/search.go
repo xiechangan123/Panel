@@ -13,7 +13,7 @@ type Entry struct {
 	Info os.FileInfo
 }
 
-// Search 用 find 按文件名子串匹配，sub 为 true 时递归
+// Search 文件名子串匹配，sub 为 true 时递归
 func Search(ctx context.Context, path, keyword string, sub bool) ([]Entry, error) {
 	depth := "-maxdepth 1"
 	if sub {
@@ -38,7 +38,6 @@ func Search(ctx context.Context, path, keyword string, sub bool) ([]Entry, error
 	return entries, nil
 }
 
-// globEscape 让 find -name 按字面匹配关键字里的通配符
 func globEscape(s string) string {
 	return strings.NewReplacer(`\`, `\\`, `*`, `\*`, `?`, `\?`, `[`, `\[`).Replace(s)
 }

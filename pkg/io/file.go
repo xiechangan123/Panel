@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-// Write 目标带 +i/+a 属性（如 .user.ini）时先解锁，写完恢复
+// Write 目标带 +i/+a 时先解锁，写完恢复
 func Write(path string, data string, perm os.FileMode) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return err

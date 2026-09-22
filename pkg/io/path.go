@@ -26,7 +26,7 @@ func Remove(path string) error {
 	return os.RemoveAll(path)
 }
 
-// Chmod 只改 path 自身，path 是符号链接时改其指向的目标（同 chmod 命令）；mode 是原始八进制值（可含 setuid/sticky 位）
+// Chmod 只改 path 自身，符号链接跟随到目标；mode 是 chmod 命令的原始八进制值
 func Chmod(path string, mode os.FileMode) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -35,7 +35,7 @@ func Chmod(path string, mode os.FileMode) error {
 	return applyEntry(path, info.Mode().Type(), chmodFn(mode))
 }
 
-// ChmodR 递归修改权限，起点是符号链接时跟随，遍历中遇到的符号链接跳过（同 chmod -R）
+// ChmodR 同 chmod -R：起点的符号链接跟随，遍历中遇到的跳过
 func ChmodR(ctx context.Context, path string, mode os.FileMode) error {
 	if resolved, err := filepath.EvalSymlinks(path); err == nil {
 		path = resolved
@@ -56,7 +56,6 @@ func Chown(path, owner, group string) error {
 	return applyEntry(path, info.Mode().Type(), fn)
 }
 
-// ChownR 递归修改属主
 func ChownR(ctx context.Context, path, owner, group string) error {
 	fn, err := chownFn(owner, group)
 	if err != nil {
@@ -147,7 +146,6 @@ type lockedFile struct {
 	attrs uint32
 }
 
-// unlockEntry 解除 +i/+a 属性并返回记录供恢复；只碰常规文件和目录，打开 FIFO 会阻塞、符号链接会跟到树外
 func unlockEntry(path string) (lockedFile, bool) {
 	info, err := os.Lstat(path)
 	if err != nil || (!info.Mode().IsRegular() && !info.IsDir()) {
@@ -210,7 +208,6 @@ func Empty(path string) bool {
 	return len(files) == 0
 }
 
-// IsDir 判断是否为目录
 func IsDir(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -230,7 +227,6 @@ func Mv(ctx context.Context, src, dst string) error {
 	if err := rename(src, dst); err == nil {
 		return nil
 	}
-	// 源和目标互为祖先时合并会把自己搬进自己，连同跨分区等 rename 做不到的情况一起交给 mv 处理或报错
 	if isRealDir(src) && isRealDir(dst) && !strings.HasPrefix(src, dst+"/") && !strings.HasPrefix(dst, src+"/") {
 		return mergeDir(ctx, src, dst)
 	}
@@ -282,7 +278,7 @@ func mergeDir(ctx context.Context, src, dst string) error {
 	return os.Remove(src)
 }
 
-// Cp 语义同 Mv；--remove-destination 让目标是符号链接时替换链接本身，而不是顺着链接写别处的文件
+// Cp 语义同 Mv
 func Cp(ctx context.Context, src, dst string) error {
 	_, err := shell.Execf(ctx, "cp -a --remove-destination -T %s %s", shell.Quote(src), shell.Quote(dst))
 	return err

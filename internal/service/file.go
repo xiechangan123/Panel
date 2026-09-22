@@ -289,7 +289,7 @@ func (s *FileService) Save(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-// protectedPath 面板所在路径及其祖先，不能删也不能当网站目录递归改权限
+// protectedPath 面板所在路径及其祖先
 func protectedPath(path string) bool {
 	path = filepath.Clean(path)
 	for _, p := range []string{app.Root, filepath.Join(app.Root, "server"), filepath.Join(app.Root, "panel")} {
@@ -684,7 +684,6 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 	task.Key = fmt.Sprintf("uncompress:%s:%s", req.File, req.Path)
 	task.Name = s.t.Get("Uncompress %v", filepath.Base(req.File))
 	task.Status = biz.TaskStatusWaiting
-	// 目标里可能有 +i 的 .user.ini，单条目失败不能让整个任务报失败
 	task.Shell = fmt.Sprintf("%s; chmod -R 0755 %s; chown -R www:www %s; true", cmd, shell.Quote(req.Path), shell.Quote(req.Path))
 
 	if err = s.taskRepo.Push(task); err != nil {

@@ -914,7 +914,6 @@ func (r *backupRepo) restoreWebsite(ctx context.Context, backup, target string) 
 		return err
 	}
 
-	// 空包不能拿去替换站点
 	entries, err := os.ReadDir(stage)
 	if err != nil {
 		return err

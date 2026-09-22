@@ -27,7 +27,6 @@ func NewEnvironmentService(environmentUsecase *biz.EnvironmentUsecase, taskUseca
 	}
 }
 
-// linkCLIBinaries 软链接到 /usr/local/bin，已有的先删
 func linkCLIBinaries(binPath string, names ...string) error {
 	for _, name := range names {
 		link := filepath.Join("/usr/local/bin", name)

@@ -413,7 +413,6 @@ func (s *App) ScanBigKeys(w http.ResponseWriter, r *http.Request) {
 	task.Key = s.slug + ":bigkeys"
 	task.Name = s.t.Get("Scan %s big keys", s.name)
 	task.Status = biz.TaskStatusWaiting
-	// 密码在运行时从配置取，不落进任务表
 	task.Shell = fmt.Sprintf(`pw=$(sed -n 's/^requirepass[[:space:]]\+//p' %s | head -n 1); [ -n "$pw" ] && export REDISCLI_AUTH="$pw"; %s-cli --bigkeys`, shell.Quote(s.confPath()), s.slug)
 	if err := s.taskRepo.Push(task); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)

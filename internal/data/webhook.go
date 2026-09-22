@@ -116,8 +116,6 @@ func (r *webhookRepo) Call(key string) (string, error) {
 		return "", errors.New(r.t.Get("webhook script not found"))
 	}
 
-	// 脚本通常是部署任务，不能跟着调用方的请求一起被取消；输出落文件而不是管道，
-	// 脚本留下的后台进程占着 stdout 时不会等宽限期报错，也不会在读端关闭后死于 SIGPIPE
 	out, err := os.CreateTemp("", "webhook-*.log")
 	if err != nil {
 		return "", err

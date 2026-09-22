@@ -33,7 +33,6 @@ func TestExecErrorCarriesStderr(t *testing.T) {
 	check.True(t, strings.Contains(err.Error(), "exit status 3"), check.Msgf("错误应带退出码: %v", err))
 }
 
-// 取消要连 bash 派生的孙子进程一起杀掉
 func TestExecCancelKillsProcessGroup(t *testing.T) {
 	pidFile := filepath.Join(t.TempDir(), "pid")
 	ctx, cancel := context.WithTimeout(t.Context(), 300*time.Millisecond)
@@ -46,7 +45,6 @@ func TestExecCancelKillsProcessGroup(t *testing.T) {
 	must.NoError(t, err)
 	pid, err := strconv.Atoi(strings.TrimSpace(string(raw)))
 	must.NoError(t, err)
-	// 被杀的孙子进程由 init 回收，给一点时间
 	for range 20 {
 		if syscall.Kill(pid, 0) != nil {
 			return
@@ -56,7 +54,6 @@ func TestExecCancelKillsProcessGroup(t *testing.T) {
 	t.Fatalf("孙子进程 %d 仍然存活", pid)
 }
 
-// bash 退出后仍占着管道的后台进程只能等宽限期，到点后截断输出并报错
 func TestExecWaitDelayTruncates(t *testing.T) {
 	start := time.Now()
 	out, err := Exec(t.Context(), "echo hi; sleep 6 &")

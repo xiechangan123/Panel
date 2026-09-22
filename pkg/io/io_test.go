@@ -114,7 +114,6 @@ func TestCompressQuotesNames(t *testing.T) {
 	}
 }
 
-// zip/7z 对已存在的目标是追加更新
 func TestCompressOverwritesExistingArchive(t *testing.T) {
 	abs := t.TempDir()
 	must.NoError(t, Write(filepath.Join(abs, "old.txt"), "old", 0644))
@@ -143,14 +142,12 @@ func TestCompressShellQuotesArguments(t *testing.T) {
 	check.Equal(t, cmd, `mkdir -p '/data/out dir' && 7z x -y -snld '/data/it'\''s.zip' -o'/data/out dir'`)
 }
 
-// 容错只针对压缩命令自身，目录不存在这类前置失败必须报错
 func TestCompressFailsWhenDirMissing(t *testing.T) {
 	archive := filepath.Join(t.TempDir(), "x.tar.gz")
 	check.Error(t, Compress(t.Context(), filepath.Join(t.TempDir(), "missing"), nil, archive))
 	check.False(t, Exists(archive), check.Msgf("不应产出归档"))
 }
 
-// 目标是源的父目录时不能合并，否则会把自己搬进自己
 func TestMvRefusesAncestorTarget(t *testing.T) {
 	dir := t.TempDir()
 	writeTree(t, dir, map[string]string{"a/x": "1", "a/b/x": "2", "a/b/b/x": "3"})
@@ -196,7 +193,6 @@ func TestChownChangesOwner(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "chown_test.txt")
 	must.NoError(t, Write(path, "test", 0644))
 
-	// 非 root 改不了属主，只确认调用成功
 	check.NoError(t, Chown(path, "root", "root"))
 	check.NoError(t, Chown(path, "0", "0"))
 	check.Error(t, Chown(path, "no-such-user-xyz", "root"))
