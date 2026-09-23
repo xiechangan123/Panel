@@ -10,6 +10,7 @@ import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import KeyValueEditor from '@/components/common/KeyValueEditor.vue'
 import ListInput from '@/components/common/ListInput.vue'
+import PathSelector from '@/components/common/PathSelector.vue'
 import { webserverFeatures } from '@/utils'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -84,6 +85,14 @@ watch(show, (v) => {
     fetchSetting()
   }
 })
+
+const showPathSelector = ref(false)
+const pathSelectorTarget = ref<'path' | 'root'>('path')
+const handleSelectPath = (target: 'path' | 'root') => {
+  pathSelectorTarget.value = target
+  showPathSelector.value = true
+}
+
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
     webserver: 'nginx',
@@ -1016,18 +1025,32 @@ const removeCustomConfig = (index: number) => {
         <n-tab-pane name="basic" :tab="$gettext('Basic Settings')">
           <n-form v-if="setting">
             <n-form-item :label="$gettext('Website Directory')">
-              <n-input
-                v-model:value="setting.path"
-                :placeholder="$gettext('Enter website directory (absolute path)')"
-              />
+              <n-input-group>
+                <n-input
+                  v-model:value="setting.path"
+                  :placeholder="$gettext('Enter website directory (absolute path)')"
+                />
+                <n-button @click="handleSelectPath('path')">
+                  <template #icon>
+                    <i-mdi-folder-open />
+                  </template>
+                </n-button>
+              </n-input-group>
             </n-form-item>
             <n-form-item :label="$gettext('Running Directory')">
-              <n-input
-                v-model:value="setting.root"
-                :placeholder="
-                  $gettext('Enter running directory (needed for Laravel etc.) (absolute path)')
-                "
-              />
+              <n-input-group>
+                <n-input
+                  v-model:value="setting.root"
+                  :placeholder="
+                    $gettext('Enter running directory (needed for Laravel etc.) (absolute path)')
+                  "
+                />
+                <n-button @click="handleSelectPath('root')">
+                  <template #icon>
+                    <i-mdi-folder-open />
+                  </template>
+                </n-button>
+              </n-input-group>
             </n-form-item>
             <n-form-item :label="$gettext('Default Document')">
               <n-dynamic-tags v-model:value="setting.index" />
@@ -2367,6 +2390,11 @@ const removeCustomConfig = (index: number) => {
       </n-button>
     </n-flex>
   </n-modal>
+  <path-selector
+    v-model:show="showPathSelector"
+    v-model:path="setting[pathSelectorTarget]"
+    :dir="true"
+  />
 </template>
 
 <style scoped>
