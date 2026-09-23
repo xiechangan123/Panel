@@ -589,7 +589,6 @@ func (v *baseVhost) buildRootContext(cfg *conf.Config, consumed map[int]bool) {
 	ctx.Add("allowBrowse", "1")
 	rw := ctx.AddBlock("rewrite", "")
 	rw.Add("enable", "1")
-	rw.Add("autoLoadHtaccess", "1")
 	for i, auth := range v.auths {
 		if auth.Path == "/" && !consumed[i] {
 			ctx.Add("realm", v.realmName(i))
@@ -702,6 +701,7 @@ func (v *baseVhost) buildIncludes(cfg *conf.Config) []string {
 func (v *baseVhost) buildRewrite(cfg *conf.Config, fragments []string) {
 	rw := cfg.AddBlock("rewrite", "")
 	rw.Add("enable", "1")
+	rw.Add("autoLoadHtaccess", "1")
 
 	// OLS 核心对 /.well-known/acme-challenge/ 强制跳过 rewrite，无需排除验证路径
 	if !v.Enable() {

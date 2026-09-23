@@ -356,3 +356,16 @@ func TestProxyAuthContext(t *testing.T) {
 
 	check.DeepEqual(t, vhost.BasicAuth(), []types.BasicAuth{{Path: "/secret", UserFile: filepath.Join(configDir, "htpasswd_0")}}, cmpopts.EquateEmpty())
 }
+
+// autoLoadHtaccess 只在 vhost 级生效，写进 context 会被 OLS 静默忽略
+func TestHtaccessAtVhostLevel(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewPHPVhost(configDir)
+	must.NoError(t, err)
+	must.NoError(t, vhost.Save())
+
+	cfg, err := Parse(readConf(t, configDir))
+	must.NoError(t, err)
+	check.Equal(t, cfg.GetBlock("rewrite").Value("autoLoadHtaccess"), "1")
+	check.Empty(t, cfg.GetBlock("context", "/").GetBlock("rewrite").Value("autoLoadHtaccess"))
+}
