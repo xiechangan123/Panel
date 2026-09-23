@@ -58,6 +58,15 @@ const pmStartServers = ref<number | null>(null)
 const pmMinSpareServers = ref<number | null>(null)
 const pmMaxSpareServers = ref<number | null>(null)
 
+// OPcache
+const opcacheMemoryConsumption = ref<number | null>(null)
+const opcacheInternedStringsBuffer = ref<number | null>(null)
+const opcacheMaxAcceleratedFiles = ref<number | null>(null)
+const opcacheRevalidateFreq = ref<number | null>(null)
+const opcacheJit = ref<string | null>(null)
+const opcacheJitBufferSizeNum = ref<number | null>(null)
+const opcacheJitBufferSizeUnit = ref('M')
+
 // loading 状态
 const saveLoading = ref(false)
 const showPresetModal = ref(false)
@@ -134,22 +143,30 @@ useRequest(php.configTune(props.slug)).onSuccess(({ data }) => {
   const postParsed = parseSizeValue(data.post_max_size ?? '')
   postMaxSizeNum.value = postParsed.num
   postMaxSizeUnit.value = postParsed.unit
-  maxFileUploads.value = Number(data.max_file_uploads) || null
+  maxFileUploads.value = parseNumber(data.max_file_uploads)
   const memParsed = parseSizeValue(data.memory_limit ?? '')
   memoryLimitNum.value = memParsed.num
   memoryLimitUnit.value = memParsed.unit
-  maxExecutionTime.value = Number(data.max_execution_time) || null
-  maxInputTime.value = Number(data.max_input_time) || null
-  maxInputVars.value = Number(data.max_input_vars) || null
+  maxExecutionTime.value = parseNumber(data.max_execution_time)
+  maxInputTime.value = parseNumber(data.max_input_time)
+  maxInputVars.value = parseNumber(data.max_input_vars)
   sessionSaveHandler.value = data.session_save_handler || 'files'
   sessionSavePath.value = data.session_save_path ?? ''
-  sessionGcMaxlifetime.value = Number(data.session_gc_maxlifetime) || null
-  sessionCookieLifetime.value = Number(data.session_cookie_lifetime) || null
+  sessionGcMaxlifetime.value = parseNumber(data.session_gc_maxlifetime)
+  sessionCookieLifetime.value = parseNumber(data.session_cookie_lifetime)
   pm.value = data.pm || 'dynamic'
-  pmMaxChildren.value = Number(data.pm_max_children) || null
-  pmStartServers.value = Number(data.pm_start_servers) || null
-  pmMinSpareServers.value = Number(data.pm_min_spare_servers) || null
-  pmMaxSpareServers.value = Number(data.pm_max_spare_servers) || null
+  pmMaxChildren.value = parseNumber(data.pm_max_children)
+  pmStartServers.value = parseNumber(data.pm_start_servers)
+  pmMinSpareServers.value = parseNumber(data.pm_min_spare_servers)
+  pmMaxSpareServers.value = parseNumber(data.pm_max_spare_servers)
+  opcacheMemoryConsumption.value = parseNumber(data.opcache_memory_consumption)
+  opcacheInternedStringsBuffer.value = parseNumber(data.opcache_interned_strings_buffer)
+  opcacheMaxAcceleratedFiles.value = parseNumber(data.opcache_max_accelerated_files)
+  opcacheRevalidateFreq.value = parseNumber(data.opcache_revalidate_freq)
+  opcacheJit.value = jitAliases[data.opcache_jit] ?? (data.opcache_jit || null)
+  const jitBufferParsed = parseSizeValue(data.opcache_jit_buffer_size ?? '')
+  opcacheJitBufferSizeNum.value = jitBufferParsed.num
+  opcacheJitBufferSizeUnit.value = jitBufferParsed.unit
 
   // 解析 save_path 到可视化字段
   if (sessionSaveHandler.value === 'redis' && sessionSavePath.value) {
@@ -191,6 +208,15 @@ const getConfigData = () => {
     pm_start_servers: String(pmStartServers.value ?? ''),
     pm_min_spare_servers: String(pmMinSpareServers.value ?? ''),
     pm_max_spare_servers: String(pmMaxSpareServers.value ?? ''),
+    opcache_memory_consumption: String(opcacheMemoryConsumption.value ?? ''),
+    opcache_interned_strings_buffer: String(opcacheInternedStringsBuffer.value ?? ''),
+    opcache_max_accelerated_files: String(opcacheMaxAcceleratedFiles.value ?? ''),
+    opcache_revalidate_freq: String(opcacheRevalidateFreq.value ?? ''),
+    opcache_jit: opcacheJit.value ?? '',
+    opcache_jit_buffer_size: composeSizeValue(
+      opcacheJitBufferSizeNum.value,
+      opcacheJitBufferSizeUnit.value,
+    ),
   }
 }
 
@@ -238,12 +264,32 @@ const onOffOptions = [
   { label: 'Off', value: 'Off' },
 ]
 
+const jitOptions = computed(() => [
+  { label: $gettext('Disabled'), value: 'disable' },
+  { label: 'tracing', value: 'tracing' },
+  { label: 'function', value: 'function' },
+])
+
+// opcache.jit 的数字写法和 on/off 都有等价的选项，旧版模块脚本写的是 1205
+const jitAliases: Record<string, string> = {
+  on: 'tracing',
+  off: 'disable',
+  '1254': 'tracing',
+  '1205': 'function',
+}
+
 // 容量单位选项
 const sizeUnitOptions = [
   { label: 'K', value: 'K' },
   { label: 'M', value: 'M' },
   { label: 'G', value: 'G' },
 ]
+
+// 0 是有效值，不能用 || null 判空，否则保存时会被当成未设置注释掉
+const parseNumber = (val?: string): number | null => {
+  const num = Number(val)
+  return val && !Number.isNaN(num) ? num : null
+}
 
 // 解析带单位的值，如 "50M" -> { num: 50, unit: "M" }
 const parseSizeValue = (val: string): { num: number | null; unit: string } => {
@@ -252,7 +298,7 @@ const parseSizeValue = (val: string): { num: number | null; unit: string } => {
   if (match) {
     return { num: Number(match[1]), unit: match[2]!.toUpperCase() }
   }
-  return { num: Number(val) || null, unit: 'M' }
+  return { num: parseNumber(val), unit: 'M' }
 }
 
 // 组合数值和单位，如 50 + "M" -> "50M"
@@ -510,6 +556,85 @@ const composeSizeValue = (num: number | null, unit: string): string => {
                 :placeholder="$gettext('e.g. 10')"
                 :min="1"
               />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="saveLoading"
+              :disabled="saveLoading"
+              @click="handleSave"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+            <n-button type="info" @click="showPresetModal = true">
+              {{ $gettext('Generate Recommended Configuration') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="opcache" tab="OPcache">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Adjust OPcache and JIT settings. The tracing JIT mode is recommended.') }}
+          </n-alert>
+          <n-form>
+            <n-form-item :label="$gettext('Memory Size (opcache.memory_consumption)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="opcacheMemoryConsumption"
+                :placeholder="$gettext('e.g. 256')"
+                :min="8"
+              >
+                <template #suffix>MB</template>
+              </n-input-number>
+            </n-form-item>
+            <n-form-item
+              :label="$gettext('Interned Strings Buffer (opcache.interned_strings_buffer)')"
+            >
+              <n-input-number
+                class="w-full"
+                v-model:value="opcacheInternedStringsBuffer"
+                :placeholder="$gettext('e.g. 32')"
+                :min="0"
+              >
+                <template #suffix>MB</template>
+              </n-input-number>
+            </n-form-item>
+            <n-form-item :label="$gettext('Max Cached Files (opcache.max_accelerated_files)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="opcacheMaxAcceleratedFiles"
+                :placeholder="$gettext('e.g. 100000')"
+                :min="200"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Revalidate Frequency (opcache.revalidate_freq)')">
+              <n-input-number
+                class="w-full"
+                v-model:value="opcacheRevalidateFreq"
+                :placeholder="$gettext('e.g. 3 (seconds)')"
+                :min="0"
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('JIT Mode (opcache.jit)')">
+              <n-select v-model:value="opcacheJit" :options="jitOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('JIT Buffer Size (opcache.jit_buffer_size)')">
+              <n-input-group>
+                <n-input-number
+                  class="w-full"
+                  v-model:value="opcacheJitBufferSizeNum"
+                  :placeholder="$gettext('e.g. 128')"
+                  :min="0"
+                  style="flex: 1"
+                />
+                <n-select
+                  v-model:value="opcacheJitBufferSizeUnit"
+                  :options="sizeUnitOptions"
+                  class="w-20"
+                />
+              </n-input-group>
             </n-form-item>
           </n-form>
           <n-flex>

@@ -414,6 +414,13 @@ func (s *EnvironmentPHPService) GetConfigTune(w http.ResponseWriter, r *http.Req
 		SessionSavePath:       confval.PHPINI.Get(ini, "session.save_path"),
 		SessionGcMaxlifetime:  confval.PHPINI.Get(ini, "session.gc_maxlifetime"),
 		SessionCookieLifetime: confval.PHPINI.Get(ini, "session.cookie_lifetime"),
+		// OPcache 相关
+		OpcacheMemoryConsumption:     confval.PHPINI.Get(ini, "opcache.memory_consumption"),
+		OpcacheInternedStringsBuffer: confval.PHPINI.Get(ini, "opcache.interned_strings_buffer"),
+		OpcacheMaxAcceleratedFiles:   confval.PHPINI.Get(ini, "opcache.max_accelerated_files"),
+		OpcacheRevalidateFreq:        confval.PHPINI.Get(ini, "opcache.revalidate_freq"),
+		OpcacheJit:                   confval.PHPINI.Get(ini, "opcache.jit"),
+		OpcacheJitBufferSize:         confval.PHPINI.Get(ini, "opcache.jit_buffer_size"),
 		// php-fpm.conf 配置
 		Pm:                confval.PHPINI.Get(fpm, "pm"),
 		PmMaxChildren:     confval.PHPINI.Get(fpm, "pm.max_children"),
@@ -468,6 +475,12 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 	ini = confval.PHPINI.Set(ini, "session.save_path", req.SessionSavePath)
 	ini = confval.PHPINI.Set(ini, "session.gc_maxlifetime", req.SessionGcMaxlifetime)
 	ini = confval.PHPINI.Set(ini, "session.cookie_lifetime", req.SessionCookieLifetime)
+	ini = confval.PHPINI.Set(ini, "opcache.memory_consumption", req.OpcacheMemoryConsumption)
+	ini = confval.PHPINI.Set(ini, "opcache.interned_strings_buffer", req.OpcacheInternedStringsBuffer)
+	ini = confval.PHPINI.Set(ini, "opcache.max_accelerated_files", req.OpcacheMaxAcceleratedFiles)
+	ini = confval.PHPINI.Set(ini, "opcache.revalidate_freq", req.OpcacheRevalidateFreq)
+	ini = confval.PHPINI.Set(ini, "opcache.jit", req.OpcacheJit)
+	ini = confval.PHPINI.Set(ini, "opcache.jit_buffer_size", req.OpcacheJitBufferSize)
 
 	// 更新 php-fpm.conf 配置
 	fpm = confval.PHPINI.Set(fpm, "pm", req.Pm)

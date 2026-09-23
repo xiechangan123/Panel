@@ -44,6 +44,13 @@ type EnvironmentPHPConfigTune struct {
 	SessionSavePath       string `form:"session_save_path" json:"session_save_path"`
 	SessionGcMaxlifetime  string `form:"session_gc_maxlifetime" json:"session_gc_maxlifetime" validate:"number"`
 	SessionCookieLifetime string `form:"session_cookie_lifetime" json:"session_cookie_lifetime" validate:"number"`
+	// php.ini OPcache 相关
+	OpcacheMemoryConsumption     string `form:"opcache_memory_consumption" json:"opcache_memory_consumption" validate:"number"`
+	OpcacheInternedStringsBuffer string `form:"opcache_interned_strings_buffer" json:"opcache_interned_strings_buffer" validate:"number"`
+	OpcacheMaxAcceleratedFiles   string `form:"opcache_max_accelerated_files" json:"opcache_max_accelerated_files" validate:"number"`
+	OpcacheRevalidateFreq        string `form:"opcache_revalidate_freq" json:"opcache_revalidate_freq" validate:"number"`
+	OpcacheJit                   string `form:"opcache_jit" json:"opcache_jit"`
+	OpcacheJitBufferSize         string `form:"opcache_jit_buffer_size" json:"opcache_jit_buffer_size"`
 	// php-fpm.conf 相关
 	Pm                string `form:"pm" json:"pm" validate:"in:static,dynamic,ondemand"`
 	PmMaxChildren     string `form:"pm_max_children" json:"pm_max_children" validate:"number"`
