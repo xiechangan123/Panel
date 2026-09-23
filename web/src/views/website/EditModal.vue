@@ -87,12 +87,7 @@ watch(show, (v) => {
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
     webserver: 'nginx',
-    php: [
-      {
-        label: $gettext('Not used'),
-        value: 0,
-      },
-    ],
+    php: [],
     db: [
       {
         label: '',
@@ -119,9 +114,6 @@ const websiteTypeOptions = computed(() => [
   { label: $gettext('PHP'), value: 'php', disabled: setting.value.type === 'php' },
   { label: $gettext('Pure Static'), value: 'static', disabled: setting.value.type === 'static' },
 ])
-const switchPHPOptions = computed(() =>
-  installedEnvironment.value.php.filter((item: any) => item.value !== 0),
-)
 const websiteTypeLabel = (type: string) =>
   websiteTypeOptions.value.find((item) => item.value === type)?.label ?? type
 const canSwitchType = computed(() => {
@@ -1042,10 +1034,11 @@ const removeCustomConfig = (index: number) => {
             </n-form-item>
             <n-form-item v-if="setting.type == 'php'" :label="$gettext('PHP Version')">
               <n-select
-                v-model:value="setting.php"
-                :default-value="0"
+                :value="setting.php || null"
                 :options="installedEnvironment.php"
                 :placeholder="$gettext('Select PHP Version')"
+                clearable
+                @update:value="(v: number | null) => (setting.php = v ?? 0)"
                 @keydown.enter.prevent
               >
               </n-select>
@@ -1958,7 +1951,7 @@ const removeCustomConfig = (index: number) => {
                 <n-form-item v-if="targetType === 'php'" :label="$gettext('PHP Version')">
                   <n-select
                     v-model:value="targetPHP"
-                    :options="switchPHPOptions"
+                    :options="installedEnvironment.php"
                     :placeholder="$gettext('Select PHP Version')"
                   />
                 </n-form-item>

@@ -62,12 +62,7 @@ const loading = ref(false)
 
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
-    php: [
-      {
-        label: $gettext('Not used'),
-        value: 0,
-      },
-    ],
+    php: [],
     db: [
       {
         label: '',
@@ -198,6 +193,7 @@ watch(showPathSelector, (val) => {
               v-model:value="createModel.php"
               :options="installedEnvironment.php"
               :placeholder="$gettext('Select PHP Version')"
+              clearable
               @keydown.enter.prevent
             >
             </n-select>

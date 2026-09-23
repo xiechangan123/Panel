@@ -34,12 +34,7 @@ const effectiveType = computed(() => {
 // 已安装环境列表
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
-    php: [
-      {
-        label: $gettext('Not used'),
-        value: 0,
-      },
-    ],
+    php: [],
     db: [
       {
         label: '',
