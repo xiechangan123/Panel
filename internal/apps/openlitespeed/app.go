@@ -172,11 +172,6 @@ func (s *App) SetPHP(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	// 旧的 lsphp 不随 OLS 重载退出，关闭 LSAPI 后会一直残留
-	if err = openlitespeed.RestartPHP(req.Version); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
 
 	service.Success(w, nil)
 }

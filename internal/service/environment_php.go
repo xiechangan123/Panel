@@ -1087,7 +1087,7 @@ func (s *EnvironmentPHPService) probeSocket(version uint) (string, bool) {
 	return s.phpFPMSocket(version), false
 }
 
-// applyLSAPI LSAPI 下 lsphp 由 OLS 托管，改了配置要重载 OLS 同步外部应用参数，再重启 lsphp 才会生效
+// applyLSAPI LSAPI 下 lsphp 是 OLS 的子进程，重载 OLS 会同步外部应用参数并重启 lsphp
 func (s *EnvironmentPHPService) applyLSAPI(ctx context.Context, version uint) error {
 	if !openlitespeed.LSAPIEnabled(version) {
 		return nil
@@ -1096,9 +1096,6 @@ func (s *EnvironmentPHPService) applyLSAPI(ctx context.Context, version uint) er
 	if err != nil {
 		return err
 	}
-	if err = d.Reload(context.WithoutCancel(ctx)); err != nil {
-		return err
-	}
 
-	return openlitespeed.RestartPHP(version)
+	return d.Reload(context.WithoutCancel(ctx))
 }

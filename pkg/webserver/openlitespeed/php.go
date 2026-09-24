@@ -9,9 +9,6 @@ import (
 	"regexp"
 	"slices"
 	"strconv"
-	"strings"
-
-	"github.com/shirou/gopsutil/v4/process"
 
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
@@ -98,6 +95,8 @@ func syncPHP() error {
 			ext.Add("persistConn", "1")
 			ext.Add("respBuffer", "0")
 			ext.Add("autoStart", "1")
+			// 默认 3 是 detached 模式，lsphp 脱离 OLS 独立存活，重载、停止 OLS 都不会动它
+			ext.Add("runOnStartUp", "1")
 			ext.Add("path", LSPHPPath(version))
 			ext.Add("backlog", "100")
 			ext.Add("instances", "1")
@@ -125,38 +124,6 @@ func syncPHP() error {
 // LSAPISocket lsphp 监听的套接字
 func LSAPISocket(version uint) string {
 	return fmt.Sprintf("/tmp/lshttpd/php%d.sock", version)
-}
-
-// RestartPHP 重启 lsphp 让 php.ini 与外部应用参数生效，OLS 以 detached 模式托管 lsphp，重载 OLS 不会重启它。
-// 照 OLS 自己的重启流程：先删 socket 让新请求连不到旧进程，再只给父进程发 SIGTERM，
-// 子进程处理完当前请求后退出，OLS 收到下个请求时拉起新进程
-func RestartPHP(version uint) error {
-	if err := os.Remove(LSAPISocket(version)); err != nil && !os.IsNotExist(err) {
-		return err
-	}
-
-	procs, err := process.Processes()
-	if err != nil {
-		return err
-	}
-	exe := LSPHPPath(version)
-	for _, p := range procs {
-		if name, _ := p.Name(); name != "lsphp" {
-			continue
-		}
-		// 二进制被替换后 exe 会带 " (deleted)" 后缀
-		if path, _ := p.Exe(); !strings.HasPrefix(path, exe) {
-			continue
-		}
-		if parent, err := p.Parent(); err == nil {
-			if name, _ := parent.Name(); name == "lsphp" {
-				continue
-			}
-		}
-		_ = p.Terminate()
-	}
-
-	return nil
 }
 
 // SyncFPM 按 LSAPI 的启用情况开停 php-fpm
