@@ -98,16 +98,15 @@ func (r *cronRepo) Dos2Unix(ctx context.Context, path string) error {
 	return nil
 }
 
-// RemoveScriptFiles 清理脚本及关联的 .lock、_wrapper.sh 文件
-func (r *cronRepo) RemoveScriptFiles(ctx context.Context, shellPath string) error {
-	if err := io.Remove(shellPath); err != nil {
+// RemoveFiles 清理脚本、日志及关联的 .lock、_wrapper.sh 文件
+func (r *cronRepo) RemoveFiles(ctx context.Context, cron *biz.Cron) error {
+	if err := io.Remove(cron.Shell); err != nil {
 		return err
 	}
-	// 清理 .lock 文件和 _wrapper.sh 文件
-	lockFile := strings.TrimSuffix(shellPath, ".sh") + ".lock"
-	_ = io.Remove(lockFile)
-	wrapperFile := strings.TrimSuffix(shellPath, ".sh") + "_wrapper.sh"
-	_ = io.Remove(wrapperFile)
+	base := strings.TrimSuffix(cron.Shell, ".sh")
+	_ = io.Remove(base + ".lock")
+	_ = io.Remove(base + "_wrapper.sh")
+	_ = io.Remove(cron.Log)
 
 	return nil
 }

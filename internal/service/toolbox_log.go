@@ -99,6 +99,8 @@ func (s *ToolboxLogService) scan(ctx context.Context, typ string) []LogItem {
 	switch typ {
 	case "panel":
 		return fileItems("", filepath.Join(app.Root, "panel/storage/logs/*.log"))
+	case "cron":
+		return s.scanCronLogs()
 	case "website":
 		return s.scanWebsiteLogs()
 	case "mysql":
@@ -109,6 +111,36 @@ func (s *ToolboxLogService) scan(ctx context.Context, typ string) []LogItem {
 		return s.scanSystemLogs(ctx)
 	}
 	return nil
+}
+
+// scanCronLogs 扫描计划任务日志
+func (s *ToolboxLogService) scanCronLogs() []LogItem {
+	var crons []*biz.Cron
+	_ = s.db.Find(&crons).Error
+
+	logs := lo.KeyBy(fileItems("", filepath.Join(app.Root, "server/cron/logs/*.log")), func(item LogItem) string {
+		return item.Path
+	})
+	items := make([]LogItem, 0, len(logs))
+	for _, cron := range crons {
+		if item, ok := logs[cron.Log]; ok {
+			item.Name = cron.Name
+			items = append(items, item)
+			delete(logs, cron.Log)
+		}
+	}
+
+	// 剩下的属于已删除的任务，没有进程再写，直接删掉
+	if len(logs) > 0 {
+		deleted := make([]LogItem, 0, len(logs))
+		for path, item := range logs {
+			item.clean = func(context.Context) error { return os.Remove(path) }
+			deleted = append(deleted, item)
+		}
+		items = append(items, mergeItems(s.t.Get("Deleted task logs: %d files", len(deleted)), "cron:deleted", deleted))
+	}
+
+	return items
 }
 
 // scanWebsiteLogs 扫描网站日志

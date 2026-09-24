@@ -35,7 +35,7 @@ type CronRepo interface {
 	Dos2Unix(ctx context.Context, path string) error
 	AddToSystem(ctx context.Context, cron *Cron) error
 	DeleteFromSystem(ctx context.Context, cron *Cron) error
-	RemoveScriptFiles(ctx context.Context, shellPath string) error
+	RemoveFiles(ctx context.Context, cron *Cron) error
 }
 
 // CronUsecase 计划任务业务逻辑
@@ -173,7 +173,7 @@ func (uc *CronUsecase) Delete(ctx context.Context, id uint) error {
 	if err = uc.repo.DeleteFromSystem(ctx, cron); err != nil {
 		return err
 	}
-	if err = uc.repo.RemoveScriptFiles(ctx, cron.Shell); err != nil {
+	if err = uc.repo.RemoveFiles(ctx, cron); err != nil {
 		return err
 	}
 

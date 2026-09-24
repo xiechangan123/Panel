@@ -37,6 +37,12 @@ const logTypes = ref<LogType[]>(
       icon: 'mdi:view-dashboard-outline',
     },
     {
+      key: 'cron',
+      name: $gettext('Scheduled Task Logs'),
+      description: $gettext('Scheduled task execution logs'),
+      icon: 'mdi:timetable',
+    },
+    {
       key: 'website',
       name: $gettext('Website Logs'),
       description: $gettext('Website access and error logs'),

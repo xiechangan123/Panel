@@ -49,8 +49,8 @@ var _ biz.CronRepo = &CronRepo{}
 //			ListFunc: func(page uint, limit uint) ([]*biz.Cron, int64, error) {
 //				panic("mock out the List method")
 //			},
-//			RemoveScriptFilesFunc: func(ctx context.Context, shellPath string) error {
-//				panic("mock out the RemoveScriptFiles method")
+//			RemoveFilesFunc: func(ctx context.Context, cron *biz.Cron) error {
+//				panic("mock out the RemoveFiles method")
 //			},
 //			SaveFunc: func(cron *biz.Cron) error {
 //				panic("mock out the Save method")
@@ -95,8 +95,8 @@ type CronRepo struct {
 	// ListFunc mocks the List method.
 	ListFunc func(page uint, limit uint) ([]*biz.Cron, int64, error)
 
-	// RemoveScriptFilesFunc mocks the RemoveScriptFiles method.
-	RemoveScriptFilesFunc func(ctx context.Context, shellPath string) error
+	// RemoveFilesFunc mocks the RemoveFiles method.
+	RemoveFilesFunc func(ctx context.Context, cron *biz.Cron) error
 
 	// SaveFunc mocks the Save method.
 	SaveFunc func(cron *biz.Cron) error
@@ -164,12 +164,12 @@ type CronRepo struct {
 			// Limit is the limit argument value.
 			Limit uint
 		}
-		// RemoveScriptFiles holds details about calls to the RemoveScriptFiles method.
-		RemoveScriptFiles []struct {
+		// RemoveFiles holds details about calls to the RemoveFiles method.
+		RemoveFiles []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// ShellPath is the shellPath argument value.
-			ShellPath string
+			// Cron is the cron argument value.
+			Cron *biz.Cron
 		}
 		// Save holds details about calls to the Save method.
 		Save []struct {
@@ -191,19 +191,19 @@ type CronRepo struct {
 			Script string
 		}
 	}
-	lockAddToSystem       sync.RWMutex
-	lockCount             sync.RWMutex
-	lockCreate            sync.RWMutex
-	lockDelete            sync.RWMutex
-	lockDeleteFromSystem  sync.RWMutex
-	lockDos2Unix          sync.RWMutex
-	lockGenerateScript    sync.RWMutex
-	lockGet               sync.RWMutex
-	lockList              sync.RWMutex
-	lockRemoveScriptFiles sync.RWMutex
-	lockSave              sync.RWMutex
-	lockWriteNewScript    sync.RWMutex
-	lockWriteScript       sync.RWMutex
+	lockAddToSystem      sync.RWMutex
+	lockCount            sync.RWMutex
+	lockCreate           sync.RWMutex
+	lockDelete           sync.RWMutex
+	lockDeleteFromSystem sync.RWMutex
+	lockDos2Unix         sync.RWMutex
+	lockGenerateScript   sync.RWMutex
+	lockGet              sync.RWMutex
+	lockList             sync.RWMutex
+	lockRemoveFiles      sync.RWMutex
+	lockSave             sync.RWMutex
+	lockWriteNewScript   sync.RWMutex
+	lockWriteScript      sync.RWMutex
 }
 
 // AddToSystem calls AddToSystemFunc.
@@ -513,39 +513,39 @@ func (mock *CronRepo) ListCalls() []struct {
 	return calls
 }
 
-// RemoveScriptFiles calls RemoveScriptFilesFunc.
-func (mock *CronRepo) RemoveScriptFiles(ctx context.Context, shellPath string) error {
-	if mock.RemoveScriptFilesFunc == nil {
-		panic("CronRepo.RemoveScriptFilesFunc: method is nil but CronRepo.RemoveScriptFiles was just called")
+// RemoveFiles calls RemoveFilesFunc.
+func (mock *CronRepo) RemoveFiles(ctx context.Context, cron *biz.Cron) error {
+	if mock.RemoveFilesFunc == nil {
+		panic("CronRepo.RemoveFilesFunc: method is nil but CronRepo.RemoveFiles was just called")
 	}
 	callInfo := struct {
-		Ctx       context.Context
-		ShellPath string
+		Ctx  context.Context
+		Cron *biz.Cron
 	}{
-		Ctx:       ctx,
-		ShellPath: shellPath,
+		Ctx:  ctx,
+		Cron: cron,
 	}
-	mock.lockRemoveScriptFiles.Lock()
-	mock.calls.RemoveScriptFiles = append(mock.calls.RemoveScriptFiles, callInfo)
-	mock.lockRemoveScriptFiles.Unlock()
-	return mock.RemoveScriptFilesFunc(ctx, shellPath)
+	mock.lockRemoveFiles.Lock()
+	mock.calls.RemoveFiles = append(mock.calls.RemoveFiles, callInfo)
+	mock.lockRemoveFiles.Unlock()
+	return mock.RemoveFilesFunc(ctx, cron)
 }
 
-// RemoveScriptFilesCalls gets all the calls that were made to RemoveScriptFiles.
+// RemoveFilesCalls gets all the calls that were made to RemoveFiles.
 // Check the length with:
 //
-//	len(mockedCronRepo.RemoveScriptFilesCalls())
-func (mock *CronRepo) RemoveScriptFilesCalls() []struct {
-	Ctx       context.Context
-	ShellPath string
+//	len(mockedCronRepo.RemoveFilesCalls())
+func (mock *CronRepo) RemoveFilesCalls() []struct {
+	Ctx  context.Context
+	Cron *biz.Cron
 } {
 	var calls []struct {
-		Ctx       context.Context
-		ShellPath string
+		Ctx  context.Context
+		Cron *biz.Cron
 	}
-	mock.lockRemoveScriptFiles.RLock()
-	calls = mock.calls.RemoveScriptFiles
-	mock.lockRemoveScriptFiles.RUnlock()
+	mock.lockRemoveFiles.RLock()
+	calls = mock.calls.RemoveFiles
+	mock.lockRemoveFiles.RUnlock()
 	return calls
 }
 
