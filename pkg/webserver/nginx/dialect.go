@@ -199,11 +199,8 @@ func (Dialect) RemoveSiteChallenge(conf, path, token string) (bool, error) {
 
 func (Dialect) WritePanelChallenge(conf string, names []string, tokens map[string]string) (bool, error) {
 	var b strings.Builder
-	b.WriteString("server {\n    listen 80;\n")
-	// 只有在包含 IPv6 地址时才监听 [::]:80，避免纯 IPv4 系统上 nginx 启动失败
-	if lo.SomeBy(names, tools.IsIPv6) {
-		b.WriteString("    listen [::]:80;\n")
-	}
+	// 域名有 AAAA 记录时 CA 走 IPv6 验证；默认站点本就监听 [::]:80，不必顾虑纯 IPv4 环境
+	b.WriteString("server {\n    listen 80;\n    listen [::]:80;\n")
 	wrapped := lo.Map(names, func(name string, _ int) string {
 		return tools.WrapIPv6(name)
 	})
