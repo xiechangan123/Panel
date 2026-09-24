@@ -8,6 +8,8 @@ import { useGettext } from 'vue3-gettext'
 
 import log from '@/api/panel/log'
 
+import CleanPopover from './CleanPopover.vue'
+
 const { $gettext } = useGettext()
 
 // 日志条目类型定义
@@ -20,10 +22,12 @@ interface LogEntry {
 
 // 数据加载
 const limit = ref(200)
-const selectedDate = ref<string | null>(null)
+const selectedDate = ref('')
 
 // 获取可用的日志日期列表
-const { data: dates } = useRequest(() => log.dates('http'), { initialData: [] })
+const { data: dates, send: refreshDates } = useRequest(() => log.dates('http'), {
+  initialData: [],
+})
 
 // 日期选项
 const dateOptions = computed(() => {
@@ -40,7 +44,7 @@ const {
   loading,
   data,
   send: refresh,
-} = useRequest(() => log.list('http', limit.value, selectedDate.value || ''), { initialData: [] })
+} = useRequest(() => log.list('http', limit.value, selectedDate.value), { initialData: [] })
 
 // 获取状态码颜色
 const getStatusType = (code: number): 'success' | 'warning' | 'error' | 'info' => {
@@ -133,6 +137,13 @@ const columns = [
 const handleRefresh = () => {
   refresh()
 }
+
+// 清理后选中的日期可能已被删掉，回到今天
+const handleCleaned = () => {
+  selectedDate.value = ''
+  refreshDates()
+  refresh()
+}
 </script>
 
 <template>
@@ -160,6 +171,7 @@ const handleRefresh = () => {
       <n-button type="primary" @click="handleRefresh">
         {{ $gettext('Refresh') }}
       </n-button>
+      <clean-popover type="http" @cleaned="handleCleaned" />
     </n-flex>
     <n-data-table
       class="flex-1 min-h-0"

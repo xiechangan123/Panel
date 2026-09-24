@@ -11,3 +11,9 @@ type LogList struct {
 type LogDates struct {
 	Type string `json:"type" form:"type" query:"type" validate:"required && in:app,db,http"`
 }
+
+// LogClean 日志清理请求
+type LogClean struct {
+	Type string `json:"type" form:"type" validate:"required && in:app,db,http"`
+	Date string `json:"date" form:"date" validate:"required && datetime:2006-01-02"` // 清理该日期及之前的日志
+}

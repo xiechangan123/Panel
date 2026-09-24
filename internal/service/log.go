@@ -79,6 +79,22 @@ func (s *LogService) Dates(w http.ResponseWriter, r *http.Request) {
 	Success(w, dates)
 }
 
+// Clean 清理指定日期及之前的日志
+func (s *LogService) Clean(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.LogClean](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.logRepo.Clean(r.Context(), req.Type, req.Date); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
 // SSH 获取 SSH 登录日志
 func (s *LogService) SSH(w http.ResponseWriter, r *http.Request) {
 	limit := 100

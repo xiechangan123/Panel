@@ -17,11 +17,15 @@ import (
 	"github.com/acepanel/panel/v3/internal/biz"
 )
 
-var (
-	logArchivePatternApp  = regexp.MustCompile(`^app-(\d{4}-\d{2}-\d{2})T.*\.log$`)
-	logArchivePatternDB   = regexp.MustCompile(`^db-(\d{4}-\d{2}-\d{2})T.*\.log$`)
-	logArchivePatternHTTP = regexp.MustCompile(`^http-(\d{4}-\d{2}-\d{2})T.*\.log$`)
-)
+// logArchivePattern 轮转归档的文件名，时间戳是该文件内日志的结束时刻
+var logArchivePattern = regexp.MustCompile(`^(app|db|http)-(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.\d{3})(?:\.\d+)?\.log$`)
+
+// logFile 日志文件及其内日志所属的日期
+type logFile struct {
+	path    string
+	date    string
+	current bool
+}
 
 type logRepo struct {
 	db *gorm.DB
@@ -36,75 +40,27 @@ func NewLogRepo(db *gorm.DB) biz.LogRepo {
 // List 获取日志列表
 // date 格式为 YYYY-MM-DD，空字符串表示当天日志
 func (r *logRepo) List(logType string, limit int, date string) ([]biz.LogEntry, error) {
-	logDir := filepath.Join(app.Root, "panel/storage/logs")
-
-	var logPath string
 	if date == "" {
-		// 无日期参数，读取当前日志文件
-		logPath = filepath.Join(logDir, logType+".log")
-	} else {
-		// 有日期参数，查找对应的归档日志文件
-		pattern := getLogArchivePattern(logType)
+		date = time.Now().Format(time.DateOnly)
+	}
+	files, err := r.files(logType)
+	if err != nil {
+		return nil, err
+	}
 
-		entries, err := os.ReadDir(logDir)
+	// 一天可能因为大小轮转分成多个文件，从最新的往前读，凑够 limit 行为止
+	var lines []string
+	for i := len(files) - 1; i >= 0 && len(lines) < limit; i-- {
+		if files[i].date != date {
+			continue
+		}
+		fileLines, err := readLines(files[i].path)
 		if err != nil {
-			if os.IsNotExist(err) {
-				return []biz.LogEntry{}, nil
-			}
 			return nil, err
 		}
-
-		found := false
-		for _, entry := range entries {
-			if entry.IsDir() {
-				continue
-			}
-			matches := pattern.FindStringSubmatch(entry.Name())
-			if len(matches) == 2 && matches[1] == date {
-				logPath = filepath.Join(logDir, entry.Name())
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			return []biz.LogEntry{}, nil
-		}
+		lines = append(fileLines, lines...)
 	}
-
-	file, err := os.Open(logPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return []biz.LogEntry{}, nil
-		}
-		return nil, err
-	}
-	defer func(file *os.File) { _ = file.Close() }(file)
-
-	// 读取所有行
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	// 增加缓冲区大小以处理较长的日志行
-	buf := make([]byte, 0, 64*1024)
-	scanner.Buffer(buf, 1024*1024)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.TrimSpace(line) != "" {
-			lines = append(lines, line)
-		}
-	}
-
-	if err = scanner.Err(); err != nil {
-		return nil, err
-	}
-
-	// 从末尾取指定数量的行
-	start := 0
-	if len(lines) > limit {
-		start = len(lines) - limit
-	}
-	lines = lines[start:]
+	lines = lines[max(0, len(lines)-limit):]
 
 	// 倒序处理，最新的在前面
 	entries := make([]biz.LogEntry, 0, len(lines))
@@ -124,35 +80,105 @@ func (r *logRepo) List(logType string, limit int, date string) ([]biz.LogEntry, 
 	return entries, nil
 }
 
-// ListDates 获取可用的日志日期列表
+// ListDates 获取可用的日志日期列表，当天由 List 的空日期覆盖，不在其中
 func (r *logRepo) ListDates(logType string) ([]string, error) {
-	logDir := filepath.Join(app.Root, "panel/storage/logs")
-
-	entries, err := os.ReadDir(logDir)
+	files, err := r.files(logType)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return []string{}, nil
-		}
 		return nil, err
 	}
 
-	pattern := getLogArchivePattern(logType)
-
-	dates := make([]string, 0)
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		matches := pattern.FindStringSubmatch(entry.Name())
-		if len(matches) == 2 {
-			dates = append(dates, matches[1])
-		}
-	}
+	today := time.Now().Format(time.DateOnly)
+	dates := lo.Uniq(lo.FilterMap(files, func(file logFile, _ int) (string, bool) {
+		return file.date, file.date != today
+	}))
 
 	// 按日期倒序排列，最新的在前面
 	sort.Sort(sort.Reverse(sort.StringSlice(dates)))
 
 	return dates, nil
+}
+
+// Clean 清理指定日期及之前的日志，当前文件还在写入，只能清空
+func (r *logRepo) Clean(logType string, date string) error {
+	files, err := r.files(logType)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		if file.date > date {
+			continue
+		}
+		if file.current {
+			err = os.Truncate(file.path, 0)
+		} else {
+			err = os.Remove(file.path)
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// files 按时间先后列出某类日志的归档与当前文件
+func (r *logRepo) files(logType string) ([]logFile, error) {
+	dir := filepath.Join(app.Root, "panel/storage/logs")
+	entries, err := os.ReadDir(dir)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	}
+
+	files := make([]logFile, 0, len(entries))
+	for _, entry := range entries {
+		matches := logArchivePattern.FindStringSubmatch(entry.Name())
+		if matches == nil || matches[1] != logType {
+			continue
+		}
+		end, err := time.ParseInLocation("2006-01-02T15-04-05.000", matches[2], time.Local)
+		if err != nil {
+			continue
+		}
+		// 零点轮转的归档时间戳是次日零点，往前退一点才是日志所属的日期
+		files = append(files, logFile{
+			path: filepath.Join(dir, entry.Name()),
+			date: end.Add(-time.Nanosecond).Format(time.DateOnly),
+		})
+	}
+
+	// 当前文件名里没有时间戳，按最后写入时间算
+	current := filepath.Join(dir, logType+".log")
+	if info, err := os.Stat(current); err == nil {
+		files = append(files, logFile{path: current, date: info.ModTime().Format(time.DateOnly), current: true})
+	}
+
+	return files, nil
+}
+
+// readLines 读取文件中的非空行
+func readLines(path string) ([]string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		// 列出后可能刚被轮转清理掉
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	defer func(file *os.File) { _ = file.Close() }(file)
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	// 增加缓冲区大小以处理较长的日志行
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	for scanner.Scan() {
+		if line := scanner.Text(); strings.TrimSpace(line) != "" {
+			lines = append(lines, line)
+		}
+	}
+
+	return lines, scanner.Err()
 }
 
 // fillOperatorNames 填充操作员用户名
@@ -235,18 +261,4 @@ func (r *logRepo) parseLine(line string, logType string) (biz.LogEntry, error) {
 	}
 
 	return entry, nil
-}
-
-// getLogArchivePattern 获取归档日志文件名匹配正则表达式
-func getLogArchivePattern(logType string) *regexp.Regexp {
-	switch logType {
-	case biz.LogTypeApp:
-		return logArchivePatternApp
-	case biz.LogTypeDB:
-		return logArchivePatternDB
-	case biz.LogTypeHTTP:
-		return logArchivePatternHTTP
-	default:
-		return logArchivePatternApp
-	}
 }

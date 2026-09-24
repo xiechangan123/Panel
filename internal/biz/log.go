@@ -1,6 +1,8 @@
 package biz
 
 import (
+	"context"
+	"log/slog"
 	"time"
 )
 
@@ -51,14 +53,17 @@ type LogRepo interface {
 	List(logType string, limit int, date string) ([]LogEntry, error)
 	// ListDates 获取可用的日志日期列表
 	ListDates(logType string) ([]string, error)
+	// Clean 清理指定日期及之前的日志
+	Clean(logType string, date string) error
 }
 
 type LogUsecase struct {
 	repo LogRepo
+	log  *slog.Logger
 }
 
-func NewLogUsecase(repo LogRepo) *LogUsecase {
-	return &LogUsecase{repo: repo}
+func NewLogUsecase(repo LogRepo, log *slog.Logger) *LogUsecase {
+	return &LogUsecase{repo: repo, log: log}
 }
 
 func (uc *LogUsecase) List(logType string, limit int, date string) ([]LogEntry, error) {
@@ -67,4 +72,15 @@ func (uc *LogUsecase) List(logType string, limit int, date string) ([]LogEntry, 
 
 func (uc *LogUsecase) ListDates(logType string) ([]string, error) {
 	return uc.repo.ListDates(logType)
+}
+
+func (uc *LogUsecase) Clean(ctx context.Context, logType, date string) error {
+	if err := uc.repo.Clean(logType, date); err != nil {
+		return err
+	}
+
+	// 记录日志，操作日志被清空后留下这一条作为痕迹
+	uc.log.Info("logs cleaned", slog.String("type", OperationTypePanel), slog.Uint64("operator_id", operatorID(ctx)), slog.String("log_type", logType), slog.String("date", date))
+
+	return nil
 }

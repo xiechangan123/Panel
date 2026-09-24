@@ -372,7 +372,7 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue110_0 := data.NewLogRepo(wireValue4_0)
 
-	wireValue71_0 := biz.NewLogUsecase(wireValue110_0)
+	wireValue71_0 := biz.NewLogUsecase(wireValue110_0, wireValue3_0)
 
 	wireValue161_0 := service.NewLogService(wireValue71_0, wireValue1_0)
 

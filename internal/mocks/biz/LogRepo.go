@@ -20,6 +20,9 @@ var _ biz.LogRepo = &LogRepo{}
 //
 //		// make and configure a mocked biz.LogRepo
 //		mockedLogRepo := &LogRepo{
+//			CleanFunc: func(logType string, date string) error {
+//				panic("mock out the Clean method")
+//			},
 //			ListFunc: func(logType string, limit int, date string) ([]biz.LogEntry, error) {
 //				panic("mock out the List method")
 //			},
@@ -33,6 +36,9 @@ var _ biz.LogRepo = &LogRepo{}
 //
 //	}
 type LogRepo struct {
+	// CleanFunc mocks the Clean method.
+	CleanFunc func(logType string, date string) error
+
 	// ListFunc mocks the List method.
 	ListFunc func(logType string, limit int, date string) ([]biz.LogEntry, error)
 
@@ -41,6 +47,13 @@ type LogRepo struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// Clean holds details about calls to the Clean method.
+		Clean []struct {
+			// LogType is the logType argument value.
+			LogType string
+			// Date is the date argument value.
+			Date string
+		}
 		// List holds details about calls to the List method.
 		List []struct {
 			// LogType is the logType argument value.
@@ -56,8 +69,45 @@ type LogRepo struct {
 			LogType string
 		}
 	}
+	lockClean     sync.RWMutex
 	lockList      sync.RWMutex
 	lockListDates sync.RWMutex
+}
+
+// Clean calls CleanFunc.
+func (mock *LogRepo) Clean(logType string, date string) error {
+	if mock.CleanFunc == nil {
+		panic("LogRepo.CleanFunc: method is nil but LogRepo.Clean was just called")
+	}
+	callInfo := struct {
+		LogType string
+		Date    string
+	}{
+		LogType: logType,
+		Date:    date,
+	}
+	mock.lockClean.Lock()
+	mock.calls.Clean = append(mock.calls.Clean, callInfo)
+	mock.lockClean.Unlock()
+	return mock.CleanFunc(logType, date)
+}
+
+// CleanCalls gets all the calls that were made to Clean.
+// Check the length with:
+//
+//	len(mockedLogRepo.CleanCalls())
+func (mock *LogRepo) CleanCalls() []struct {
+	LogType string
+	Date    string
+} {
+	var calls []struct {
+		LogType string
+		Date    string
+	}
+	mock.lockClean.RLock()
+	calls = mock.calls.Clean
+	mock.lockClean.RUnlock()
+	return calls
 }
 
 // List calls ListFunc.

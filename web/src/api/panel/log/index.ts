@@ -6,6 +6,9 @@ export default {
     http.Get('/log/list', { params: { type, limit, date } }),
   // 获取日志日期列表
   dates: (type: 'app' | 'db' | 'http'): any => http.Get('/log/dates', { params: { type } }),
+  // 清理指定日期及之前的日志
+  clean: (type: 'app' | 'db' | 'http', date: string): any =>
+    http.Post('/log/clean', { type, date }),
   // 获取 SSH 登录日志
   ssh: (limit: number = 100): any => http.Get('/log/ssh', { params: { limit } }),
 }
