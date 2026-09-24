@@ -11,8 +11,6 @@ type BusEvents = {
   'database-user:refresh': undefined
   'file:edit': string
   'file:inline-create': boolean
-  'file:keyboard-pause': undefined
-  'file:keyboard-resume': undefined
   'file:refresh': undefined
   'file:search': undefined
   'firewall:refresh': undefined

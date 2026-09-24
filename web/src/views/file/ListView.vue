@@ -15,9 +15,10 @@ import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import tamper from '@/api/panel/tamper'
+import { hasOpenWindow } from '@/components/common/composables/useWindowStack'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import TheIcon from '@/components/custom/TheIcon.vue'
-import { useFileStore } from '@/stores'
+import { useFileStore, useTaskQueueStore } from '@/stores'
 import {
   checkName,
   checkPath,
@@ -38,8 +39,9 @@ import type { FileInfo } from '@/views/file/types'
 const { $gettext } = useGettext()
 const themeVars = useThemeVars()
 const fileStore = useFileStore()
+const taskQueue = useTaskQueueStore()
 const { handlePaste: doPaste } = usePaste()
-const { deletePaths, movePath, markClipboard, refreshAfterTasks } = useFileOps()
+const { deletePaths, movePath, markClipboard } = useFileOps()
 
 const props = defineProps<{
   tabId: string
@@ -1127,21 +1129,10 @@ const goToParentDir = () => {
   path.value = path.value.substring(0, path.value.lastIndexOf('/')) || '/'
 }
 
-// 键盘快捷键暂停状态
-const keyboardPaused = ref(false)
-
-const pauseKeyboard = () => {
-  keyboardPaused.value = true
-}
-
-const resumeKeyboard = () => {
-  keyboardPaused.value = false
-}
-
 // 键盘快捷键处理
 const handleKeyDown = (event: KeyboardEvent) => {
-  // 如果键盘监听被暂停（如编辑器打开时），不处理快捷键
-  if (keyboardPaused.value) {
+  // 编辑器、任务队列等窗口展开时不处理快捷键
+  if (hasOpenWindow.value) {
     return
   }
 
@@ -1290,12 +1281,9 @@ const handleUnCompress = () => {
     return
   }
   useRequest(file.unCompress(unCompressModel.value.file, unCompressModel.value.path)).onSuccess(
-    () => {
+    ({ data }) => {
       unCompressModal.value = false
-      window.$message.success(
-        $gettext('Uncompress task created successfully, please check the task list for progress'),
-      )
-      refreshAfterTasks()
+      taskQueue.add(data)
     },
   )
 }
@@ -1393,8 +1381,6 @@ onMounted(() => {
 
   window.$bus.on('file:search', handleFileSearch)
   window.$bus.on('file:refresh', refresh)
-  window.$bus.on('file:keyboard-pause', pauseKeyboard)
-  window.$bus.on('file:keyboard-resume', resumeKeyboard)
   window.$bus.on('file:inline-create', startInlineCreate)
 
   addDocumentListeners()
@@ -1410,8 +1396,6 @@ onUnmounted(() => {
   // 移除事件监听
   window.$bus.off('file:search', handleFileSearch)
   window.$bus.off('file:refresh', refresh)
-  window.$bus.off('file:keyboard-pause', pauseKeyboard)
-  window.$bus.off('file:keyboard-resume', resumeKeyboard)
   window.$bus.off('file:inline-create', startInlineCreate)
   removeDocumentListeners()
 })

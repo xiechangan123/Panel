@@ -2,6 +2,8 @@
 import { useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import { useWindowStack } from './composables/useWindowStack'
+
 const { $gettext } = useGettext()
 const themeVars = useThemeVars()
 
@@ -28,6 +30,8 @@ const props = withDefaults(
 const show = defineModel<boolean>('show', { default: false })
 const minimized = defineModel<boolean>('minimized', { default: false })
 
+const { zIndex, dock } = useWindowStack(computed(() => show.value && !minimized.value))
+
 // 窗口状态
 const isMaximized = ref(false)
 
@@ -53,6 +57,7 @@ const windowStyle = computed(() => ({
   top: position.value.y + 'px',
   width: size.value.width + 'px',
   height: size.value.height + 'px',
+  zIndex: zIndex.value,
   background: themeVars.value.cardColor,
   '--border-color': themeVars.value.borderColor,
   '--text-color-1': themeVars.value.textColor1,
@@ -243,6 +248,8 @@ function handleWindowResize() {
 }
 
 onMounted(() => {
+  // 打开状态可能是持久化恢复的，不会经过 show 的 watch
+  if (show.value) initPosition()
   window.addEventListener('resize', handleWindowResize)
 })
 
@@ -255,7 +262,12 @@ onBeforeUnmount(() => {
   <Teleport to="body">
     <!-- 遮罩层 -->
     <Transition name="fade">
-      <div v-if="show && !minimized" class="draggable-window-overlay" @click="handleOverlayClick" />
+      <div
+        v-if="show && !minimized"
+        class="draggable-window-overlay"
+        :style="{ zIndex: zIndex - 1 }"
+        @click="handleOverlayClick"
+      />
     </Transition>
 
     <!-- 主窗口：最小化时仅隐藏不销毁，保留编辑器的撤销历史、滚动位置和文件树状态 -->
@@ -311,8 +323,10 @@ onBeforeUnmount(() => {
         </template>
       </div>
     </Transition>
+  </Teleport>
 
-    <!-- 最小化后的图标 -->
+  <!-- 最小化后的图标 -->
+  <Teleport :to="dock">
     <Transition name="minimize">
       <div
         v-if="show && minimized"
@@ -324,7 +338,9 @@ onBeforeUnmount(() => {
         }"
         @click="restore"
       >
-        <i-mdi-file-document-outline />
+        <slot name="icon">
+          <i-mdi-file-document-outline />
+        </slot>
         <span>{{ title }}</span>
       </div>
     </Transition>
@@ -339,12 +355,10 @@ onBeforeUnmount(() => {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 1999;
 }
 
 .draggable-window {
   position: fixed;
-  z-index: 2000;
   display: flex;
   flex-direction: column;
   border-radius: var(--border-radius);
@@ -483,10 +497,6 @@ onBeforeUnmount(() => {
 
 // 最小化后的图标
 .draggable-window-minimized {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  z-index: 2000;
   display: flex;
   align-items: center;
   gap: 8px;

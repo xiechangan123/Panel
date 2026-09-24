@@ -531,7 +531,7 @@ func (s *FileService) RemoteDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Success(w, nil)
+	Success(w, task)
 }
 
 func (s *FileService) Info(w http.ResponseWriter, r *http.Request) {
@@ -646,7 +646,7 @@ func (s *FileService) Compress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd, err := io.CompressShell(req.Dir, req.Paths, req.File)
+	cmd, err := io.CompressShell(req.Dir, req.Paths, req.File, true)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -664,7 +664,7 @@ func (s *FileService) Compress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Success(w, nil)
+	Success(w, task)
 }
 
 func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
@@ -674,7 +674,7 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd, err := io.UnCompressShell(req.File, req.Path)
+	cmd, err := io.UnCompressShell(req.File, req.Path, true)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -691,7 +691,7 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Success(w, nil)
+	Success(w, task)
 }
 
 func (s *FileService) List(w http.ResponseWriter, r *http.Request) {

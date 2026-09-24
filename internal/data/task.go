@@ -47,6 +47,12 @@ func (r *taskRepo) Get(id uint) (*biz.Task, error) {
 	return task, err
 }
 
+func (r *taskRepo) GetByIDs(ids []uint) ([]*biz.Task, error) {
+	tasks := make([]*biz.Task, 0)
+	err := r.db.Where("id IN ?", ids).Find(&tasks).Error
+	return tasks, err
+}
+
 func (r *taskRepo) Delete(id uint) error {
 	task, err := r.Get(id)
 	if err != nil {

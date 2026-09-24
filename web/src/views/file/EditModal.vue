@@ -99,26 +99,15 @@ function loadFile(path: string) {
   openInEditor(path)
 }
 
-// 列表重新可见时恢复快捷键，并刷新以同步保存后的大小和修改时间
-function releaseList() {
-  window.$bus.emit('file:keyboard-resume')
-  window.$bus.emit('file:refresh')
-}
-
 // 打开时自动加载文件
 watch(show, (newShow) => {
   if (newShow && filePath.value) {
-    // 暂停文件管理的键盘快捷键
-    window.$bus.emit('file:keyboard-pause')
-
     // 清空之前的标签页
     editorStore.closeAllTabs()
     // 设置根目录
     editorStore.setRootPath(initialPath.value)
     // 加载文件
     loadFile(filePath.value)
-  } else if (!newShow) {
-    releaseList()
   }
 })
 
@@ -129,14 +118,13 @@ watch(filePath, (newPath) => {
   }
 })
 
-// 监听最小化状态
-watch(minimized, (isMinimized) => {
-  if (isMinimized) {
-    releaseList()
-  } else {
-    window.$bus.emit('file:keyboard-pause')
-  }
-})
+// 关闭或最小化后列表重新可见，刷新以同步保存后的大小和修改时间
+watch(
+  () => show.value && !minimized.value,
+  (covering) => {
+    if (!covering) window.$bus.emit('file:refresh')
+  },
+)
 </script>
 
 <template>

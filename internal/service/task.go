@@ -60,6 +60,23 @@ func (s *TaskService) Get(w http.ResponseWriter, r *http.Request) {
 	Success(w, task)
 }
 
+// Query 批量获取任务，已删除的任务不在结果里
+func (s *TaskService) Query(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.TaskIDs](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	tasks, err := s.taskRepo.GetByIDs(req.IDs)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, tasks)
+}
+
 func (s *TaskService) Delete(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ID](r)
 	if err != nil {

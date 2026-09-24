@@ -3,13 +3,12 @@ import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import api from '@/api/panel/file'
-import { useFileStore } from '@/stores'
+import { useFileStore, useTaskQueueStore } from '@/stores'
 import { generateRandomString, lastDirectory } from '@/utils'
-import { useFileOps } from '@/views/file/composables/useFileOps'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
-const { refreshAfterTasks } = useFileOps()
+const taskQueue = useTaskQueueStore()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const path = defineModel<string>('path', { type: String, required: true })
 // 打开时快照选中项，弹窗内移除不影响列表选中状态
@@ -33,15 +32,12 @@ const generateName = () => {
 const handleArchive = () => {
   loading.value = true
   useRequest(api.compress(path.value, paths.value.map(relative), file.value + format.value))
-    .onSuccess(() => {
+    .onSuccess(({ data }) => {
       show.value = false
       if (fileStore.activeTab) {
         fileStore.activeTab.selected = []
       }
-      window.$message.success(
-        $gettext('Compress task created successfully, please check the task list for progress'),
-      )
-      refreshAfterTasks()
+      taskQueue.add(data)
     })
     .onComplete(() => {
       loading.value = false

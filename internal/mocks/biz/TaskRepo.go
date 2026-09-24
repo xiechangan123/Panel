@@ -29,6 +29,9 @@ var _ biz.TaskRepo = &TaskRepo{}
 //			GetFunc: func(id uint) (*biz.Task, error) {
 //				panic("mock out the Get method")
 //			},
+//			GetByIDsFunc: func(ids []uint) ([]*biz.Task, error) {
+//				panic("mock out the GetByIDs method")
+//			},
 //			HasRunningTaskFunc: func() bool {
 //				panic("mock out the HasRunningTask method")
 //			},
@@ -59,6 +62,9 @@ type TaskRepo struct {
 
 	// GetFunc mocks the Get method.
 	GetFunc func(id uint) (*biz.Task, error)
+
+	// GetByIDsFunc mocks the GetByIDs method.
+	GetByIDsFunc func(ids []uint) ([]*biz.Task, error)
 
 	// HasRunningTaskFunc mocks the HasRunningTask method.
 	HasRunningTaskFunc func() bool
@@ -91,6 +97,11 @@ type TaskRepo struct {
 		Get []struct {
 			// ID is the id argument value.
 			ID uint
+		}
+		// GetByIDs holds details about calls to the GetByIDs method.
+		GetByIDs []struct {
+			// Ids is the ids argument value.
+			Ids []uint
 		}
 		// HasRunningTask holds details about calls to the HasRunningTask method.
 		HasRunningTask []struct {
@@ -125,6 +136,7 @@ type TaskRepo struct {
 	lockCancel         sync.RWMutex
 	lockDelete         sync.RWMutex
 	lockGet            sync.RWMutex
+	lockGetByIDs       sync.RWMutex
 	lockHasRunningTask sync.RWMutex
 	lockList           sync.RWMutex
 	lockPush           sync.RWMutex
@@ -225,6 +237,38 @@ func (mock *TaskRepo) GetCalls() []struct {
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
 	mock.lockGet.RUnlock()
+	return calls
+}
+
+// GetByIDs calls GetByIDsFunc.
+func (mock *TaskRepo) GetByIDs(ids []uint) ([]*biz.Task, error) {
+	if mock.GetByIDsFunc == nil {
+		panic("TaskRepo.GetByIDsFunc: method is nil but TaskRepo.GetByIDs was just called")
+	}
+	callInfo := struct {
+		Ids []uint
+	}{
+		Ids: ids,
+	}
+	mock.lockGetByIDs.Lock()
+	mock.calls.GetByIDs = append(mock.calls.GetByIDs, callInfo)
+	mock.lockGetByIDs.Unlock()
+	return mock.GetByIDsFunc(ids)
+}
+
+// GetByIDsCalls gets all the calls that were made to GetByIDs.
+// Check the length with:
+//
+//	len(mockedTaskRepo.GetByIDsCalls())
+func (mock *TaskRepo) GetByIDsCalls() []struct {
+	Ids []uint
+} {
+	var calls []struct {
+		Ids []uint
+	}
+	mock.lockGetByIDs.RLock()
+	calls = mock.calls.GetByIDs
+	mock.lockGetByIDs.RUnlock()
 	return calls
 }
 

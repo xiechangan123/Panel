@@ -57,3 +57,31 @@ func TestTaskPushDedup(t *testing.T) {
 		t.Fatalf("Push after terminal status should pass: %v", err)
 	}
 }
+
+func TestTaskGetByIDsSkipsMissing(t *testing.T) {
+	repo := newTaskRepoForTest(t)
+
+	var ids []uint
+	for _, key := range []string{"a", "b", "c"} {
+		task := &biz.Task{Key: key, Name: key, Status: biz.TaskStatusWaiting, Shell: "true"}
+		if err := repo.Push(task); err != nil {
+			t.Fatalf("Push: %v", err)
+		}
+		ids = append(ids, task.ID)
+	}
+	if err := repo.db.Delete(&biz.Task{}, ids[1]).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	tasks, err := repo.GetByIDs(append(ids, 999))
+	if err != nil {
+		t.Fatalf("GetByIDs: %v", err)
+	}
+	got := map[uint]bool{}
+	for _, task := range tasks {
+		got[task.ID] = true
+	}
+	if len(tasks) != 2 || !got[ids[0]] || !got[ids[2]] {
+		t.Fatalf("want tasks %d and %d, got %+v", ids[0], ids[2], tasks)
+	}
+}

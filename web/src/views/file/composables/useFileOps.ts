@@ -1,13 +1,8 @@
-import { promiseTimeout } from '@vueuse/core'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
-import task from '@/api/panel/task'
 import { useEditorStore, useFileStore } from '@/stores'
 import { lastDirectory } from '@/utils/file'
-
-// 多处同时提交任务时共用一个轮询
-let waitingTasks = false
 
 // 文件操作的统一入口
 // 操作成功后的编辑器标签页同步、列表刷新、选中清理在此收敛，调用方只负责确认交互
@@ -61,21 +56,5 @@ export function useFileOps() {
     )
   }
 
-  // 压缩、解压、远程下载是后台任务，结果要等任务跑完才出现，轮询到队列清空再刷新列表
-  async function refreshAfterTasks() {
-    if (waitingTasks) return
-    waitingTasks = true
-    try {
-      do {
-        await promiseTimeout(1000)
-      } while ((await task.status()).task)
-      window.$bus.emit('file:refresh')
-    } catch {
-      /* empty */
-    } finally {
-      waitingTasks = false
-    }
-  }
-
-  return { deletePaths, movePath, markClipboard, refreshAfterTasks }
+  return { deletePaths, movePath, markClipboard }
 }

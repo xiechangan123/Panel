@@ -12,6 +12,7 @@ import EditModal from '@/views/file/EditModal.vue'
 import ListView from '@/views/file/ListView.vue'
 import PathInput from '@/views/file/PathInput.vue'
 import PermissionModal from '@/views/file/PermissionModal.vue'
+import TaskQueueWindow from '@/views/file/TaskQueueWindow.vue'
 import ToolBar from '@/views/file/ToolBar.vue'
 import UploadModal from '@/views/file/UploadModal.vue'
 
@@ -172,6 +173,8 @@ onUnmounted(() => {
         <p>{{ $gettext('Drop files to upload') }}</p>
       </div>
     </div>
+
+    <task-queue-window />
 
     <!-- 上传弹窗 -->
     <upload-modal

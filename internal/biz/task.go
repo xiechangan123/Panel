@@ -28,6 +28,7 @@ type TaskRepo interface {
 	HasRunningTask() bool
 	List(page, limit uint) ([]*Task, int64, error)
 	Get(id uint) (*Task, error)
+	GetByIDs(ids []uint) ([]*Task, error)
 	Delete(id uint) error
 	Cancel(id uint) error
 	UpdateStatus(id uint, status TaskStatus) error
@@ -53,6 +54,10 @@ func (uc *TaskUsecase) List(page, limit uint) ([]*Task, int64, error) {
 
 func (uc *TaskUsecase) Get(id uint) (*Task, error) {
 	return uc.repo.Get(id)
+}
+
+func (uc *TaskUsecase) GetByIDs(ids []uint) ([]*Task, error) {
+	return uc.repo.GetByIDs(ids)
 }
 
 func (uc *TaskUsecase) Delete(id uint) error {

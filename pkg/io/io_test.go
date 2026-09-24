@@ -133,13 +133,36 @@ func TestCompressOverwritesExistingArchive(t *testing.T) {
 }
 
 func TestCompressShellQuotesArguments(t *testing.T) {
-	cmd, err := CompressShell("/data/site dir", []string{"it's.txt", "-dash.txt"}, "/data/out's.tar.gz")
+	cmd, err := CompressShell("/data/site dir", []string{"it's.txt", "-dash.txt"}, "/data/out's.tar.gz", false)
 	must.NoError(t, err)
 	check.Equal(t, cmd, `mkdir -p '/data' && cd '/data/site dir' && rm -f '/data/out'\''s.tar.gz' && { tar -c -z -f '/data/out'\''s.tar.gz' -- 'it'\''s.txt' '-dash.txt' || [ $? -eq 1 ]; }`)
 
-	cmd, err = UnCompressShell("/data/it's.zip", "/data/out dir")
+	cmd, err = UnCompressShell("/data/it's.zip", "/data/out dir", false)
 	must.NoError(t, err)
 	check.Equal(t, cmd, `mkdir -p '/data/out dir' && 7z x -y -snld '/data/it'\''s.zip' -o'/data/out dir'`)
+}
+
+func TestCompressShellVerbose(t *testing.T) {
+	for dst, want := range map[string]string{
+		"/data/out.zip":    "zip -r '/data/out.zip' -- 'a'",
+		"/data/out.7z":     "{ 7z a -y -bb1 '/data/out.7z' -- 'a' || [ $? -eq 1 ]; }",
+		"/data/out.tar.gz": "{ tar -c -v -z -f '/data/out.tar.gz' -- 'a' || [ $? -eq 1 ]; }",
+		"/data/out.gz":     "gzip -v -c -- 'a' > '/data/out.gz'",
+	} {
+		cmd, err := CompressShell("/data", []string{"a"}, dst, true)
+		must.NoError(t, err)
+		check.True(t, strings.HasSuffix(cmd, want), check.Msgf("%s", cmd))
+	}
+
+	for src, want := range map[string]string{
+		"/data/in.zip":    "7z x -y -bb1 -snld '/data/in.zip' -o'/data/out'",
+		"/data/in.tar.xz": "tar -x -v -J -f '/data/in.tar.xz' -C '/data/out'",
+		"/data/in.zst":    "zstd -v -dc -- '/data/in.zst' > '/data/out/in'",
+	} {
+		cmd, err := UnCompressShell(src, "/data/out", true)
+		must.NoError(t, err)
+		check.True(t, strings.HasSuffix(cmd, want), check.Msgf("%s", cmd))
+	}
 }
 
 func TestCompressFailsWhenDirMissing(t *testing.T) {

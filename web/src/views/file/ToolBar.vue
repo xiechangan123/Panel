@@ -3,7 +3,7 @@ import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
-import { useFileStore, useUploadStore } from '@/stores'
+import { useFileStore, useTaskQueueStore, useUploadStore } from '@/stores'
 import { checkName, joinPath } from '@/utils/file'
 import { useFileOps } from '@/views/file/composables/useFileOps'
 import { usePaste } from '@/views/file/composables/usePaste'
@@ -11,8 +11,9 @@ import { usePaste } from '@/views/file/composables/usePaste'
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
 const uploadStore = useUploadStore()
+const taskQueue = useTaskQueueStore()
 const { handlePaste: doPaste } = usePaste()
-const { deletePaths, markClipboard, refreshAfterTasks } = useFileOps()
+const { deletePaths, markClipboard } = useFileOps()
 
 const props = defineProps<{
   tabId: string
@@ -55,12 +56,9 @@ const handleDownload = () => {
   useRequest(
     file.remoteDownload(joinPath(path.value, downloadModel.value.path), downloadModel.value.url),
   )
-    .onSuccess(() => {
+    .onSuccess(({ data }) => {
       download.value = false
-      window.$message.success(
-        $gettext('Download task created successfully, please check the task list for progress'),
-      )
-      refreshAfterTasks()
+      taskQueue.add(data)
     })
     .onComplete(() => {
       downloadLoading.value = false
@@ -161,6 +159,9 @@ const handleSortSelect = (key: string) => {
       <n-button @click="upload = true">{{ $gettext('Upload') }}</n-button>
     </n-badge>
     <n-button @click="download = true">{{ $gettext('Remote Download') }}</n-button>
+    <n-badge v-if="taskQueue.tasks.length" :value="taskQueue.tasks.length" :max="99">
+      <n-button @click="taskQueue.open()">{{ $gettext('Task Queue') }}</n-button>
+    </n-badge>
     <n-button @click="openTerminal">{{ $gettext('Terminal') }}</n-button>
     <n-popselect :options="sortOptions" :value="fileStore.sortKey" @update:value="handleSortSelect">
       <n-button>
