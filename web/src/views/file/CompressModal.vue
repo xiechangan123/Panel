@@ -3,47 +3,34 @@ import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import api from '@/api/panel/file'
-import ListInput from '@/components/common/ListInput.vue'
 import { useFileStore } from '@/stores'
-import { generateRandomString, getBase } from '@/utils'
+import { generateRandomString, lastDirectory } from '@/utils'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const path = defineModel<string>('path', { type: String, required: true })
-// 打开时快照选中项，弹窗内编辑不影响列表选中状态
+// 打开时快照选中项，弹窗内移除不影响列表选中状态
 const paths = ref<string[]>([])
+// 不含扩展名，扩展名由格式决定
+const file = ref('')
 const format = ref('.zip')
 const loading = ref(false)
 
-// 生成随机文件名
+// 搜索子目录时可能是多级相对路径
+const relative = (item: string) => item.slice(path.value.length).replace(/^\//, '')
+
+// 单选以该项命名，多选以当前目录命名，根目录下避免出现 //xxx
 const generateName = () => {
-  // 如果选择多个文件，文件名为目录名 + 随机字符串，否则就直接文件名 + 随机字符串
-  // 特殊处理根目录，防止出现 //xxx 的情况
-  if (path.value == '/') {
-    return paths.value.length > 1
-      ? `/${generateRandomString(6)}${format.value}`
-      : `${paths.value[0]}-${generateRandomString(6)}${format.value}`
-  }
-  const parts = path.value.split('/')
-  return paths.value.length > 1
-    ? `${path.value}/${parts.pop()}-${generateRandomString(6)}${format.value}`
-    : `${paths.value[0]}-${generateRandomString(6)}${format.value}`
-}
-
-const file = ref('')
-
-const ensureExtension = (extension: string) => {
-  if (!file.value.endsWith(extension)) {
-    file.value = `${getBase(file.value)}${extension}`
-  }
+  const suffix = generateRandomString(6)
+  if (paths.value.length === 1) return `${paths.value[0]}-${suffix}`
+  if (path.value === '/') return `/${suffix}`
+  return `${path.value}/${lastDirectory(path.value)}-${suffix}`
 }
 
 const handleArchive = () => {
-  ensureExtension(format.value)
   loading.value = true
-  const relative = paths.value.map((item) => item.replace(path.value, '').replace(/^\//, ''))
-  useRequest(api.compress(path.value, relative, file.value))
+  useRequest(api.compress(path.value, paths.value.map(relative), file.value + format.value))
     .onSuccess(() => {
       show.value = false
       if (fileStore.activeTab) {
@@ -58,7 +45,7 @@ const handleArchive = () => {
     })
 }
 
-// gzip 仅支持压缩单个文件，多选时禁用 .gz 选项
+// gzip 仅支持压缩单个文件
 const formatOptions = computed(() => [
   { label: '.zip', value: '.zip' },
   { label: '.gz', value: '.gz', disabled: paths.value.length > 1 },
@@ -71,22 +58,13 @@ const formatOptions = computed(() => [
   { label: '.7z', value: '.7z' },
 ])
 
-// 已选 .gz 后又添加多个文件时回退到 .zip
-watch(
-  () => paths.value.length,
-  (len) => {
-    if (len > 1 && format.value === '.gz') {
-      format.value = '.zip'
-      ensureExtension(format.value)
-    }
-  },
-)
-
-// 弹窗打开时快照选中项并生成默认文件名，弹窗内编辑不重置用户已修改的名字
+// 格式沿用上次的选择，多选时需避开 .gz
 watch(show, (val) => {
-  if (val) {
-    paths.value = [...(fileStore.activeTab?.selected ?? [])]
-    file.value = generateName()
+  if (!val) return
+  paths.value = [...(fileStore.activeTab?.selected ?? [])]
+  file.value = generateName()
+  if (paths.value.length > 1 && format.value === '.gz') {
+    format.value = '.zip'
   }
 })
 </script>
@@ -103,19 +81,32 @@ watch(show, (val) => {
   >
     <n-flex vertical>
       <n-form>
-        <n-form-item :label="$gettext('Files to compress')">
-          <!-- 路径可能含空格，只按换行拆分 -->
-          <ListInput v-model:value="paths" :min="1" :separator="/[\r\n]+/" />
+        <n-form-item>
+          <template #label>
+            {{ $gettext('Files to compress') }}
+            <n-text depth="3">({{ paths.length }})</n-text>
+          </template>
+          <n-card content-style="padding: 8px" class="max-h-32 overflow-y-auto">
+            <n-flex :size="8" class="path-tags">
+              <n-tag
+                v-for="item in paths"
+                :key="item"
+                :title="item"
+                :closable="paths.length > 1"
+                :bordered="false"
+                class="max-w-full"
+                @close="paths = paths.filter((p) => p !== item)"
+              >
+                {{ relative(item) }}
+              </n-tag>
+            </n-flex>
+          </n-card>
         </n-form-item>
         <n-form-item :label="$gettext('Compress to')">
-          <n-input v-model:value="file" />
-        </n-form-item>
-        <n-form-item :label="$gettext('Format')">
-          <n-select
-            v-model:value="format"
-            :options="formatOptions"
-            @update:value="ensureExtension"
-          />
+          <n-input-group>
+            <n-input v-model:value="file" class="flex-1" />
+            <n-select v-model:value="format" :options="formatOptions" class="w-24" />
+          </n-input-group>
         </n-form-item>
       </n-form>
       <n-button :loading="loading" :disabled="loading" type="primary" @click="handleArchive">
@@ -125,4 +116,9 @@ watch(show, (val) => {
   </n-modal>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.path-tags :deep(.n-tag__content) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>
