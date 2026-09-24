@@ -568,6 +568,7 @@ msgid ""
 msgstr ""
 
 #: src/components/common/PtyTerminalModal.vue:208
+#: src/components/common/TaskWindow.vue:102
 #: src/components/file-editor/EditorStatusBar.vue:129
 #: src/components/file-editor/EditorToolbar.vue:77
 #: src/components/file-editor/FileTree.vue:596
@@ -585,11 +586,10 @@ msgstr ""
 #: src/views/container/ImageView.vue:370 src/views/container/ImageView.vue:385
 #: src/views/file/composables/usePaste.ts:74
 #: src/views/file/composables/usePaste.ts:154 src/views/file/ListView.vue:315
-#: src/views/file/ListView.vue:858 src/views/file/TaskQueueWindow.vue:131
-#: src/views/file/ToolBar.vue:190 src/views/file/UploadModal.vue:228
-#: src/views/file/UploadModal.vue:396 src/views/file/UploadModal.vue:495
-#: src/views/home/IndexView.vue:1042 src/views/home/UpdateView.vue:120
-#: src/views/monitor/AlertRuleModal.vue:193
+#: src/views/file/ListView.vue:858 src/views/file/ToolBar.vue:190
+#: src/views/file/UploadModal.vue:228 src/views/file/UploadModal.vue:396
+#: src/views/file/UploadModal.vue:495 src/views/home/IndexView.vue:1042
+#: src/views/home/UpdateView.vue:120 src/views/monitor/AlertRuleModal.vue:193
 #: src/views/monitor/ChannelModal.vue:148 src/views/project/EditModal.vue:658
 #: src/views/ssh/SftpPanel.vue:297 src/views/tamper/RuleModal.vue:134
 #: src/views/task/TaskView.vue:110 src/views/toolbox/DiskView.vue:356
@@ -791,11 +791,11 @@ msgid "Loading..."
 msgstr "Loading..."
 
 #: src/components/common/ServiceStatus.vue:30
-#: src/views/app/InstalledView.vue:16
+#: src/components/common/TaskWindow.vue:26 src/views/app/InstalledView.vue:16
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:185
 #: src/views/apps/prometheus/PrometheusExportersView.vue:50
-#: src/views/file/TaskQueueWindow.vue:20 src/views/project/ListView.vue:40
-#: src/views/task/TaskView.vue:47 src/views/toolbox/MigrationView.vue:84
+#: src/views/project/ListView.vue:40 src/views/task/TaskView.vue:47
+#: src/views/toolbox/MigrationView.vue:84
 #: src/views/toolbox/MigrationView.vue:149 src/views/toolbox/ProcessView.vue:48
 #: src/views/toolbox/ProcessView.vue:77 src/views/website/ListView.vue:136
 msgid "Running"
@@ -943,6 +943,40 @@ msgstr "Restart"
 #: src/views/project/ListView.vue:156
 msgid "Reload"
 msgstr "Reload"
+
+#: src/components/common/TaskWindow.vue:25
+#: src/components/common/TaskWindow.vue:116 src/views/ssh/SftpPanel.vue:292
+#: src/views/task/TaskView.vue:42 src/views/toolbox/ProcessView.vue:53
+#: src/views/toolbox/ProcessView.vue:89
+msgid "Waiting"
+msgstr "Waiting"
+
+#: src/components/common/TaskWindow.vue:27 src/views/file/UploadModal.vue:85
+#: src/views/task/TaskView.vue:40
+msgid "Completed"
+msgstr "Completed"
+
+#: src/components/common/TaskWindow.vue:28 src/views/file/UploadModal.vue:86
+#: src/views/log/SSHLog.vue:46 src/views/project/ListView.vue:45
+#: src/views/task/TaskView.vue:44 src/views/toolbox/MigrationView.vue:87
+msgid "Failed"
+msgstr "Failed"
+
+#: src/components/common/TaskWindow.vue:29
+#: src/views/file/composables/usePaste.ts:97
+#: src/views/file/composables/usePaste.ts:151 src/views/task/TaskView.vue:46
+msgid "Canceled"
+msgstr "Canceled"
+
+#: src/components/common/TaskWindow.vue:48 src/views/task/TaskView.vue:102
+#, fuzzy
+msgid "Cancel Task"
+msgstr "Panel Tasks"
+
+#: src/components/common/TaskWindow.vue:49 src/views/task/TaskView.vue:103
+#, fuzzy
+msgid "Are you sure you want to cancel task %{ name }?"
+msgstr "Are you sure you want to delete %{ name }?"
 
 #: src/components/common/TunePresetModal.vue:84
 #: src/views/apps/apache/ApacheConfigTuneView.vue:161
@@ -1798,15 +1832,21 @@ msgstr ""
 msgid "Write something..."
 msgstr "Restoring..."
 
-#: src/layouts/header/components/TaskStatus.vue:24
+#: src/layouts/header/components/TaskStatus.vue:17
+#: src/layouts/header/components/TaskStatus.vue:33
+#: src/views/task/IndexView.vue:26
+msgid "Panel Tasks"
+msgstr "Panel Tasks"
+
+#: src/layouts/header/components/TaskStatus.vue:33
 #, fuzzy
 msgid "Tasks Running"
 msgstr "Running"
 
-#: src/layouts/header/components/TaskStatus.vue:24
-#: src/views/task/IndexView.vue:26
-msgid "Panel Tasks"
-msgstr "Panel Tasks"
+#: src/layouts/header/components/TaskStatus.vue:40
+#, fuzzy
+msgid "No running tasks"
+msgstr "Running"
 
 #: src/layouts/header/components/ThemeMode.vue:18
 msgid "Switch Theme"
@@ -9597,12 +9637,6 @@ msgstr "Please enter absolute path"
 msgid "Name cannot be empty"
 msgstr "Proxy address cannot be empty"
 
-#: src/views/file/composables/usePaste.ts:97
-#: src/views/file/composables/usePaste.ts:151
-#: src/views/file/TaskQueueWindow.vue:23 src/views/task/TaskView.vue:46
-msgid "Canceled"
-msgstr "Canceled"
-
 #: src/views/file/composables/usePaste.ts:139 src/views/file/ListView.vue:309
 #: src/views/file/ListView.vue:855 src/views/file/ListView.vue:904
 msgid "Warning"
@@ -9985,46 +10019,19 @@ msgstr ""
 msgid "Create Share Link"
 msgstr "Create Forwarding"
 
-#: src/views/file/TaskQueueWindow.vue:15 src/views/file/ToolBar.vue:163
+#: src/views/file/TaskQueueWindow.vue:11 src/views/file/ToolBar.vue:163
 #, fuzzy
 msgid "Task Queue"
 msgstr "Task Schedule"
 
-#: src/views/file/TaskQueueWindow.vue:19 src/views/file/TaskQueueWindow.vue:143
-#: src/views/ssh/SftpPanel.vue:292 src/views/task/TaskView.vue:42
-#: src/views/toolbox/ProcessView.vue:53 src/views/toolbox/ProcessView.vue:89
-msgid "Waiting"
-msgstr "Waiting"
-
-#: src/views/file/TaskQueueWindow.vue:21 src/views/file/UploadModal.vue:85
-#: src/views/task/TaskView.vue:40
-msgid "Completed"
-msgstr "Completed"
-
-#: src/views/file/TaskQueueWindow.vue:22 src/views/file/UploadModal.vue:86
-#: src/views/log/SSHLog.vue:46 src/views/project/ListView.vue:45
-#: src/views/task/TaskView.vue:44 src/views/toolbox/MigrationView.vue:87
-msgid "Failed"
-msgstr "Failed"
-
-#: src/views/file/TaskQueueWindow.vue:40 src/views/task/TaskView.vue:102
-#, fuzzy
-msgid "Cancel Task"
-msgstr "Panel Tasks"
-
-#: src/views/file/TaskQueueWindow.vue:41 src/views/task/TaskView.vue:103
-#, fuzzy
-msgid "Are you sure you want to cancel task %{ name }?"
-msgstr "Are you sure you want to delete %{ name }?"
-
-#: src/views/file/TaskQueueWindow.vue:50
+#: src/views/file/TaskQueueWindow.vue:17
 #, fuzzy
 msgid "%{ n } task failed"
 msgid_plural "%{ n } tasks failed"
 msgstr[0] "Copy failed"
 msgstr[1] "Copy failed"
 
-#: src/views/file/TaskQueueWindow.vue:55
+#: src/views/file/TaskQueueWindow.vue:22
 #, fuzzy
 msgid "All tasks completed"
 msgstr "Completed"

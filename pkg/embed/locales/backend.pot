@@ -3627,7 +3627,7 @@ msgstr ""
 msgid "dump.rdb not found in backup file"
 msgstr ""
 
-#: internal/data/task.go:114
+#: internal/data/task.go:121
 msgid "duplicate submission, please wait for the previous task to end"
 msgstr ""
 
@@ -4803,7 +4803,7 @@ msgstr ""
 msgid "phpMyAdmin port not found"
 msgstr ""
 
-#: internal/data/task.go:62
+#: internal/data/task.go:69
 msgid "please cancel the task first"
 msgstr ""
 
@@ -5074,11 +5074,11 @@ msgstr ""
 msgid "target path %s already exists"
 msgstr ""
 
-#: internal/data/task.go:93
+#: internal/data/task.go:100
 msgid "task has already finished"
 msgstr ""
 
-#: internal/data/task.go:88
+#: internal/data/task.go:95
 msgid "task is not waiting or running"
 msgstr ""
 
