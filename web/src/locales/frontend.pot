@@ -5808,7 +5808,7 @@ msgid "Modify phpMyAdmin access port"
 msgstr ""
 
 #: src/views/apps/phpmyadmin/IndexView.vue:94
-msgid "This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!"
+msgid "This modifies the web server configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
 #: src/views/apps/podman/IndexView.vue:55
