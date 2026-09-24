@@ -442,7 +442,7 @@ func (r *containerRepo) Prune(ctx context.Context, sock string) error {
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
 	_, err = apiClient.ContainerPrune(context.WithoutCancel(ctx), client.ContainerPruneOptions{
-		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
+		Filters: make(client.Filters).Add("label!", "created_by=acepanel"),
 	})
 	return err
 }

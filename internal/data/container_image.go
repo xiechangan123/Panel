@@ -137,7 +137,7 @@ func (r *containerImageRepo) Prune(ctx context.Context, sock string) error {
 	_, err = apiClient.ImagePrune(context.WithoutCancel(ctx), client.ImagePruneOptions{
 		Filters: make(client.Filters).
 			Add("dangling", "false").
-			Add("label", "created_by!=acepanel"),
+			Add("label!", "created_by=acepanel"),
 	})
 	return err
 }
