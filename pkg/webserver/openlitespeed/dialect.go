@@ -54,7 +54,7 @@ func (Dialect) PanelACMEConf() string {
 }
 
 func (Dialect) Features() types.Features {
-	return types.Features{LSCache: true}
+	return types.Features{IPv6Listen: true, LSCache: true}
 }
 
 func (Dialect) HTTPSListenArgs() []string {

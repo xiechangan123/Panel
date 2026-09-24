@@ -57,7 +57,7 @@ const features: Record<string, WebServerFeatures> = {
   },
   openlitespeed: {
     quic: true,
-    ipv6Listen: false,
+    ipv6Listen: true,
     resolver: false,
     matchType: true,
     proxyCache: false,
