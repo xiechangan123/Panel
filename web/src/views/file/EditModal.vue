@@ -99,6 +99,12 @@ function loadFile(path: string) {
   openInEditor(path)
 }
 
+// 列表重新可见时恢复快捷键，并刷新以同步保存后的大小和修改时间
+function releaseList() {
+  window.$bus.emit('file:keyboard-resume')
+  window.$bus.emit('file:refresh')
+}
+
 // 打开时自动加载文件
 watch(show, (newShow) => {
   if (newShow && filePath.value) {
@@ -112,8 +118,7 @@ watch(show, (newShow) => {
     // 加载文件
     loadFile(filePath.value)
   } else if (!newShow) {
-    // 恢复文件管理的键盘快捷键
-    window.$bus.emit('file:keyboard-resume')
+    releaseList()
   }
 })
 
@@ -127,7 +132,7 @@ watch(filePath, (newPath) => {
 // 监听最小化状态
 watch(minimized, (isMinimized) => {
   if (isMinimized) {
-    window.$bus.emit('file:keyboard-resume')
+    releaseList()
   } else {
     window.$bus.emit('file:keyboard-pause')
   }

@@ -12,7 +12,7 @@ const { $gettext } = useGettext()
 const fileStore = useFileStore()
 const uploadStore = useUploadStore()
 const { handlePaste: doPaste } = usePaste()
-const { deletePaths, markClipboard } = useFileOps()
+const { deletePaths, markClipboard, refreshAfterTasks } = useFileOps()
 
 const props = defineProps<{
   tabId: string
@@ -29,6 +29,9 @@ const selected = computed(() => tab.value.selected)
 
 // 终端弹窗
 const terminalModal = ref(false)
+watch(terminalModal, (show) => {
+  if (!show) window.$bus.emit('file:refresh')
+})
 
 const download = ref(false)
 const downloadLoading = ref(false)
@@ -57,6 +60,7 @@ const handleDownload = () => {
       window.$message.success(
         $gettext('Download task created successfully, please check the task list for progress'),
       )
+      refreshAfterTasks()
     })
     .onComplete(() => {
       downloadLoading.value = false

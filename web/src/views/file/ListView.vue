@@ -39,7 +39,7 @@ const { $gettext } = useGettext()
 const themeVars = useThemeVars()
 const fileStore = useFileStore()
 const { handlePaste: doPaste } = usePaste()
-const { deletePaths, movePath, markClipboard } = useFileOps()
+const { deletePaths, movePath, markClipboard, refreshAfterTasks } = useFileOps()
 
 const props = defineProps<{
   tabId: string
@@ -774,6 +774,10 @@ const openTerminal = (item: any) => {
   terminalModal.value = true
 }
 
+watch(terminalModal, (show) => {
+  if (!show) window.$bus.emit('file:refresh')
+})
+
 // 打开属性弹窗
 const openProperty = (item: any) => {
   propertyFileInfo.value = item as FileInfo
@@ -1291,6 +1295,7 @@ const handleUnCompress = () => {
       window.$message.success(
         $gettext('Uncompress task created successfully, please check the task list for progress'),
       )
+      refreshAfterTasks()
     },
   )
 }

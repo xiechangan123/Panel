@@ -5,9 +5,11 @@ import { useGettext } from 'vue3-gettext'
 import api from '@/api/panel/file'
 import { useFileStore } from '@/stores'
 import { generateRandomString, lastDirectory } from '@/utils'
+import { useFileOps } from '@/views/file/composables/useFileOps'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
+const { refreshAfterTasks } = useFileOps()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const path = defineModel<string>('path', { type: String, required: true })
 // 打开时快照选中项，弹窗内移除不影响列表选中状态
@@ -39,6 +41,7 @@ const handleArchive = () => {
       window.$message.success(
         $gettext('Compress task created successfully, please check the task list for progress'),
       )
+      refreshAfterTasks()
     })
     .onComplete(() => {
       loading.value = false
