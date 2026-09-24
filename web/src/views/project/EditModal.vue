@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import type { SelectFilter, SelectOption, SelectRenderTag } from 'naive-ui'
+import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import project from '@/api/panel/project'
+import systemctl from '@/api/panel/systemctl'
 import PathSelector from '@/components/common/PathSelector.vue'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -75,22 +78,95 @@ const protectSystemOptions = [
   { label: 'strict', value: 'strict' },
 ]
 
+// 可被依赖的系统单元
+const {
+  data: units,
+  loading: unitsLoading,
+  send: loadUnits,
+} = useRequest(systemctl.units, {
+  immediate: false,
+  initialData: [],
+})
+
+const unitOptions = computed(() =>
+  (units.value as { name: string; description: string }[]).map((unit) => ({
+    label: unit.name,
+    value: unit.name,
+    description: unit.description,
+  })),
+)
+
+const filterUnit: SelectFilter = (pattern, option) =>
+  [option.label, option.description].some((text) =>
+    String(text).toLowerCase().includes(pattern.trim().toLowerCase()),
+  )
+
+const renderUnitLabel = (option: SelectOption) =>
+  h('div', { class: 'flex items-center gap-3' }, [
+    h('span', option.label as string),
+    h('span', { class: 'text-xs text-gray-400 truncate' }, option.description as string),
+  ])
+
+// 不自定义的话已选标签会沿用 renderUnitLabel 连描述一起显示
+const renderUnitTag: SelectRenderTag = ({ option, handleClose }) =>
+  h(
+    NTag,
+    {
+      closable: true,
+      onMousedown: (e: MouseEvent) => e.preventDefault(),
+      onClose: (e: MouseEvent) => {
+        e.stopPropagation()
+        handleClose()
+      },
+    },
+    { default: () => option.label as string },
+  )
+
+const dependencyItems = [
+  {
+    key: 'requires',
+    label: $gettext('Requires'),
+    help: $gettext('Strong dependencies, service will fail if these are not available'),
+  },
+  {
+    key: 'wants',
+    label: $gettext('Wants'),
+    help: $gettext('Weak dependencies, service will still start if these fail'),
+  },
+  {
+    key: 'after',
+    label: $gettext('After'),
+    help: $gettext('Start this service after the specified services'),
+  },
+  {
+    key: 'before',
+    label: $gettext('Before'),
+    help: $gettext('Start this service before the specified services'),
+  },
+] as const
+
 // 目录选择器
+type PathTarget = 'root_dir' | 'working_dir' | 'read_write_paths' | 'read_only_paths'
 const showPathSelector = ref(false)
 const pathSelectorPath = ref('')
-const pathSelectorTarget = ref<'root_dir' | 'working_dir'>('root_dir')
+const pathSelectorTarget = ref<PathTarget>('root_dir')
 
-const handleSelectPath = (target: 'root_dir' | 'working_dir') => {
+const handleSelectPath = (target: PathTarget) => {
+  const current = model.value[target]
   pathSelectorTarget.value = target
-  pathSelectorPath.value = model.value[target] || '/opt/ace/projects'
+  pathSelectorPath.value =
+    (Array.isArray(current) ? '' : current) || model.value.root_dir || '/opt/ace/projects'
   showPathSelector.value = true
 }
 
-watch(showPathSelector, (val) => {
-  if (!val && pathSelectorPath.value) {
-    model.value[pathSelectorTarget.value] = pathSelectorPath.value
+const handlePathSelected = (path: string) => {
+  const target = pathSelectorTarget.value
+  if (target === 'root_dir' || target === 'working_dir') {
+    model.value[target] = path
+  } else if (!model.value[target].includes(path)) {
+    model.value[target].push(path)
   }
-})
+}
 
 // 加载项目数据
 const loadProject = async () => {
@@ -142,6 +218,7 @@ watch(show, (val) => {
   if (val && editId.value) {
     currentTab.value = 'basic'
     loadProject()
+    loadUnits()
   }
 })
 
@@ -414,41 +491,25 @@ const handleSave = async () => {
               }}
             </n-alert>
 
-            <n-form-item path="requires" :label="$gettext('Requires')">
-              <n-dynamic-tags v-model:value="model.requires" />
+            <n-form-item
+              v-for="item in dependencyItems"
+              :key="item.key"
+              :path="item.key"
+              :label="item.label"
+            >
+              <n-select
+                v-model:value="model[item.key]"
+                :options="unitOptions"
+                :loading="unitsLoading"
+                :filter="filterUnit"
+                :render-label="renderUnitLabel"
+                :render-tag="renderUnitTag"
+                :placeholder="$gettext('Search by name or description')"
+                multiple
+                filterable
+              />
               <template #feedback>
-                <span class="text-gray-400">
-                  {{
-                    $gettext('Strong dependencies, service will fail if these are not available')
-                  }}
-                </span>
-              </template>
-            </n-form-item>
-
-            <n-form-item path="wants" :label="$gettext('Wants')">
-              <n-dynamic-tags v-model:value="model.wants" />
-              <template #feedback>
-                <span class="text-gray-400">
-                  {{ $gettext('Weak dependencies, service will still start if these fail') }}
-                </span>
-              </template>
-            </n-form-item>
-
-            <n-form-item path="after" :label="$gettext('After')">
-              <n-dynamic-tags v-model:value="model.after" />
-              <template #feedback>
-                <span class="text-gray-400">
-                  {{ $gettext('Start this service after the specified services') }}
-                </span>
-              </template>
-            </n-form-item>
-
-            <n-form-item path="before" :label="$gettext('Before')">
-              <n-dynamic-tags v-model:value="model.before" />
-              <template #feedback>
-                <span class="text-gray-400">
-                  {{ $gettext('Start this service before the specified services') }}
-                </span>
+                <span class="text-gray-400">{{ item.help }}</span>
               </template>
             </n-form-item>
           </n-form>
@@ -552,7 +613,16 @@ const handleSave = async () => {
             <n-divider title-placement="left">{{ $gettext('Path Access Control') }}</n-divider>
 
             <n-form-item path="read_write_paths" :label="$gettext('Read-Write Paths')">
-              <n-dynamic-tags v-model:value="model.read_write_paths" />
+              <n-dynamic-tags v-model:value="model.read_write_paths">
+                <template #trigger>
+                  <n-button size="small" dashed @click="handleSelectPath('read_write_paths')">
+                    <template #icon>
+                      <i-mdi-folder-plus-outline />
+                    </template>
+                    {{ $gettext('Select Directory') }}
+                  </n-button>
+                </template>
+              </n-dynamic-tags>
               <template #feedback>
                 <span class="text-gray-400">
                   {{ $gettext('Paths that the service can read and write to') }}
@@ -561,7 +631,16 @@ const handleSave = async () => {
             </n-form-item>
 
             <n-form-item path="read_only_paths" :label="$gettext('Read-Only Paths')">
-              <n-dynamic-tags v-model:value="model.read_only_paths" />
+              <n-dynamic-tags v-model:value="model.read_only_paths">
+                <template #trigger>
+                  <n-button size="small" dashed @click="handleSelectPath('read_only_paths')">
+                    <template #icon>
+                      <i-mdi-folder-plus-outline />
+                    </template>
+                    {{ $gettext('Select Directory') }}
+                  </n-button>
+                </template>
+              </n-dynamic-tags>
               <template #feedback>
                 <span class="text-gray-400">
                   {{ $gettext('Paths that the service can only read from') }}
@@ -586,7 +665,12 @@ const handleSave = async () => {
   </n-modal>
 
   <!-- 目录选择器 -->
-  <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="true" />
+  <path-selector
+    v-model:show="showPathSelector"
+    v-model:path="pathSelectorPath"
+    :dir="true"
+    @select="handlePathSelected"
+  />
 </template>
 
 <style scoped lang="scss"></style>

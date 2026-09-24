@@ -194,13 +194,13 @@ func (r *projectRepo) parseUnitSection(detail *types.ProjectDetail, opt *unit.Un
 	case "Description":
 		detail.Description = opt.Value
 	case "Requires":
-		detail.Requires = append(detail.Requires, opt.Value)
+		detail.Requires = append(detail.Requires, strings.Fields(opt.Value)...)
 	case "Wants":
-		detail.Wants = append(detail.Wants, opt.Value)
+		detail.Wants = append(detail.Wants, strings.Fields(opt.Value)...)
 	case "After":
-		detail.After = append(detail.After, opt.Value)
+		detail.After = append(detail.After, strings.Fields(opt.Value)...)
 	case "Before":
-		detail.Before = append(detail.Before, opt.Value)
+		detail.Before = append(detail.Before, strings.Fields(opt.Value)...)
 	}
 }
 
@@ -263,9 +263,9 @@ func (r *projectRepo) parseServiceSection(detail *types.ProjectDetail, opt *unit
 	case "ProtectSystem":
 		detail.ProtectSystem = opt.Value
 	case "ReadWritePaths":
-		detail.ReadWritePaths = append(detail.ReadWritePaths, opt.Value)
+		detail.ReadWritePaths = append(detail.ReadWritePaths, strings.Fields(opt.Value)...)
 	case "ReadOnlyPaths":
-		detail.ReadOnlyPaths = append(detail.ReadOnlyPaths, opt.Value)
+		detail.ReadOnlyPaths = append(detail.ReadOnlyPaths, strings.Fields(opt.Value)...)
 	}
 }
 

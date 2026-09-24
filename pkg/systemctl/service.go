@@ -2,6 +2,8 @@ package systemctl
 
 import (
 	"context"
+	"encoding/json"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -19,6 +21,64 @@ type ServiceInfo struct {
 	Memory int64   // 内存使用（字节）
 	CPU    float64 // CPU 使用率
 	Uptime string  // 运行时间
+}
+
+// Unit 系统单元
+type Unit struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+// ListUnits 列出可被依赖的 service、socket、target、mount 单元
+func ListUnits(ctx context.Context) ([]Unit, error) {
+	var files []struct {
+		UnitFile string `json:"unit_file"`
+		State    string `json:"state"`
+	}
+	var loaded []struct {
+		Unit        string `json:"unit"`
+		Load        string `json:"load"`
+		Description string `json:"description"`
+	}
+	if err := listJSON(ctx, "list-unit-files", &files); err != nil {
+		return nil, err
+	}
+	if err := listJSON(ctx, "list-units --all", &loaded); err != nil {
+		return nil, err
+	}
+
+	// 未启用的服务不会被加载，只能从 unit 文件列表里拿到，描述则只有已加载的单元才有
+	descriptions := make(map[string]string)
+	for _, f := range files {
+		// 模板单元要实例化才能引用，屏蔽的单元无法启动
+		if !strings.Contains(f.UnitFile, "@.") && !strings.HasPrefix(f.State, "masked") {
+			descriptions[f.UnitFile] = ""
+		}
+	}
+	for _, u := range loaded {
+		if u.Load == "loaded" {
+			descriptions[u.Unit] = u.Description
+		}
+	}
+
+	units := make([]Unit, 0, len(descriptions))
+	for name, description := range descriptions {
+		units = append(units, Unit{Name: name, Description: description})
+	}
+	// 忽略大小写，否则 NetworkManager 这类大写开头的会排到最前面
+	slices.SortFunc(units, func(a, b Unit) int {
+		return strings.Compare(strings.ToLower(a.Name), strings.ToLower(b.Name))
+	})
+
+	return units, nil
+}
+
+func listJSON(ctx context.Context, command string, v any) error {
+	output, err := shell.Execf(ctx, "systemctl %s --type=service,socket,target,mount --output=json --no-pager", command)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal([]byte(output), v)
 }
 
 // GetServiceInfo 获取服务详细信息

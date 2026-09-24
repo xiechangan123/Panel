@@ -1,6 +1,8 @@
 import { http } from '@/utils'
 
 export default {
+  // 可被依赖的系统单元
+  units: (): any => http.Get('/systemctl/units'),
   // 服务状态
   status: (service: string): any => http.Get('/systemctl/status', { params: { service } }),
   // 是否启用服务

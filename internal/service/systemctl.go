@@ -19,6 +19,16 @@ func NewSystemctlService(t *gotext.Locale) *SystemctlService {
 	}
 }
 
+func (s *SystemctlService) Units(w http.ResponseWriter, r *http.Request) {
+	units, err := systemctl.ListUnits(r.Context())
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to list system units: %v", err))
+		return
+	}
+
+	Success(w, units)
+}
+
 func (s *SystemctlService) Status(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.SystemctlService](r)
 	if err != nil {

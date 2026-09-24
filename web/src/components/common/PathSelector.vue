@@ -18,6 +18,8 @@ const props = defineProps({
     required: true,
   },
 })
+// 选中与起始路径相同时 path 不变，调用方靠它区分选中和取消
+const emit = defineEmits<{ select: [path: string] }>()
 
 const currentPath = ref('/')
 
@@ -346,6 +348,7 @@ watch(currentPath, (value) => {
 watch(selected, (val) => {
   if (val.length > 0) {
     path.value = selected.value[0]
+    emit('select', selected.value[0])
     selected.value = []
     show.value = false
   }

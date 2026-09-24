@@ -5,6 +5,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
+	"github.com/acepanel/panel/v3/pkg/systemctl"
 )
 
 // SystemctlRoutes 系统服务路由
@@ -12,6 +13,9 @@ func SystemctlRoutes(systemctlService *service.SystemctlService) Endpoints {
 	svc := systemctlService
 
 	return Endpoints{
+		{Method: http.MethodGet, Path: "/api/systemctl/units", Handler: svc.Units,
+			Summary: "获取系统单元列表", Tags: []string{"系统服务"},
+			Document: DescribeResp[service.Envelope[[]systemctl.Unit]]()},
 		{Method: http.MethodGet, Path: "/api/systemctl/status", Handler: svc.Status,
 			Summary: "获取服务运行状态", Tags: []string{"系统服务"},
 			Document: DescribeReq[request.SystemctlService]()},
