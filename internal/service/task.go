@@ -20,8 +20,15 @@ func NewTaskService(taskUsecase *biz.TaskUsecase) *TaskService {
 }
 
 func (s *TaskService) Status(w http.ResponseWriter, r *http.Request) {
+	tasks, err := s.taskRepo.ListActive()
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
 	Success(w, chix.M{
-		"task": s.taskRepo.HasRunningTask(),
+		"task":  len(tasks) > 0,
+		"tasks": tasks,
 	})
 }
 

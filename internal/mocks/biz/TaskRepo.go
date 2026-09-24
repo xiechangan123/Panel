@@ -38,6 +38,9 @@ var _ biz.TaskRepo = &TaskRepo{}
 //			ListFunc: func(page uint, limit uint) ([]*biz.Task, int64, error) {
 //				panic("mock out the List method")
 //			},
+//			ListActiveFunc: func() ([]*biz.Task, error) {
+//				panic("mock out the ListActive method")
+//			},
 //			PushFunc: func(task *biz.Task) error {
 //				panic("mock out the Push method")
 //			},
@@ -71,6 +74,9 @@ type TaskRepo struct {
 
 	// ListFunc mocks the List method.
 	ListFunc func(page uint, limit uint) ([]*biz.Task, int64, error)
+
+	// ListActiveFunc mocks the ListActive method.
+	ListActiveFunc func() ([]*biz.Task, error)
 
 	// PushFunc mocks the Push method.
 	PushFunc func(task *biz.Task) error
@@ -113,6 +119,9 @@ type TaskRepo struct {
 			// Limit is the limit argument value.
 			Limit uint
 		}
+		// ListActive holds details about calls to the ListActive method.
+		ListActive []struct {
+		}
 		// Push holds details about calls to the Push method.
 		Push []struct {
 			// Task is the task argument value.
@@ -139,6 +148,7 @@ type TaskRepo struct {
 	lockGetByIDs       sync.RWMutex
 	lockHasRunningTask sync.RWMutex
 	lockList           sync.RWMutex
+	lockListActive     sync.RWMutex
 	lockPush           sync.RWMutex
 	lockUpdateLog      sync.RWMutex
 	lockUpdateStatus   sync.RWMutex
@@ -332,6 +342,33 @@ func (mock *TaskRepo) ListCalls() []struct {
 	mock.lockList.RLock()
 	calls = mock.calls.List
 	mock.lockList.RUnlock()
+	return calls
+}
+
+// ListActive calls ListActiveFunc.
+func (mock *TaskRepo) ListActive() ([]*biz.Task, error) {
+	if mock.ListActiveFunc == nil {
+		panic("TaskRepo.ListActiveFunc: method is nil but TaskRepo.ListActive was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockListActive.Lock()
+	mock.calls.ListActive = append(mock.calls.ListActive, callInfo)
+	mock.lockListActive.Unlock()
+	return mock.ListActiveFunc()
+}
+
+// ListActiveCalls gets all the calls that were made to ListActive.
+// Check the length with:
+//
+//	len(mockedTaskRepo.ListActiveCalls())
+func (mock *TaskRepo) ListActiveCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockListActive.RLock()
+	calls = mock.calls.ListActive
+	mock.lockListActive.RUnlock()
 	return calls
 }
 

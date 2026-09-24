@@ -27,6 +27,7 @@ type Task struct {
 type TaskRepo interface {
 	HasRunningTask() bool
 	List(page, limit uint) ([]*Task, int64, error)
+	ListActive() ([]*Task, error)
 	Get(id uint) (*Task, error)
 	GetByIDs(ids []uint) ([]*Task, error)
 	Delete(id uint) error
@@ -50,6 +51,10 @@ func (uc *TaskUsecase) HasRunningTask() bool {
 
 func (uc *TaskUsecase) List(page, limit uint) ([]*Task, int64, error) {
 	return uc.repo.List(page, limit)
+}
+
+func (uc *TaskUsecase) ListActive() ([]*Task, error) {
+	return uc.repo.ListActive()
 }
 
 func (uc *TaskUsecase) Get(id uint) (*Task, error) {

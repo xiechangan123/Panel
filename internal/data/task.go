@@ -41,6 +41,13 @@ func (r *taskRepo) List(page, limit uint) ([]*biz.Task, int64, error) {
 	return tasks, total, err
 }
 
+// ListActive 等待中和运行中的任务，运行中的最早入队，排在最前
+func (r *taskRepo) ListActive() ([]*biz.Task, error) {
+	tasks := make([]*biz.Task, 0)
+	err := r.db.Where("status IN ?", []biz.TaskStatus{biz.TaskStatusWaiting, biz.TaskStatusRunning}).Order("id asc").Find(&tasks).Error
+	return tasks, err
+}
+
 func (r *taskRepo) Get(id uint) (*biz.Task, error) {
 	task := new(biz.Task)
 	err := r.db.Model(&biz.Task{}).Where("id = ?", id).First(task).Error

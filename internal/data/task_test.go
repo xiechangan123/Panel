@@ -85,3 +85,21 @@ func TestTaskGetByIDsSkipsMissing(t *testing.T) {
 		t.Fatalf("want tasks %d and %d, got %+v", ids[0], ids[2], tasks)
 	}
 }
+
+func TestTaskListActive(t *testing.T) {
+	repo := newTaskRepoForTest(t)
+
+	for _, status := range []biz.TaskStatus{biz.TaskStatusRunning, biz.TaskStatusSuccess, biz.TaskStatusWaiting, biz.TaskStatusFailed} {
+		if err := repo.db.Create(&biz.Task{Name: string(status), Status: status}).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	tasks, err := repo.ListActive()
+	if err != nil {
+		t.Fatalf("ListActive: %v", err)
+	}
+	if len(tasks) != 2 || tasks[0].Status != biz.TaskStatusRunning || tasks[1].Status != biz.TaskStatusWaiting {
+		t.Fatalf("want running then waiting, got %+v", tasks)
+	}
+}
