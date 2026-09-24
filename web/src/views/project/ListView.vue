@@ -32,6 +32,19 @@ const typeMap: Record<string, string> = {
   dotnet: '.NET',
 }
 
+// systemd ActiveState 映射，未列出的状态原样显示
+const statusMap: Record<
+  string,
+  { type: 'default' | 'success' | 'info' | 'warning' | 'error'; label: string }
+> = {
+  active: { type: 'success', label: $gettext('Running') },
+  activating: { type: 'info', label: $gettext('Starting') },
+  reloading: { type: 'info', label: $gettext('Reloading') },
+  deactivating: { type: 'info', label: $gettext('Stopping') },
+  inactive: { type: 'warning', label: $gettext('Stopped') },
+  failed: { type: 'error', label: $gettext('Failed') },
+}
+
 const columns: any = [
   { type: 'selection', fixed: 'left' },
   {
@@ -59,26 +72,13 @@ const columns: any = [
   {
     title: $gettext('Status'),
     key: 'status',
-    width: 100,
+    width: 110,
     render(row: any) {
-      return h(
-        NTag,
-        { type: row.status === 'active' ? 'success' : 'default' },
-        {
-          default: () => {
-            switch (row.status) {
-              case 'active':
-                return $gettext('Running')
-              case 'inactive':
-                return $gettext('Stopped')
-              case 'failed':
-                return $gettext('Failed')
-              default:
-                return $gettext('Inactive')
-            }
-          },
-        },
-      )
+      const { type, label } = statusMap[row.status] ?? {
+        type: 'default',
+        label: row.status || $gettext('Unknown'),
+      }
+      return h(NTag, { type }, { default: () => label })
     },
   },
   {
