@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { DataTableColumns, InputInst } from 'naive-ui'
-import { NButton, NDataTable, NEllipsis, NFlex, NSpin, NTag, useThemeVars } from 'naive-ui'
+import type { DataTableColumns, DataTableInst, InputInst } from 'naive-ui'
+import { NButton, NDataTable, NEllipsis, NFlex, NInput, NSpin, NTag, useThemeVars } from 'naive-ui'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { useGettext } from 'vue3-gettext'
 
@@ -31,12 +31,17 @@ const pathInput = ref<InputInst | null>(null)
 const input = ref('www')
 const sort = ref<string>('')
 const selected = ref<any[]>([])
+const tableRef = ref<DataTableInst | null>(null)
 const create = ref(false)
 const createLoading = ref(false)
+const createInput = ref<InputInst | null>(null)
 const createModel = ref({
   dir: false,
   path: '',
 })
+
+// 新建行的 row key，真实路径都以 / 开头不会冲突
+const CREATE_KEY = '__create__'
 
 const columns: DataTableColumns<RowData> = [
   {
@@ -44,7 +49,7 @@ const columns: DataTableColumns<RowData> = [
     multiple: false,
     fixed: 'left',
     disabled(row) {
-      return props.dir ? !row.dir : row.dir
+      return row.full === CREATE_KEY || (props.dir ? !row.dir : row.dir)
     },
   },
   {
@@ -53,12 +58,29 @@ const columns: DataTableColumns<RowData> = [
     minWidth: 180,
     defaultSortOrder: false,
     sorter: 'default',
+    colSpan: (row) => (row.full === CREATE_KEY ? columns.length - 1 : 1),
     render(row) {
       let icon = 'mdi:file-outline'
       if (row.dir) {
         icon = 'mdi:folder-outline'
       } else {
         icon = getIconByExt(getExt(row.name))
+      }
+
+      if (row.full === CREATE_KEY) {
+        return h(NFlex, { align: 'center', wrap: false }, () => [
+          h(TheIcon, { icon, size: 24 }),
+          h(NInput, {
+            ref: createInput,
+            size: 'small',
+            value: createModel.value.path,
+            loading: createLoading.value,
+            placeholder: row.dir ? $gettext('Folder name') : $gettext('File name'),
+            onUpdateValue: (v: string) => (createModel.value.path = v),
+            onKeydown: handleCreateKeydown,
+            onBlur: handleCreate,
+          }),
+        ])
       }
 
       return h(
@@ -175,6 +197,13 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
   },
 )
 
+// 新建时在列表顶部插入输入行
+const rows = computed(() =>
+  create.value
+    ? [{ full: CREATE_KEY, name: '', dir: createModel.value.dir }, ...data.value]
+    : data.value,
+)
+
 const handleInput = () => {
   isInput.value = true
   nextTick(() => {
@@ -241,17 +270,24 @@ const showCreate = (value: string) => {
   createModel.value.dir = value !== 'file'
   createModel.value.path = ''
   create.value = true
+  // 输入行在顶部，虚拟列表滚动过后需回到顶部才会渲染
+  tableRef.value?.scrollTo({ top: 0 })
 }
 
 const handleCreate = () => {
-  if (!checkName(createModel.value.path)) {
+  if (!create.value || createLoading.value) return
+  const name = createModel.value.path.trim()
+  if (!name) {
+    create.value = false
+    return
+  }
+  if (!checkName(name)) {
     window.$message.error($gettext('Invalid name'))
     return
   }
 
   createLoading.value = true
-  const fullPath = joinPath(currentPath.value, createModel.value.path)
-  useRequest(file.create(fullPath, createModel.value.dir))
+  useRequest(file.create(joinPath(currentPath.value, name), createModel.value.dir))
     .onSuccess(() => {
       create.value = false
       reload()
@@ -261,6 +297,20 @@ const handleCreate = () => {
       createLoading.value = false
     })
 }
+
+const handleCreateKeydown = (e: KeyboardEvent) => {
+  if (e.isComposing) return
+  if (e.key === 'Enter') {
+    handleCreate()
+  } else if (e.key === 'Escape') {
+    // 阻止冒泡到弹窗，否则 Esc 会连选择器一起关掉
+    e.stopPropagation()
+    create.value = false
+  }
+}
+
+// 输入行渲染出来后自动聚焦
+watch(createInput, (el) => el?.focus())
 
 // 计算目录大小
 const calculateDirSize = (dirPath: string) => {
@@ -286,6 +336,7 @@ watch(currentPath, (value) => {
   if (!value) return
   input.value = value.slice(1)
   selected.value = []
+  create.value = false
   sizeCache.value.clear()
   sizeLoading.value.clear()
   reload()
@@ -310,8 +361,6 @@ watch(selected, (val) => {
     size="huge"
     :bordered="false"
     :segmented="false"
-    @close="show = false"
-    @mask-click="show = false"
   >
     <n-flex>
       <n-popselect
@@ -355,6 +404,7 @@ watch(selected, (val) => {
       </n-button>
     </n-flex>
     <n-data-table
+      ref="tableRef"
       remote
       striped
       virtual-scroll
@@ -362,7 +412,7 @@ watch(selected, (val) => {
       size="small"
       :scroll-x="600"
       :columns="columns"
-      :data="data"
+      :data="rows"
       :loading="loading"
       :row-key="(row: any) => row.full"
       max-height="60vh"
@@ -380,32 +430,6 @@ watch(selected, (val) => {
         pageSizes: [100, 200, 500, 1000, 1500, 2000, 5000],
       }"
     />
-  </n-modal>
-  <n-modal
-    v-model:show="create"
-    preset="card"
-    :title="$gettext('Create')"
-    style="width: 60vw"
-    size="huge"
-    :bordered="false"
-    :segmented="false"
-  >
-    <n-space vertical>
-      <n-form :model="createModel">
-        <n-form-item :label="$gettext('Name')">
-          <n-input v-model:value="createModel.path" />
-        </n-form-item>
-      </n-form>
-      <n-button
-        type="info"
-        block
-        :loading="createLoading"
-        :disabled="createLoading"
-        @click="handleCreate"
-      >
-        {{ $gettext('Submit') }}
-      </n-button>
-    </n-space>
   </n-modal>
 </template>
 
