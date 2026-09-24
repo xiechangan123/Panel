@@ -30,6 +30,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/webserver"
 	"github.com/acepanel/panel/v3/pkg/webserver/openlitespeed"
 )
 
@@ -127,6 +128,10 @@ func (s *EnvironmentPHPService) UpdateConfig(w http.ResponseWriter, r *http.Requ
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+	if err = s.applyLSAPI(r.Context(), req.Version); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 
 	Success(w, nil)
 }
@@ -163,6 +168,10 @@ func (s *EnvironmentPHPService) UpdateFPMConfig(w http.ResponseWriter, r *http.R
 	}
 
 	if err = io.Write(fmt.Sprintf("%s/server/php/%d/etc/php-fpm.conf", app.Root, req.Version), req.Config, 0644); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if err = s.applyLSAPI(r.Context(), req.Version); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -494,6 +503,10 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 		return
 	}
 	if err = io.Write(fpmPath, fpm, 0644); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if err = s.applyLSAPI(r.Context(), req.Version); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -1072,4 +1085,20 @@ func (s *EnvironmentPHPService) probeSocket(version uint) (string, bool) {
 		return openlitespeed.LSAPISocket(version), true
 	}
 	return s.phpFPMSocket(version), false
+}
+
+// applyLSAPI LSAPI 下 lsphp 由 OLS 托管，改了配置要重载 OLS 同步外部应用参数，再重启 lsphp 才会生效
+func (s *EnvironmentPHPService) applyLSAPI(ctx context.Context, version uint) error {
+	if !openlitespeed.LSAPIEnabled(version) {
+		return nil
+	}
+	d, err := webserver.Get(webserver.TypeOpenLiteSpeed)
+	if err != nil {
+		return err
+	}
+	if err = d.Reload(context.WithoutCancel(ctx)); err != nil {
+		return err
+	}
+
+	return openlitespeed.RestartPHP(version)
 }
