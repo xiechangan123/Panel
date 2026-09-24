@@ -27,7 +27,7 @@ const open = () => {
     <template #trigger>
       <n-icon mr-5 cursor-pointer size="20" @click="open">
         <i-mdi-sync v-if="data.task" class="animate-spin" />
-        <i-mdi-checkbox-outline v-else />
+        <i-mdi-inbox-multiple-outline v-else />
       </n-icon>
     </template>
     {{ data.task ? $gettext('Tasks Running') : $gettext('Panel Tasks') }}

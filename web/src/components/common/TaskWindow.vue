@@ -65,7 +65,7 @@ const handleCancel = async (item: QueueTask) => {
     <template #icon>
       <i-mdi-sync v-if="tasks.some(isActive)" class="animate-spin" />
       <i-mdi-alert-circle-outline v-else-if="tasks.length" class="text-error" />
-      <i-mdi-checkbox-outline v-else />
+      <i-mdi-inbox-multiple-outline v-else />
     </template>
     <n-layout has-sider class="h-full !bg-transparent">
       <n-layout-sider
