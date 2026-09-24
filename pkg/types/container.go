@@ -52,10 +52,11 @@ type ContainerUlimit struct {
 	Hard int64  `form:"hard" json:"hard"`
 }
 
+// ContainerHealthcheck 各时长单位为秒
 type ContainerHealthcheck struct {
-	Test        []string      `form:"test" json:"test"`
-	Interval    time.Duration `form:"interval" json:"interval"`
-	Timeout     time.Duration `form:"timeout" json:"timeout"`
-	StartPeriod time.Duration `form:"start_period" json:"start_period"`
-	Retries     int           `form:"retries" json:"retries"`
+	Test        []string `form:"test" json:"test"`
+	Interval    int      `form:"interval" json:"interval"`
+	Timeout     int      `form:"timeout" json:"timeout"`
+	StartPeriod int      `form:"start_period" json:"start_period"`
+	Retries     int      `form:"retries" json:"retries"`
 }

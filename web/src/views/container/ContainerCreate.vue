@@ -19,9 +19,14 @@ const currentTab = ref('basic')
 // 镜像拉取
 const showPullModal = ref(false)
 
-const createModel = reactive({
+const defaultModel = () => ({
   name: '',
   image: '',
+  hostname: '',
+  static_ip: '',
+  network_aliases: [] as string[],
+  dns: [] as string[],
+  extra_hosts: [] as string[],
   publish_all_ports: false,
   ports: [] as {
     container_start: number
@@ -37,19 +42,36 @@ const createModel = reactive({
     container: string
     mode: string
   }[],
+  tmpfs: [] as { key: string; value: string }[],
   cpus: 0,
   memory: 0,
   cpu_shares: 1024,
+  shm_size: 0,
+  ulimits: [] as { name: string; soft: number; hard: number }[],
   env: [] as { key: string; value: string }[],
   labels: [] as { key: string; value: string }[],
   command: [] as string[],
   entrypoint: [] as string[],
+  working_dir: '',
+  user: '',
   restart_policy: 'no',
   tty: false,
   open_stdin: false,
   auto_remove: false,
   privileged: false,
+  init: false,
+  readonly_rootfs: false,
+  stop_signal: '',
+  stop_timeout: 0,
+  healthcheck: { test: [] as string[], interval: 0, timeout: 0, start_period: 0, retries: 0 },
+  cap_add: [] as string[],
+  cap_drop: [] as string[],
+  security_opt: [] as string[],
+  devices: [] as { host: string; container: string; permissions: string }[],
+  sysctls: [] as { key: string; value: string }[],
 })
+
+const createModel = reactive(defaultModel())
 
 const networks = ref<{ label: string; value: string }[]>([])
 
@@ -70,6 +92,82 @@ const volumeModeOptions = [
   { label: $gettext('Read-Only'), value: 'ro' },
 ]
 
+const devicePermissionOptions = ['rwm', 'rw', 'r'].map((value) => ({ label: value, value }))
+
+const ulimitOptions = [
+  'core',
+  'cpu',
+  'data',
+  'fsize',
+  'locks',
+  'memlock',
+  'msgqueue',
+  'nice',
+  'nofile',
+  'nproc',
+  'rss',
+  'rtprio',
+  'rttime',
+  'sigpending',
+  'stack',
+].map((value) => ({ label: value, value }))
+
+const capabilityOptions = [
+  'ALL',
+  'AUDIT_CONTROL',
+  'AUDIT_READ',
+  'AUDIT_WRITE',
+  'BLOCK_SUSPEND',
+  'BPF',
+  'CHECKPOINT_RESTORE',
+  'CHOWN',
+  'DAC_OVERRIDE',
+  'DAC_READ_SEARCH',
+  'FOWNER',
+  'FSETID',
+  'IPC_LOCK',
+  'IPC_OWNER',
+  'KILL',
+  'LEASE',
+  'LINUX_IMMUTABLE',
+  'MAC_ADMIN',
+  'MAC_OVERRIDE',
+  'MKNOD',
+  'NET_ADMIN',
+  'NET_BIND_SERVICE',
+  'NET_BROADCAST',
+  'NET_RAW',
+  'PERFMON',
+  'SETFCAP',
+  'SETGID',
+  'SETPCAP',
+  'SETUID',
+  'SYS_ADMIN',
+  'SYS_BOOT',
+  'SYS_CHROOT',
+  'SYS_MODULE',
+  'SYS_NICE',
+  'SYS_PACCT',
+  'SYS_PTRACE',
+  'SYS_RAWIO',
+  'SYS_RESOURCE',
+  'SYS_TIME',
+  'SYS_TTY_CONFIG',
+  'SYSLOG',
+  'WAKE_ALARM',
+].map((value) => ({ label: value, value }))
+
+// 只按 CMD-SHELL 编辑命令，未改动时保留原始 Test，避免丢掉 CMD 与 NONE 形式
+const healthcheckCommand = computed({
+  get: () => {
+    const [type, ...args] = createModel.healthcheck.test
+    return type === 'CMD' || type === 'CMD-SHELL' ? args.join(' ') : ''
+  },
+  set: (value: string) => {
+    createModel.healthcheck.test = value ? ['CMD-SHELL', value] : []
+  },
+})
+
 // 端口映射操作
 const onCreatePort = () => ({
   container_start: 80,
@@ -87,17 +185,18 @@ const onCreateVolume = () => ({
   mode: 'rw',
 })
 
-// 环境变量操作
-const onCreateEnv = () => ({ key: '', value: '' })
+// 环境变量、标签、内核参数、tmpfs 操作
+const onCreateKV = () => ({ key: '', value: '' })
 
-// 标签操作
-const onCreateLabel = () => ({ key: '', value: '' })
+const onCreateUlimit = () => ({ name: 'nofile', soft: 65535, hard: 65535 })
+
+const onCreateDevice = () => ({ host: '', container: '', permissions: 'rwm' })
 
 const getNetworks = () => {
   useRequest(container.networkList(1, 1000)).onSuccess(({ data }) => {
     networks.value = data.items.map((item: any) => ({
       label: item.name,
-      value: item.id,
+      value: item.name,
     }))
     // 编辑模式下网络由 inspect 回填，避免竞态覆盖
     if (!isEdit.value && networks.value.length > 0) {
@@ -195,17 +294,66 @@ const checkImageAndSubmit = () => {
 const fillFromInspect = (info: any) => {
   createModel.name = String(info.Name || '').replace(/^\//, '')
   createModel.image = info.Config?.Image || ''
+  // Docker 默认以容器 ID 前 12 位作主机名（旧版本还会加进网络别名），回填会让新容器沿用旧 ID
+  const shortId = String(info.Id || '').slice(0, 12)
+  const hostname = info.Config?.Hostname || ''
+  createModel.hostname = hostname === shortId ? '' : hostname
   createModel.restart_policy = info.HostConfig?.RestartPolicy?.Name || 'no'
   createModel.tty = !!info.Config?.Tty
   createModel.open_stdin = !!info.Config?.OpenStdin
   createModel.auto_remove = !!info.HostConfig?.AutoRemove
   createModel.privileged = !!info.HostConfig?.Privileged
+  createModel.init = !!info.HostConfig?.Init
+  createModel.readonly_rootfs = !!info.HostConfig?.ReadonlyRootfs
   createModel.publish_all_ports = !!info.HostConfig?.PublishAllPorts
   createModel.cpus = (info.HostConfig?.NanoCpus || 0) / 1e9
   createModel.memory = Math.round((info.HostConfig?.Memory || 0) / 1024 / 1024)
   createModel.cpu_shares = info.HostConfig?.CpuShares || 1024
+  createModel.shm_size = Math.round((info.HostConfig?.ShmSize || 0) / 1024 / 1024)
   createModel.command = info.Config?.Cmd || []
   createModel.entrypoint = info.Config?.Entrypoint || []
+  createModel.working_dir = info.Config?.WorkingDir || ''
+  createModel.user = info.Config?.User || ''
+  createModel.stop_signal = info.Config?.StopSignal || ''
+  createModel.stop_timeout = info.Config?.StopTimeout || 0
+  createModel.dns = info.HostConfig?.Dns || []
+  createModel.extra_hosts = info.HostConfig?.ExtraHosts || []
+  createModel.security_opt = info.HostConfig?.SecurityOpt || []
+  // Docker 回显的能力带 CAP_ 前缀
+  createModel.cap_add = (info.HostConfig?.CapAdd || []).map((cap: string) =>
+    cap.replace(/^CAP_/, ''),
+  )
+  createModel.cap_drop = (info.HostConfig?.CapDrop || []).map((cap: string) =>
+    cap.replace(/^CAP_/, ''),
+  )
+  createModel.devices = (info.HostConfig?.Devices || []).map((device: any) => ({
+    host: device.PathOnHost,
+    container: device.PathInContainer,
+    permissions: device.CgroupPermissions,
+  }))
+  createModel.ulimits = (info.HostConfig?.Ulimits || []).map((ulimit: any) => ({
+    name: ulimit.Name,
+    soft: ulimit.Soft,
+    hard: ulimit.Hard,
+  }))
+  createModel.sysctls = Object.entries(info.HostConfig?.Sysctls || {}).map(([key, value]) => ({
+    key,
+    value: String(value),
+  }))
+  createModel.tmpfs = Object.entries(info.HostConfig?.Tmpfs || {}).map(([key, value]) => ({
+    key,
+    value: String(value),
+  }))
+
+  // 健康检查：时长为纳秒
+  const healthcheck = info.Config?.Healthcheck || {}
+  createModel.healthcheck = {
+    test: healthcheck.Test || [],
+    interval: Math.round((healthcheck.Interval || 0) / 1e9),
+    timeout: Math.round((healthcheck.Timeout || 0) / 1e9),
+    start_period: Math.round((healthcheck.StartPeriod || 0) / 1e9),
+    retries: healthcheck.Retries || 0,
+  }
 
   // 端口映射："80/tcp" -> [{HostIp, HostPort}]
   createModel.ports = []
@@ -245,11 +393,20 @@ const fillFromInspect = (info: any) => {
     value: String(value),
   }))
 
-  // 网络：按 NetworkID 匹配下拉项
-  const networkSettings: any = Object.values(info.NetworkSettings?.Networks || {})[0]
-  if (networkSettings?.NetworkID) {
-    createModel.network = networkSettings.NetworkID
-  }
+  // 网络：Networks 的 key 即网络名，接入多个网络时优先取 NetworkMode 指向的主网络
+  const networkMap = info.NetworkSettings?.Networks || {}
+  const networkNames = Object.keys(networkMap)
+  const networkName = networkNames.includes(info.HostConfig?.NetworkMode)
+    ? info.HostConfig.NetworkMode
+    : networkNames[0]
+  createModel.network = networkName ?? ''
+  const endpoint = networkMap[networkName]
+  // IPAddress 是动态分配的结果，只有 IPAMConfig 里的才是指定的静态 IP
+  createModel.static_ip =
+    endpoint?.IPAMConfig?.IPv4Address || endpoint?.IPAMConfig?.IPv6Address || ''
+  createModel.network_aliases = (endpoint?.Aliases || []).filter(
+    (alias: string) => alias !== shortId,
+  )
 }
 
 // 编辑模式：加载容器当前配置
@@ -260,23 +417,7 @@ const loadContainer = () => {
 }
 
 const resetForm = () => {
-  createModel.name = ''
-  createModel.image = ''
-  createModel.publish_all_ports = false
-  createModel.ports = []
-  createModel.volumes = []
-  createModel.cpus = 0
-  createModel.memory = 0
-  createModel.cpu_shares = 1024
-  createModel.env = []
-  createModel.labels = []
-  createModel.command = []
-  createModel.entrypoint = []
-  createModel.restart_policy = 'no'
-  createModel.tty = false
-  createModel.open_stdin = false
-  createModel.auto_remove = false
-  createModel.privileged = false
+  Object.assign(createModel, defaultModel())
   currentTab.value = 'basic'
   showPullModal.value = false
 }
@@ -326,14 +467,6 @@ watch(show, (val) => {
             />
           </n-form-item>
 
-          <n-form-item path="network" :label="$gettext('Network')">
-            <n-select
-              v-model:value="createModel.network"
-              :options="networks"
-              :placeholder="$gettext('Select network')"
-            />
-          </n-form-item>
-
           <n-form-item path="restart_policy" :label="$gettext('Restart Policy')">
             <n-select
               v-model:value="createModel.restart_policy"
@@ -345,27 +478,91 @@ watch(show, (val) => {
           <n-divider title-placement="left">{{ $gettext('Container Options') }}</n-divider>
 
           <n-row :gutter="[24, 0]">
-            <n-col :span="6">
+            <n-col :span="8">
               <n-form-item path="tty" :label="$gettext('TTY (-t)')">
                 <n-switch v-model:value="createModel.tty" />
               </n-form-item>
             </n-col>
-            <n-col :span="6">
+            <n-col :span="8">
               <n-form-item path="open_stdin" :label="$gettext('STDIN (-i)')">
                 <n-switch v-model:value="createModel.open_stdin" />
               </n-form-item>
             </n-col>
-            <n-col :span="6">
+            <n-col :span="8">
               <n-form-item path="auto_remove" :label="$gettext('Auto Remove')">
                 <n-switch v-model:value="createModel.auto_remove" />
               </n-form-item>
             </n-col>
-            <n-col :span="6">
+            <n-col :span="8">
               <n-form-item path="privileged" :label="$gettext('Privileged')">
                 <n-switch v-model:value="createModel.privileged" />
               </n-form-item>
             </n-col>
+            <n-col :span="8">
+              <n-form-item path="init" :label="$gettext('Init Process')">
+                <n-switch v-model:value="createModel.init" />
+              </n-form-item>
+            </n-col>
+            <n-col :span="8">
+              <n-form-item path="readonly_rootfs" :label="$gettext('Read-Only')">
+                <n-switch v-model:value="createModel.readonly_rootfs" />
+              </n-form-item>
+            </n-col>
           </n-row>
+        </n-form>
+      </n-tab-pane>
+
+      <!-- 网络 -->
+      <n-tab-pane name="network" :tab="$gettext('Network')">
+        <n-form :model="createModel" label-placement="left" label-width="120">
+          <n-form-item path="network" :label="$gettext('Network')">
+            <n-select
+              v-model:value="createModel.network"
+              :options="networks"
+              :placeholder="$gettext('Select network')"
+            />
+          </n-form-item>
+
+          <n-form-item path="static_ip" :label="$gettext('Static IP')">
+            <n-input
+              v-model:value="createModel.static_ip"
+              type="text"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Optional, requires a custom network with a subnet')"
+            />
+          </n-form-item>
+
+          <!-- 内核 HOST_NAME_MAX 为 64，超长时容器能创建但无法启动 -->
+          <n-form-item path="hostname" :label="$gettext('Hostname')">
+            <n-input
+              v-model:value="createModel.hostname"
+              type="text"
+              :maxlength="64"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Optional, auto-generated if empty')"
+            />
+          </n-form-item>
+
+          <n-form-item path="network_aliases" :label="$gettext('Network Aliases')">
+            <n-dynamic-input
+              v-model:value="createModel.network_aliases"
+              :placeholder="$gettext('Only for custom networks')"
+            />
+          </n-form-item>
+
+          <n-form-item path="dns" :label="$gettext('DNS Servers')">
+            <n-dynamic-input
+              v-model:value="createModel.dns"
+              :placeholder="$gettext('e.g., 8.8.8.8')"
+            />
+          </n-form-item>
+
+          <n-form-item path="extra_hosts" :label="$gettext('Extra Hosts')">
+            <n-dynamic-input
+              v-model:value="createModel.extra_hosts"
+              :placeholder="$gettext('e.g., example.com:192.168.1.10')"
+            />
+          </n-form-item>
         </n-form>
       </n-tab-pane>
 
@@ -487,6 +684,32 @@ watch(show, (val) => {
               )
             }}
           </n-alert>
+
+          <n-divider title-placement="left">{{ $gettext('Tmpfs Mounts') }}</n-divider>
+
+          <n-form-item :label="$gettext('Tmpfs Mounts')" :show-label="false">
+            <n-dynamic-input
+              v-model:value="createModel.tmpfs"
+              :on-create="onCreateKV"
+              show-sort-button
+            >
+              <template #default="{ value }">
+                <n-flex align="center" :wrap="false" style="width: 100%">
+                  <n-input
+                    v-model:value="value.key"
+                    :placeholder="$gettext('Container path')"
+                    style="flex: 1"
+                  />
+                  <span>:</span>
+                  <n-input
+                    v-model:value="value.value"
+                    :placeholder="$gettext('Mount options, e.g., size=64m')"
+                    style="flex: 1"
+                  />
+                </n-flex>
+              </template>
+            </n-dynamic-input>
+          </n-form-item>
         </n-form>
       </n-tab-pane>
 
@@ -534,7 +757,43 @@ watch(show, (val) => {
                 />
               </n-form-item>
             </n-col>
+            <n-col :span="8">
+              <n-form-item path="shm_size" :label="$gettext('Shm Size (MB)')">
+                <n-input-number v-model:value="createModel.shm_size" :min="0" style="width: 100%" />
+              </n-form-item>
+            </n-col>
           </n-row>
+
+          <n-divider title-placement="left">{{ $gettext('Ulimits') }}</n-divider>
+
+          <n-form-item :label="$gettext('Ulimits')" :show-label="false">
+            <n-dynamic-input
+              v-model:value="createModel.ulimits"
+              :on-create="onCreateUlimit"
+              show-sort-button
+            >
+              <template #default="{ value }">
+                <n-flex align="center" :wrap="false" style="width: 100%">
+                  <n-select v-model:value="value.name" :options="ulimitOptions" class="w-40" />
+                  <n-input-number
+                    v-model:value="value.soft"
+                    :min="-1"
+                    :show-button="false"
+                    :placeholder="$gettext('Soft Limit')"
+                    style="flex: 1"
+                  />
+                  <span>:</span>
+                  <n-input-number
+                    v-model:value="value.hard"
+                    :min="-1"
+                    :show-button="false"
+                    :placeholder="$gettext('Hard Limit')"
+                    style="flex: 1"
+                  />
+                </n-flex>
+              </template>
+            </n-dynamic-input>
+          </n-form-item>
 
           <n-collapse class="mt-4">
             <n-collapse-item :title="$gettext('Resource Limit Description')">
@@ -556,6 +815,16 @@ watch(show, (val) => {
                     )
                   }}
                 </n-descriptions-item>
+                <n-descriptions-item :label="$gettext('Shm Size')">
+                  {{ $gettext('Size of /dev/shm in MB. 0 means the Docker default (64 MB).') }}
+                </n-descriptions-item>
+                <n-descriptions-item :label="$gettext('Ulimits')">
+                  {{
+                    $gettext(
+                      'Soft and hard limits for processes in the container, such as the number of open files (nofile). -1 means unlimited.',
+                    )
+                  }}
+                </n-descriptions-item>
               </n-descriptions>
             </n-collapse-item>
           </n-collapse>
@@ -568,7 +837,7 @@ watch(show, (val) => {
           <n-form-item :label="$gettext('Environment Variables')">
             <n-dynamic-input
               v-model:value="createModel.env"
-              :on-create="onCreateEnv"
+              :on-create="onCreateKV"
               show-sort-button
             >
               <template #default="{ value }">
@@ -615,12 +884,30 @@ watch(show, (val) => {
             </template>
           </n-form-item>
 
+          <n-form-item path="working_dir" :label="$gettext('Working Directory')">
+            <n-input
+              v-model:value="createModel.working_dir"
+              type="text"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Optional, uses the image default if empty')"
+            />
+          </n-form-item>
+
+          <n-form-item path="user" :label="$gettext('User')">
+            <n-input
+              v-model:value="createModel.user"
+              type="text"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Optional, uses the image default if empty')"
+            />
+          </n-form-item>
+
           <n-divider title-placement="left">{{ $gettext('Labels') }}</n-divider>
 
           <n-form-item :label="$gettext('Container Labels')">
             <n-dynamic-input
               v-model:value="createModel.labels"
-              :on-create="onCreateLabel"
+              :on-create="onCreateKV"
               show-sort-button
             >
               <template #default="{ value }">
@@ -635,6 +922,176 @@ watch(show, (val) => {
                     v-model:value="value.value"
                     :placeholder="$gettext('Label value')"
                     style="flex: 2"
+                  />
+                </n-flex>
+              </template>
+            </n-dynamic-input>
+          </n-form-item>
+        </n-form>
+      </n-tab-pane>
+
+      <!-- 高级设置 -->
+      <n-tab-pane name="advanced" :tab="$gettext('Advanced Settings')">
+        <n-form :model="createModel" label-placement="left" label-width="140">
+          <n-row :gutter="[24, 0]">
+            <n-col :span="12">
+              <n-form-item path="stop_signal" :label="$gettext('Stop Signal')">
+                <n-input
+                  v-model:value="createModel.stop_signal"
+                  type="text"
+                  @keydown.enter.prevent
+                  :placeholder="$gettext('Optional, uses the image default if empty')"
+                />
+              </n-form-item>
+            </n-col>
+            <n-col :span="12">
+              <n-form-item path="stop_timeout" :label="$gettext('Stop Timeout (s)')">
+                <n-input-number
+                  v-model:value="createModel.stop_timeout"
+                  :min="0"
+                  style="width: 100%"
+                />
+              </n-form-item>
+            </n-col>
+          </n-row>
+
+          <n-divider title-placement="left">{{ $gettext('Health Check') }}</n-divider>
+
+          <n-form-item :label="$gettext('Command')">
+            <n-input
+              v-model:value="healthcheckCommand"
+              type="text"
+              @keydown.enter.prevent
+              :placeholder="$gettext('e.g., curl -f http://localhost/ || exit 1')"
+            />
+            <template #feedback>
+              <span class="text-gray-400">
+                {{
+                  $gettext(
+                    'Leave empty to use the health check defined in the image. Durations and retries set to 0 use the defaults.',
+                  )
+                }}
+              </span>
+            </template>
+          </n-form-item>
+
+          <n-row :gutter="[24, 0]">
+            <n-col :span="12">
+              <n-form-item :label="$gettext('Interval (s)')">
+                <n-input-number
+                  v-model:value="createModel.healthcheck.interval"
+                  :min="0"
+                  style="width: 100%"
+                />
+              </n-form-item>
+            </n-col>
+            <n-col :span="12">
+              <n-form-item :label="$gettext('Timeout (s)')">
+                <n-input-number
+                  v-model:value="createModel.healthcheck.timeout"
+                  :min="0"
+                  style="width: 100%"
+                />
+              </n-form-item>
+            </n-col>
+            <n-col :span="12">
+              <n-form-item :label="$gettext('Start Period (s)')">
+                <n-input-number
+                  v-model:value="createModel.healthcheck.start_period"
+                  :min="0"
+                  style="width: 100%"
+                />
+              </n-form-item>
+            </n-col>
+            <n-col :span="12">
+              <n-form-item :label="$gettext('Retry Count')">
+                <n-input-number
+                  v-model:value="createModel.healthcheck.retries"
+                  :min="0"
+                  style="width: 100%"
+                />
+              </n-form-item>
+            </n-col>
+          </n-row>
+
+          <n-divider title-placement="left">{{ $gettext('Security') }}</n-divider>
+
+          <n-form-item path="cap_add" :label="$gettext('Add Capabilities')">
+            <n-select
+              v-model:value="createModel.cap_add"
+              :options="capabilityOptions"
+              multiple
+              filterable
+              clearable
+            />
+          </n-form-item>
+
+          <n-form-item path="cap_drop" :label="$gettext('Drop Capabilities')">
+            <n-select
+              v-model:value="createModel.cap_drop"
+              :options="capabilityOptions"
+              multiple
+              filterable
+              clearable
+            />
+          </n-form-item>
+
+          <n-form-item path="security_opt" :label="$gettext('Security Options')">
+            <n-dynamic-input
+              v-model:value="createModel.security_opt"
+              :placeholder="$gettext('e.g., no-new-privileges')"
+            />
+          </n-form-item>
+
+          <n-form-item :label="$gettext('Devices')">
+            <n-dynamic-input
+              v-model:value="createModel.devices"
+              :on-create="onCreateDevice"
+              show-sort-button
+            >
+              <template #default="{ value }">
+                <n-flex align="center" :wrap="false" style="width: 100%">
+                  <n-input
+                    v-model:value="value.host"
+                    :placeholder="$gettext('Host path')"
+                    style="flex: 1"
+                  />
+                  <span>:</span>
+                  <n-input
+                    v-model:value="value.container"
+                    :placeholder="$gettext('Container path, same as host if empty')"
+                    style="flex: 1"
+                  />
+                  <n-select
+                    v-model:value="value.permissions"
+                    :options="devicePermissionOptions"
+                    class="w-22.5"
+                  />
+                </n-flex>
+              </template>
+            </n-dynamic-input>
+          </n-form-item>
+
+          <n-divider title-placement="left">{{ $gettext('Kernel Parameters') }}</n-divider>
+
+          <n-form-item :label="$gettext('Kernel Parameters')" :show-label="false">
+            <n-dynamic-input
+              v-model:value="createModel.sysctls"
+              :on-create="onCreateKV"
+              show-sort-button
+            >
+              <template #default="{ value }">
+                <n-flex align="center" :wrap="false" style="width: 100%">
+                  <n-input
+                    v-model:value="value.key"
+                    :placeholder="$gettext('e.g., net.core.somaxconn')"
+                    style="flex: 1"
+                  />
+                  <span>=</span>
+                  <n-input
+                    v-model:value="value.value"
+                    :placeholder="$gettext('Value')"
+                    style="flex: 1"
                   />
                 </n-flex>
               </template>

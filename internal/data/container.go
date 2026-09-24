@@ -137,9 +137,6 @@ func (r *containerRepo) Create(ctx context.Context, sock string, req *request.Co
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	// 创建后紧接着启动，中途取消会留下已创建未启动的容器
-	ctx = context.WithoutCancel(ctx)
-
 	// 获取镜像信息
 	image, err := apiClient.ImageInspect(ctx, req.Image)
 	if err != nil {
@@ -175,10 +172,10 @@ func (r *containerRepo) Create(ctx context.Context, sock string, req *request.Co
 	if req.StopTimeout > 0 {
 		config.StopTimeout = &req.StopTimeout
 	}
-	if req.Healthcheck != nil {
+	if hc := req.Healthcheck; hc != nil {
 		config.Healthcheck = &container.HealthConfig{
-			Test: req.Healthcheck.Test, Interval: req.Healthcheck.Interval, Timeout: req.Healthcheck.Timeout,
-			StartPeriod: req.Healthcheck.StartPeriod, Retries: req.Healthcheck.Retries,
+			Test: hc.Test, Interval: time.Duration(hc.Interval) * time.Second, Timeout: time.Duration(hc.Timeout) * time.Second,
+			StartPeriod: time.Duration(hc.StartPeriod) * time.Second, Retries: hc.Retries,
 		}
 	}
 
@@ -194,44 +191,45 @@ func (r *containerRepo) Create(ctx context.Context, sock string, req *request.Co
 		SecurityOpt:     req.SecurityOpt,
 		Sysctls:         types.KVToMap(req.Sysctls),
 		Tmpfs:           types.KVToMap(req.Tmpfs),
-		ShmSize:         req.ShmSize,
+		ShmSize:         req.ShmSize * 1024 * 1024,
 	}
 	if req.Init {
 		hostConfig.Init = &req.Init
 	}
 	for _, dns := range req.DNS {
-		if address, parseErr := netip.ParseAddr(dns); parseErr == nil {
-			hostConfig.DNS = append(hostConfig.DNS, address)
+		address, parseErr := netip.ParseAddr(dns)
+		if parseErr != nil {
+			return "", fmt.Errorf("invalid DNS server address: %w", parseErr)
 		}
+		hostConfig.DNS = append(hostConfig.DNS, address)
 	}
+	// 与 docker run --device 的默认值对齐，API 收到空权限会让容器无法启动
 	for _, device := range req.Devices {
 		hostConfig.Devices = append(hostConfig.Devices, container.DeviceMapping{
-			PathOnHost: device.Host, PathInContainer: device.Container, CgroupPermissions: device.Permissions,
+			PathOnHost: device.Host, PathInContainer: cmp.Or(device.Container, device.Host), CgroupPermissions: cmp.Or(device.Permissions, "rwm"),
 		})
 	}
 	for _, ulimit := range req.Ulimits {
 		hostConfig.Ulimits = append(hostConfig.Ulimits, &container.Ulimit{Name: ulimit.Name, Soft: ulimit.Soft, Hard: ulimit.Hard})
 	}
 
-	// 构建网络配置
+	// 同 docker run：网络名兼作 NetworkMode 与端点 key，预置网络上的别名和静态 IP 交给 Docker 报错
 	networkConfig := &network.NetworkingConfig{}
 	if req.Network != "" {
-		switch req.Network {
-		case "host", "none":
-			hostConfig.NetworkMode = container.NetworkMode(req.Network)
-		case "bridge":
-			hostConfig.NetworkMode = container.NetworkMode(req.Network)
-		default:
-			endpoint := &network.EndpointSettings{Aliases: req.NetworkAliases}
-			if req.StaticIP != "" {
-				address, parseErr := netip.ParseAddr(req.StaticIP)
-				if parseErr != nil {
-					return "", fmt.Errorf("invalid static IP address: %w", parseErr)
-				}
-				endpoint.IPAddress = address
+		endpoint := &network.EndpointSettings{Aliases: req.NetworkAliases}
+		if req.StaticIP != "" {
+			address, parseErr := netip.ParseAddr(req.StaticIP)
+			if parseErr != nil {
+				return "", fmt.Errorf("invalid static IP address: %w", parseErr)
 			}
-			networkConfig.EndpointsConfig = map[string]*network.EndpointSettings{req.Network: endpoint}
+			// IPAddress 只是运行时回显，指定的 IP 要写在 IPAMConfig 里才生效
+			endpoint.IPAMConfig = &network.EndpointIPAMConfig{IPv4Address: address}
+			if address.Is6() {
+				endpoint.IPAMConfig = &network.EndpointIPAMConfig{IPv6Address: address}
+			}
 		}
+		hostConfig.NetworkMode = container.NetworkMode(req.Network)
+		networkConfig.EndpointsConfig = map[string]*network.EndpointSettings{req.Network: endpoint}
 	}
 
 	// 设置端口映射
@@ -290,8 +288,6 @@ func (r *containerRepo) Create(ctx context.Context, sock string, req *request.Co
 		return "", err
 	}
 
-	// 启动容器
-	_, _ = apiClient.ContainerStart(ctx, resp.ID, client.ContainerStartOptions{})
 	return resp.ID, nil
 }
 

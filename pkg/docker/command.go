@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"os"
@@ -62,7 +63,11 @@ func RunShell(sock string, req *request.ContainerCreate) (string, error) {
 		args = append(args, "--network-alias", alias)
 	}
 	if req.StaticIP != "" {
-		args = append(args, "--ip", req.StaticIP)
+		flag := "--ip"
+		if strings.Contains(req.StaticIP, ":") {
+			flag = "--ip6"
+		}
+		args = append(args, flag, req.StaticIP)
 	}
 	for _, dns := range req.DNS {
 		args = append(args, "--dns", dns)
@@ -77,7 +82,7 @@ func RunShell(sock string, req *request.ContainerCreate) (string, error) {
 		args = append(args, "--cap-drop", capability)
 	}
 	for _, device := range req.Devices {
-		args = append(args, "--device", mountSpec(device.Host, device.Container, device.Permissions))
+		args = append(args, "--device", mountSpec(device.Host, cmp.Or(device.Container, device.Host), device.Permissions))
 	}
 	for _, option := range req.SecurityOpt {
 		args = append(args, "--security-opt", option)
@@ -96,7 +101,7 @@ func RunShell(sock string, req *request.ContainerCreate) (string, error) {
 		args = append(args, "--tmpfs", value)
 	}
 	if req.ShmSize > 0 {
-		args = append(args, "--shm-size", strconv.FormatInt(req.ShmSize, 10))
+		args = append(args, "--shm-size", strconv.FormatInt(req.ShmSize, 10)+"m")
 	}
 	if req.Init {
 		args = append(args, "--init")
@@ -110,23 +115,28 @@ func RunShell(sock string, req *request.ContainerCreate) (string, error) {
 	if req.ReadonlyRootfs {
 		args = append(args, "--read-only")
 	}
-	if req.Healthcheck != nil && len(req.Healthcheck.Test) > 0 {
-		test := req.Healthcheck.Test
-		if test[0] == "CMD" || test[0] == "CMD-SHELL" {
-			test = test[1:]
+	if hc := req.Healthcheck; hc != nil && len(hc.Test) > 0 && hc.Test[0] == "NONE" {
+		args = append(args, "--no-healthcheck")
+	} else if hc != nil {
+		// Test 为空表示沿用镜像的检查命令，只覆盖时长与次数
+		if len(hc.Test) > 0 {
+			test := hc.Test
+			if test[0] == "CMD" || test[0] == "CMD-SHELL" {
+				test = test[1:]
+			}
+			args = append(args, "--health-cmd", strings.Join(test, " "))
 		}
-		args = append(args, "--health-cmd", strings.Join(test, " "))
-		if req.Healthcheck.Interval > 0 {
-			args = append(args, "--health-interval", req.Healthcheck.Interval.String())
+		if hc.Interval > 0 {
+			args = append(args, "--health-interval", strconv.Itoa(hc.Interval)+"s")
 		}
-		if req.Healthcheck.Timeout > 0 {
-			args = append(args, "--health-timeout", req.Healthcheck.Timeout.String())
+		if hc.Timeout > 0 {
+			args = append(args, "--health-timeout", strconv.Itoa(hc.Timeout)+"s")
 		}
-		if req.Healthcheck.StartPeriod > 0 {
-			args = append(args, "--health-start-period", req.Healthcheck.StartPeriod.String())
+		if hc.StartPeriod > 0 {
+			args = append(args, "--health-start-period", strconv.Itoa(hc.StartPeriod)+"s")
 		}
-		if req.Healthcheck.Retries > 0 {
-			args = append(args, "--health-retries", strconv.Itoa(req.Healthcheck.Retries))
+		if hc.Retries > 0 {
+			args = append(args, "--health-retries", strconv.Itoa(hc.Retries))
 		}
 	}
 	if req.PublishAllPorts {

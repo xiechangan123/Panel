@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"slices"
 	"strings"
 
@@ -67,9 +68,19 @@ func (uc *ContainerUsecase) Inspect(ctx context.Context, id string) (any, error)
 	return uc.repo.Inspect(ctx, sock, id)
 }
 
+// Create 创建并启动容器
 func (uc *ContainerUsecase) Create(ctx context.Context, req *request.ContainerCreate) (string, error) {
 	sock := containerSock(uc.setting)
-	return uc.repo.Create(ctx, sock, req)
+	// 中途取消会留下已创建未启动的容器
+	ctx = context.WithoutCancel(ctx)
+	id, err := uc.repo.Create(ctx, sock, req)
+	if err != nil {
+		return "", err
+	}
+	if err = uc.repo.Start(ctx, sock, id); err != nil {
+		return "", errors.New(uc.t.Get("Container created but failed to start: %v", err))
+	}
+	return id, nil
 }
 
 func (uc *ContainerUsecase) CreateBackground(req *request.ContainerCreate) error {
@@ -101,7 +112,7 @@ func (uc *ContainerUsecase) Update(ctx context.Context, id string, req *request.
 	if err := uc.repo.Remove(ctx, sock, id); err != nil {
 		return "", err
 	}
-	return uc.repo.Create(ctx, sock, req)
+	return uc.Create(ctx, req)
 }
 
 func (uc *ContainerUsecase) UpdateBackground(id string, req *request.ContainerCreate) error {
