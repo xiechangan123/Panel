@@ -568,7 +568,7 @@ msgid ""
 msgstr ""
 
 #: src/components/common/PtyTerminalModal.vue:208
-#: src/components/common/TaskWindow.vue:102
+#: src/components/common/TaskWindow.vue:106
 #: src/components/file-editor/EditorStatusBar.vue:129
 #: src/components/file-editor/EditorToolbar.vue:77
 #: src/components/file-editor/FileTree.vue:596
@@ -945,7 +945,7 @@ msgid "Reload"
 msgstr "Reload"
 
 #: src/components/common/TaskWindow.vue:25
-#: src/components/common/TaskWindow.vue:116 src/views/ssh/SftpPanel.vue:292
+#: src/components/common/TaskWindow.vue:120 src/views/ssh/SftpPanel.vue:292
 #: src/views/task/TaskView.vue:42 src/views/toolbox/ProcessView.vue:53
 #: src/views/toolbox/ProcessView.vue:89
 msgid "Waiting"
@@ -977,6 +977,11 @@ msgstr "Panel Tasks"
 #, fuzzy
 msgid "Are you sure you want to cancel task %{ name }?"
 msgstr "Are you sure you want to delete %{ name }?"
+
+#: src/components/common/TaskWindow.vue:53 src/views/task/TaskView.vue:156
+#, fuzzy
+msgid "Canceled successfully"
+msgstr "Cleared successfully"
 
 #: src/components/common/TunePresetModal.vue:84
 #: src/views/apps/apache/ApacheConfigTuneView.vue:161
@@ -13213,11 +13218,6 @@ msgstr "Are you sure you want to delete the server?"
 #: src/views/task/TaskView.vue:60
 msgid "Completion Time"
 msgstr "Completion Time"
-
-#: src/views/task/TaskView.vue:156
-#, fuzzy
-msgid "Canceled successfully"
-msgstr "Cleared successfully"
 
 #: src/views/task/TaskView.vue:168
 msgid "If logs cannot be loaded, please disable ad blockers!"

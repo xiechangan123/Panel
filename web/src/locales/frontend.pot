@@ -622,7 +622,7 @@ msgid "Command may still running. Closing the window will terminate the command.
 msgstr ""
 
 #: src/components/common/PtyTerminalModal.vue:208
-#: src/components/common/TaskWindow.vue:102
+#: src/components/common/TaskWindow.vue:106
 #: src/components/file-editor/EditorStatusBar.vue:129
 #: src/components/file-editor/EditorToolbar.vue:77
 #: src/components/file-editor/FileTree.vue:596
@@ -1028,7 +1028,7 @@ msgid "Reload"
 msgstr ""
 
 #: src/components/common/TaskWindow.vue:25
-#: src/components/common/TaskWindow.vue:116
+#: src/components/common/TaskWindow.vue:120
 #: src/views/ssh/SftpPanel.vue:292
 #: src/views/task/TaskView.vue:42
 #: src/views/toolbox/ProcessView.vue:53
@@ -1066,6 +1066,11 @@ msgstr ""
 #: src/components/common/TaskWindow.vue:49
 #: src/views/task/TaskView.vue:103
 msgid "Are you sure you want to cancel task %{ name }?"
+msgstr ""
+
+#: src/components/common/TaskWindow.vue:53
+#: src/views/task/TaskView.vue:156
+msgid "Canceled successfully"
 msgstr ""
 
 #: src/components/common/TunePresetModal.vue:84
@@ -12663,10 +12668,6 @@ msgstr ""
 
 #: src/views/task/TaskView.vue:60
 msgid "Completion Time"
-msgstr ""
-
-#: src/views/task/TaskView.vue:156
-msgid "Canceled successfully"
 msgstr ""
 
 #: src/views/task/TaskView.vue:168
