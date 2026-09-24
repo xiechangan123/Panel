@@ -299,5 +299,5 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 		return err
 	}
 
-	return uc.cert.Deploy(ctx, newCert.ID, []uint{website.ID}, false)
+	return uc.cert.Deploy(ctx, newCert.ID, []uint{website.ID}, true)
 }

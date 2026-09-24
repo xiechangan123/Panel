@@ -318,6 +318,7 @@ const doObtainCert = (dnsId?: number) => {
   useRequest(website.obtainCert(id.value, dnsId))
     .onSuccess(() => {
       fetchSetting()
+      window.$bus.emit('website:refresh')
       window.$message.success($gettext('Issued successfully'))
     })
     .onComplete(() => {
