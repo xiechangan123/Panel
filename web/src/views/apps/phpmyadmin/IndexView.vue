@@ -92,7 +92,7 @@ onMounted(() => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+                'This modifies the web server configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!',
               )
             }}
           </n-alert>
