@@ -91,6 +91,10 @@ func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 		})
 	}
 
+	slices.SortFunc(list, func(a, b *types.BackupFile) int {
+		return b.Time.Compare(a.Time)
+	})
+
 	return list, nil
 }
 

@@ -29,3 +29,8 @@ type BackupFile struct {
 	Size string    `json:"size"`
 	Time time.Time `json:"time"`
 }
+
+type BackupGroup struct {
+	Name  string        `json:"name"`  // 备份目标，文件名解析不出目标时为文件名
+	Items []*BackupFile `json:"items"` // 从新到旧
+}

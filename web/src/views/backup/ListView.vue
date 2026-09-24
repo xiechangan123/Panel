@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NFlex } from 'naive-ui'
+import { NButton, NDataTable, NEllipsis, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
@@ -32,6 +32,7 @@ const restoreModel = ref<{ file: string; target: string | null }>({
   file: '',
   target: null,
 })
+const restorePoints = ref<any[]>([])
 
 const websites = ref<any>([])
 const databases = ref<any[]>([])
@@ -41,25 +42,42 @@ const selectedRowKeys = ref<any>([])
 const columns: any = [
   { type: 'selection', fixed: 'left' },
   {
-    title: $gettext('Filename'),
+    title: $gettext('Name'),
     key: 'name',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true },
+    render(row: any) {
+      const content = row.children
+        ? [
+            row.name,
+            ' ',
+            h(NTag, { size: 'small', round: true, bordered: false }, () => row.children.length),
+          ]
+        : row.name
+      // naive-ui 列自带的省略没扣掉展开按钮（24px）和子行缩进（16px），长名称会被挤到下一行
+      return h(
+        NEllipsis,
+        { style: { maxWidth: `calc(100% - ${row.child ? 40 : 24}px)` } },
+        () => content,
+      )
+    },
   },
   {
     title: $gettext('Size'),
     key: 'size',
     width: 160,
     ellipsis: { tooltip: true },
+    render(row: any) {
+      return row.file.size
+    },
   },
   {
-    title: $gettext('Update Date'),
+    title: $gettext('Time'),
     key: 'time',
     width: 200,
     ellipsis: { tooltip: true },
     render(row: any) {
-      return formatDateTime(row.time)
+      return formatDateTime(row.file.time)
     },
   },
   {
@@ -76,7 +94,9 @@ const columns: any = [
             type: 'primary',
             secondary: true,
             onClick: () => {
-              window.open(`/api/backup/${type.value}/download?file=${encodeURIComponent(row.name)}`)
+              window.open(
+                `/api/backup/${type.value}/download?file=${encodeURIComponent(row.file.name)}`,
+              )
             },
           },
           { default: () => $gettext('Download') },
@@ -87,41 +107,73 @@ const columns: any = [
             size: 'small',
             type: 'warning',
             secondary: true,
-            onClick: () => {
-              restoreModel.value.file = row.path
-              restoreModal.value = true
-            },
+            onClick: () => openRestore(row),
           },
           { default: () => $gettext('Restore') },
         ),
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'error',
-            onClick: async () => {
-              const ok = await confirmDelete({
-                content: $gettext('Are you sure you want to delete this backup?'),
-              })
-              if (ok) handleDelete(row.name)
-            },
-          },
-          { default: () => $gettext('Delete') },
-        ),
+        // 分组行不放删除，免得想删最新一份却删了整组
+        row.children
+          ? null
+          : h(
+              NButton,
+              {
+                size: 'small',
+                type: 'error',
+                onClick: async () => {
+                  const ok = await confirmDelete({
+                    content: $gettext('Are you sure you want to delete this backup?'),
+                  })
+                  if (ok) handleDelete(row.file.name)
+                },
+              },
+              { default: () => $gettext('Delete') },
+            ),
       ])
     },
   },
 ]
 
+// 分组行 key 加 / 后缀与文件名区分，文件名里不会有 /
+const toRow = (group: any) => {
+  const [latest] = group.items
+  if (group.items.length === 1) return { key: latest.name, name: group.name, file: latest, group }
+  return {
+    key: `${group.name}/`,
+    name: group.name,
+    file: latest,
+    group,
+    children: group.items.map((file: any) => ({
+      key: file.name,
+      name: file.name,
+      file,
+      group,
+      child: true,
+    })),
+  }
+}
+
 const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) => backup.list(type.value, page, pageSize),
   {
-    initialData: { total: 0, list: [] },
+    initialData: { total: 0, items: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items,
+    data: (res: any) => res.items.map(toRow),
   },
 )
+
+const openRestore = (row: any) => {
+  restorePoints.value = row.group.items.map((item: any) => ({
+    label: formatDateTime(item.time),
+    value: item.path,
+  }))
+  restoreModel.value.file = row.file.path
+  const targets = type.value === 'website' ? websites.value : databases.value
+  if (targets.some((item: any) => item.value === row.group.name)) {
+    restoreModel.value.target = row.group.name
+  }
+  restoreModal.value = true
+}
 
 const handleCreate = () => {
   createLoading.value = true
@@ -161,7 +213,9 @@ const handleDelete = async (file: string) => {
 }
 
 const bulkDelete = async () => {
-  const promises = selectedRowKeys.value.map((file: any) => backup.delete(type.value, file))
+  // 勾选分组会级联勾选其下文件，去掉分组行自身即可
+  const files = selectedRowKeys.value.filter((key: string) => !key.endsWith('/'))
+  const promises = files.map((file: string) => backup.delete(type.value, file))
   await Promise.all(promises)
 
   selectedRowKeys.value = []
@@ -277,7 +331,7 @@ onUnmounted(() => {
       :loading="loading"
       :columns="columns"
       :data="data"
-      :row-key="(row: any) => row.name"
+      :row-key="(row: any) => row.key"
       :pagination="{
         page: page,
         pageSize: pageSize,
@@ -347,6 +401,9 @@ onUnmounted(() => {
     @close="restoreModal = false"
   >
     <n-form :model="restoreModel">
+      <n-form-item path="file" :label="$gettext('Time')">
+        <n-select v-model:value="restoreModel.file" :options="restorePoints" />
+      </n-form-item>
       <n-form-item v-if="type == 'website'" path="name" :label="$gettext('Website')">
         <n-select
           v-model:value="restoreModel.target"

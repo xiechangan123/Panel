@@ -14,7 +14,7 @@ func BackupRoutes(backupService *service.BackupService) Endpoints {
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/backup/{type}", Handler: backup.List, Summary: "备份列表", Tags: []string{"备份"},
-			Document: Describe[request.BackupList, service.Envelope[service.Page[*types.BackupFile]]]()},
+			Document: Describe[request.BackupList, service.Envelope[service.Page[*types.BackupGroup]]]()},
 		{Method: http.MethodPost, Path: "/api/backup/{type}", Handler: backup.Create, Summary: "创建备份", Tags: []string{"备份"},
 			Document: DescribeReq[request.BackupCreate]()},
 		{Method: http.MethodPost, Path: "/api/backup/{type}/upload", Handler: backup.Upload, Summary: "上传备份", Tags: []string{"备份"}},

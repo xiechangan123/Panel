@@ -1,8 +1,11 @@
 package biz
 
 import (
+	"cmp"
 	"context"
 	"log/slog"
+	"regexp"
+	"slices"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
@@ -57,6 +60,59 @@ func NewBackupUsecase(notifyUsecase *NotifyUsecase, t *gotext.Locale, log *slog.
 
 func (uc *BackupUsecase) List(typ BackupType) ([]*types.BackupFile, error) {
 	return uc.repo.List(typ)
+}
+
+// {目标}_{20060102150405}{扩展名}
+var backupNamePattern = regexp.MustCompile(`^(.+)_(\d{14})(\..*)?$`)
+
+// ListGroup 时间点取文件名中的时间，上传或拷贝来的旧备份修改时间不可信
+func (uc *BackupUsecase) ListGroup(typ BackupType) ([]*types.BackupGroup, error) {
+	files, err := uc.repo.List(typ)
+	if err != nil {
+		return nil, err
+	}
+
+	var groups []*types.BackupGroup
+	targets := make(map[string]*types.BackupGroup)
+	for _, file := range files {
+		target, at, ok := parseBackupName(file.Name)
+		if !ok {
+			groups = append(groups, &types.BackupGroup{Name: file.Name, Items: []*types.BackupFile{file}})
+			continue
+		}
+		file.Time = at
+		if group, exists := targets[target]; exists {
+			group.Items = append(group.Items, file)
+			continue
+		}
+		targets[target] = &types.BackupGroup{Name: target, Items: []*types.BackupFile{file}}
+		groups = append(groups, targets[target])
+	}
+
+	// 同一秒的备份按文件名定序，保证翻页时顺序稳定
+	newest := func(a, b *types.BackupFile) int {
+		return cmp.Or(b.Time.Compare(a.Time), cmp.Compare(a.Name, b.Name))
+	}
+	for _, group := range groups {
+		slices.SortFunc(group.Items, newest)
+	}
+	slices.SortFunc(groups, func(a, b *types.BackupGroup) int {
+		return newest(a.Items[0], b.Items[0])
+	})
+
+	return groups, nil
+}
+
+func parseBackupName(name string) (string, time.Time, bool) {
+	matches := backupNamePattern.FindStringSubmatch(name)
+	if matches == nil {
+		return "", time.Time{}, false
+	}
+	at, err := time.ParseInLocation("20060102150405", matches[2], time.Local)
+	if err != nil {
+		return "", time.Time{}, false
+	}
+	return matches[1], at, true
 }
 
 func (uc *BackupUsecase) Create(ctx context.Context, typ BackupType, target string, account uint) error {

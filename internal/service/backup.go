@@ -39,7 +39,7 @@ func (s *BackupService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list, err := s.backupRepo.List(biz.BackupType(req.Type))
+	list, err := s.backupRepo.ListGroup(biz.BackupType(req.Type))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
