@@ -36,7 +36,10 @@ const restoreModel = ref<{ file: string; target: string | null }>({
 const websites = ref<any>([])
 const databases = ref<any[]>([])
 
+const selectedRowKeys = ref<any>([])
+
 const columns: any = [
+  { type: 'selection', fixed: 'left' },
   {
     title: $gettext('Filename'),
     key: 'name',
@@ -157,6 +160,15 @@ const handleDelete = async (file: string) => {
   })
 }
 
+const bulkDelete = async () => {
+  const promises = selectedRowKeys.value.map((file: any) => backup.delete(type.value, file))
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
+}
+
 const loadDatabases = (dbType: string) => {
   databases.value = []
   useRequest(database.list(1, 10000, dbType)).onSuccess(({ data }: { data: any }) => {
@@ -172,6 +184,8 @@ const loadDatabases = (dbType: string) => {
 watch(
   type,
   (newType) => {
+    // 切换类型时组件不重建，不清空会把上个类型选中的文件名拿去删
+    selectedRowKeys.value = []
     if (newType === 'website') {
       createModel.value.target = websites.value[0]?.value || ''
       restoreModel.value.target = websites.value[0]?.value || ''
@@ -241,8 +255,20 @@ onUnmounted(() => {
       <n-button type="primary" ghost @click="uploadModal = true">
         {{ $gettext('Upload Backup') }}
       </n-button>
+      <ConfirmDialog
+        type="delete"
+        :content="$gettext('Are you sure you want to delete the selected backups?')"
+        @confirm="bulkDelete"
+      >
+        <template #trigger>
+          <n-button type="error" :disabled="selectedRowKeys.length === 0" ghost>
+            {{ $gettext('Delete') }}
+          </n-button>
+        </template>
+      </ConfirmDialog>
     </n-flex>
     <n-data-table
+      v-model:checked-row-keys="selectedRowKeys"
       v-model:page="page"
       v-model:pageSize="pageSize"
       striped
