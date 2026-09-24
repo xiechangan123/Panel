@@ -417,7 +417,7 @@ msgstr ""
 #: src/views/monitor/AlertView.vue:53
 #: src/views/monitor/ChannelModal.vue:90
 #: src/views/monitor/SettingView.vue:102
-#: src/views/project/ListView.vue:38
+#: src/views/project/ListView.vue:51
 #: src/views/setting/PasskeyModal.vue:26
 #: src/views/ssh/CreateModal.vue:60
 #: src/views/ssh/UpdateModal.vue:66
@@ -863,7 +863,7 @@ msgstr ""
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:185
 #: src/views/apps/prometheus/PrometheusExportersView.vue:50
 #: src/views/file/TaskQueueWindow.vue:20
-#: src/views/project/ListView.vue:71
+#: src/views/project/ListView.vue:40
 #: src/views/task/TaskView.vue:47
 #: src/views/toolbox/MigrationView.vue:84
 #: src/views/toolbox/MigrationView.vue:149
@@ -877,7 +877,7 @@ msgstr ""
 #: src/views/app/InstalledView.vue:17
 #: src/views/apps/mysql/MysqlMaintenanceView.vue:186
 #: src/views/apps/prometheus/PrometheusExportersView.vue:51
-#: src/views/project/ListView.vue:73
+#: src/views/project/ListView.vue:44
 #: src/views/tamper/TamperView.vue:234
 #: src/views/toolbox/MigrationView.vue:149
 #: src/views/toolbox/ProcessView.vue:50
@@ -1957,6 +1957,7 @@ msgstr ""
 #: src/views/firewall/IpRuleView.vue:103
 #: src/views/firewall/RuleView.vue:215
 #: src/views/firewall/RuleView.vue:240
+#: src/views/project/ListView.vue:79
 #: src/views/toolbox/DiskView.vue:159
 #: src/views/website/stats/GeoTab.vue:102
 #: src/views/website/stats/GeoTab.vue:104
@@ -2142,7 +2143,7 @@ msgstr ""
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
 #: src/views/environment/PHPView.vue:136
 #: src/views/project/EditModal.vue:270
-#: src/views/project/ListView.vue:45
+#: src/views/project/ListView.vue:58
 msgid "Description"
 msgstr ""
 
@@ -2395,7 +2396,7 @@ msgstr ""
 #: src/views/log/SSHLog.vue:63
 #: src/views/monitor/AlertView.vue:93
 #: src/views/monitor/SettingView.vue:116
-#: src/views/project/ListView.vue:60
+#: src/views/project/ListView.vue:73
 #: src/views/tamper/TamperView.vue:131
 #: src/views/tamper/TamperView.vue:232
 #: src/views/task/TaskView.vue:34
@@ -3454,7 +3455,7 @@ msgstr ""
 #: src/views/log/OperationLog.vue:78
 #: src/views/monitor/ChannelModal.vue:93
 #: src/views/monitor/SettingView.vue:104
-#: src/views/project/ListView.vue:52
+#: src/views/project/ListView.vue:65
 #: src/views/toolbox/MigrationView.vue:128
 #: src/views/toolbox/MigrationView.vue:204
 #: src/views/toolbox/network/InterfaceView.vue:155
@@ -9686,7 +9687,7 @@ msgstr ""
 #: src/views/file/TaskQueueWindow.vue:22
 #: src/views/file/UploadModal.vue:86
 #: src/views/log/SSHLog.vue:46
-#: src/views/project/ListView.vue:75
+#: src/views/project/ListView.vue:45
 #: src/views/task/TaskView.vue:44
 #: src/views/toolbox/MigrationView.vue:87
 msgid "Failed"
@@ -10443,7 +10444,6 @@ msgid "Physical Memory Available"
 msgstr ""
 
 #: src/views/home/IndexView.vue:727
-#: src/views/project/ListView.vue:77
 msgid "Inactive"
 msgstr ""
 
@@ -11731,6 +11731,18 @@ msgstr ""
 
 #: src/views/project/IndexView.vue:28
 msgid ".NET"
+msgstr ""
+
+#: src/views/project/ListView.vue:41
+msgid "Starting"
+msgstr ""
+
+#: src/views/project/ListView.vue:42
+msgid "Reloading"
+msgstr ""
+
+#: src/views/project/ListView.vue:43
+msgid "Stopping"
 msgstr ""
 
 #: src/views/project/ListView.vue:85
