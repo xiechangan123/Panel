@@ -48,7 +48,10 @@ const handleCancel = async (item: QueueTask) => {
     title: $gettext('Cancel Task'),
     content: $gettext('Are you sure you want to cancel task %{ name }?', { name: item.name }),
   })
-  if (ok) useRequest(task.cancel(item.id))
+  if (!ok) return
+  useRequest(task.cancel(item.id)).onSuccess(() => {
+    window.$message.success($gettext('Canceled successfully'))
+  })
 }
 </script>
 
@@ -69,6 +72,7 @@ const handleCancel = async (item: QueueTask) => {
     </template>
     <n-layout has-sider class="h-full !bg-transparent">
       <n-layout-sider
+        v-if="tasks.length"
         v-model:collapsed="collapsed"
         :width="200"
         :collapsed-width="16"
