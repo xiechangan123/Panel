@@ -1052,21 +1052,34 @@ echo json_encode(function_exists('opcache_get_status') ? opcache_get_status(fals
 }
 
 func (s *EnvironmentPHPService) composerMirror() string {
+	type repository struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	}
+
 	for _, path := range []string{"/root/.config/composer/config.json", "/root/.composer/config.json"} {
 		content, err := io.Read(path)
 		if err != nil {
 			continue
 		}
 		var cfg struct {
-			Repositories map[string]struct {
-				URL string `json:"url"`
-			} `json:"repositories"`
+			Repositories json.RawMessage `json:"repositories"`
 		}
 		if json.Unmarshal([]byte(content), &cfg) != nil {
 			continue
 		}
-		for _, key := range []string{"packagist", "packagist.org"} {
-			if repo, ok := cfg.Repositories[key]; ok && repo.URL != "" {
+		// Composer 2.9 起写成带 name 的数组，旧版本写的是以名字为键的对象
+		var repos []repository
+		if json.Unmarshal(cfg.Repositories, &repos) != nil {
+			var named map[string]repository
+			_ = json.Unmarshal(cfg.Repositories, &named)
+			for name, repo := range named {
+				repo.Name = name
+				repos = append(repos, repo)
+			}
+		}
+		for _, repo := range repos {
+			if (repo.Name == "packagist" || repo.Name == "packagist.org") && repo.URL != "" {
 				return repo.URL
 			}
 		}
