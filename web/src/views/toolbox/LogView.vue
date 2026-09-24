@@ -10,123 +10,118 @@ import TheIcon from '@/components/custom/TheIcon.vue'
 
 const { $gettext } = useGettext()
 
-interface LogType {
-  key: string
-  name: string
-  description: string
-  icon: string
-}
-
 interface LogItem {
   name: string
   path: string
   size: string
 }
 
-interface ScanResult {
+interface LogType {
+  key: string
+  name: string
+  description: string
+  icon: string
   loading: boolean
-  items: LogItem[]
   scanned: boolean
   cleaning: boolean
+  items: LogItem[]
+  checked: string[]
 }
 
-const logTypes: LogType[] = [
-  {
-    key: 'panel',
-    name: $gettext('Panel Logs'),
-    description: $gettext('Panel runtime logs'),
-    icon: 'mdi:view-dashboard-outline',
-  },
-  {
-    key: 'website',
-    name: $gettext('Website Logs'),
-    description: $gettext('Website access and error logs'),
-    icon: 'mdi:web',
-  },
-  {
-    key: 'mysql',
-    name: $gettext('MySQL Logs'),
-    description: $gettext('MySQL slow query logs and binary logs'),
-    icon: 'mdi:database',
-  },
-  {
-    key: 'docker',
-    name: $gettext('Docker'),
-    description: $gettext('Docker container logs and unused images'),
-    icon: 'mdi:docker',
-  },
-  {
-    key: 'system',
-    name: $gettext('System Logs'),
-    description: $gettext('System logs and journal logs'),
-    icon: 'mdi:server',
-  },
+const logTypes = ref<LogType[]>(
+  [
+    {
+      key: 'panel',
+      name: $gettext('Panel Logs'),
+      description: $gettext('Panel runtime logs'),
+      icon: 'mdi:view-dashboard-outline',
+    },
+    {
+      key: 'website',
+      name: $gettext('Website Logs'),
+      description: $gettext('Website access and error logs'),
+      icon: 'mdi:web',
+    },
+    {
+      key: 'mysql',
+      name: $gettext('MySQL Logs'),
+      description: $gettext('MySQL slow query logs and binary logs'),
+      icon: 'mdi:database',
+    },
+    {
+      key: 'docker',
+      name: $gettext('Docker'),
+      description: $gettext('Docker container logs and unused images'),
+      icon: 'mdi:docker',
+    },
+    {
+      key: 'system',
+      name: $gettext('System Logs'),
+      description: $gettext('System logs and journal logs'),
+      icon: 'mdi:server',
+    },
+  ].map((type) => ({
+    ...type,
+    loading: false,
+    scanned: false,
+    cleaning: false,
+    items: [],
+    checked: [],
+  })),
+)
+
+const columns: any = [
+  { type: 'selection' },
+  { title: $gettext('Name'), key: 'name', ellipsis: { tooltip: true } },
+  { title: $gettext('Size'), key: 'size', width: 100 },
 ]
 
-const scanResults = ref<Record<string, ScanResult>>({
-  panel: { loading: false, items: [], scanned: false, cleaning: false },
-  website: { loading: false, items: [], scanned: false, cleaning: false },
-  mysql: { loading: false, items: [], scanned: false, cleaning: false },
-  docker: { loading: false, items: [], scanned: false, cleaning: false },
-  system: { loading: false, items: [], scanned: false, cleaning: false },
-})
+const rowKey = (row: LogItem) => row.path
 
-const handleScan = (type: string) => {
-  const result = scanResults.value[type]
-  if (!result) return
-  result.loading = true
-  result.scanned = false
-  result.items = []
-  useRequest(toolboxLog.scan(type))
+const handleScan = (logType: LogType) => {
+  logType.loading = true
+  logType.scanned = false
+  logType.items = []
+  logType.checked = []
+  useRequest(toolboxLog.scan(logType.key))
     .onSuccess(({ data }) => {
-      result.items = data || []
-      result.scanned = true
+      logType.items = data || []
+      // 默认全选，不挑的话仍是一键清理
+      logType.checked = logType.items.map((item) => item.path)
+      logType.scanned = true
     })
     .onComplete(() => {
-      result.loading = false
+      logType.loading = false
     })
 }
 
-const handleClean = (type: string) => {
-  const result = scanResults.value[type]
-  if (!result) return
-  result.cleaning = true
-  useRequest(toolboxLog.clean(type))
+const handleClean = (logType: LogType) => {
+  logType.cleaning = true
+  useRequest(toolboxLog.clean(logType.key, logType.checked))
     .onSuccess(({ data }) => {
       window.$message.success($gettext('Cleaned: %{ size }', { size: data.cleaned }))
-      handleScan(type)
     })
     .onComplete(() => {
-      result.cleaning = false
+      logType.cleaning = false
+      handleScan(logType)
     })
 }
 
 const handleScanAll = () => {
-  for (const logType of logTypes) {
-    handleScan(logType.key)
-  }
+  logTypes.value.forEach(handleScan)
 }
 
 const handleCleanAll = () => {
-  for (const logType of logTypes) {
-    const result = scanResults.value[logType.key]
-    if (result && result.items.length > 0) {
-      handleClean(logType.key)
-    }
-  }
+  logTypes.value.filter((logType) => logType.checked.length > 0).forEach(handleClean)
 }
 
-const totalItems = computed(() => {
-  return Object.values(scanResults.value).reduce((acc, cur) => acc + cur.items.length, 0)
+const totalChecked = computed(() => {
+  return logTypes.value.reduce((acc, cur) => acc + cur.checked.length, 0)
 })
 
 const anyLoading = computed(() => {
-  return Object.values(scanResults.value).some((r) => r.loading || r.cleaning)
+  return logTypes.value.some((logType) => logType.loading || logType.cleaning)
 })
-
-const getResult = (key: string): ScanResult => {
-  return scanResults.value[key] ?? { loading: false, items: [], scanned: false, cleaning: false }
-}
 </script>
 
 <template>
@@ -160,7 +155,7 @@ const getResult = (key: string): ScanResult => {
         <n-button
           type="warning"
           :loading="anyLoading"
-          :disabled="totalItems === 0"
+          :disabled="totalChecked === 0"
           @click="handleCleanAll"
         >
           <template #icon>
@@ -184,24 +179,24 @@ const getResult = (key: string): ScanResult => {
               <div class="log-card__desc">{{ logType.description }}</div>
             </div>
             <n-tag
-              v-if="getResult(logType.key).scanned"
-              :type="getResult(logType.key).items.length > 0 ? 'warning' : 'success'"
+              v-if="logType.scanned"
+              :type="logType.items.length > 0 ? 'warning' : 'success'"
               size="small"
               :bordered="false"
             >
-              {{ getResult(logType.key).items.length }}
+              {{ logType.items.length }}
             </n-tag>
           </div>
 
           <div class="log-card__body">
-            <template v-if="getResult(logType.key).loading">
+            <template v-if="logType.loading">
               <n-flex align="center" :size="8" class="text-text-tertiary">
                 <n-spin size="small" />
                 <span>{{ $gettext('Scanning...') }}</span>
               </n-flex>
             </template>
-            <template v-else-if="getResult(logType.key).scanned">
-              <template v-if="getResult(logType.key).items.length === 0">
+            <template v-else-if="logType.scanned">
+              <template v-if="logType.items.length === 0">
                 <span class="text-sm text-text-tertiary">{{ $gettext('No logs found') }}</span>
               </template>
               <template v-else>
@@ -209,17 +204,25 @@ const getResult = (key: string): ScanResult => {
                   <n-collapse-item
                     :title="
                       $gettext('Found %{ count } items', {
-                        count: getResult(logType.key).items.length.toString(),
+                        count: logType.items.length.toString(),
                       })
                     "
                     name="1"
                   >
+                    <template #header-extra>
+                      <span class="text-xs text-text-tertiary">
+                        {{
+                          $gettext('%{count} item(s) selected', {
+                            count: logType.checked.length.toString(),
+                          })
+                        }}
+                      </span>
+                    </template>
                     <n-data-table
-                      :columns="[
-                        { title: $gettext('Name'), key: 'name', ellipsis: { tooltip: true } },
-                        { title: $gettext('Size'), key: 'size', width: 100 },
-                      ]"
-                      :data="getResult(logType.key).items"
+                      v-model:checked-row-keys="logType.checked"
+                      :columns="columns"
+                      :data="logType.items"
+                      :row-key="rowKey"
                       :bordered="false"
                       size="small"
                       :max-height="220"
@@ -236,11 +239,7 @@ const getResult = (key: string): ScanResult => {
           </div>
 
           <div class="log-card__actions">
-            <n-button
-              size="small"
-              :loading="getResult(logType.key).loading"
-              @click="handleScan(logType.key)"
-            >
+            <n-button size="small" :loading="logType.loading" @click="handleScan(logType)">
               <template #icon>
                 <i-mdi-magnify />
               </template>
@@ -249,9 +248,9 @@ const getResult = (key: string): ScanResult => {
             <n-button
               size="small"
               type="warning"
-              :loading="getResult(logType.key).cleaning"
-              :disabled="getResult(logType.key).items.length === 0"
-              @click="handleClean(logType.key)"
+              :loading="logType.cleaning"
+              :disabled="logType.checked.length === 0"
+              @click="handleClean(logType)"
             >
               <template #icon>
                 <i-mdi-delete />

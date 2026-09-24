@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
+	"slices"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
@@ -17,10 +18,14 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/io"
+	"github.com/acepanel/panel/v3/pkg/db"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/tools"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
+
+// rotatedLog 文件名带日期的是已轮转的旧日志
+var rotatedLog = regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
 
 type ToolboxLogService struct {
 	t                  *gotext.Locale
@@ -41,40 +46,25 @@ func NewToolboxLogService(containerImageUsecase *biz.ContainerImageUsecase, sett
 // LogItem 日志项信息
 type LogItem struct {
 	Name string `json:"name"` // 日志名称
-	Path string `json:"path"` // 日志路径
+	Path string `json:"path"` // 日志路径，也是勾选清理时的标识
 	Size string `json:"size"` // 日志大小
+
+	bytes int64
+	clean func(ctx context.Context) error
 }
 
 // Scan 扫描日志
 func (s *ToolboxLogService) Scan(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ToolboxLogClean](r)
+	req, err := Bind[request.ToolboxLogScan](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	var items []LogItem
-
-	switch req.Type {
-	case "panel":
-		items = s.scanPanelLogs()
-	case "website":
-		items = s.scanWebsiteLogs()
-	case "mysql":
-		items = s.scanMySQLLogs()
-	case "docker":
-		items = s.scanDockerLogs(r.Context())
-	case "system":
-		items = s.scanSystemLogs(r.Context())
-	default:
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown log type"))
-		return
-	}
-
-	Success(w, items)
+	Success(w, s.scan(r.Context(), req.Type))
 }
 
-// Clean 清理日志
+// Clean 清理勾选的日志
 func (s *ToolboxLogService) Clean(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ToolboxLogClean](r)
 	if err != nil {
@@ -82,27 +72,21 @@ func (s *ToolboxLogService) Clean(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 以重新扫描的结果为准，只清理其中被勾选的项
 	var cleaned int64
-	var cleanErr error
-
-	switch req.Type {
-	case "panel":
-		cleaned, cleanErr = s.cleanPanelLogs(r.Context())
-	case "website":
-		cleaned, cleanErr = s.cleanWebsiteLogs(r.Context())
-	case "mysql":
-		cleaned = s.cleanMySQLLogs(r.Context())
-	case "docker":
-		cleaned = s.cleanDockerLogs(r.Context())
-	case "system":
-		cleaned = s.cleanSystemLogs(r.Context())
-	default:
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown log type"))
-		return
+	var errs []error
+	for _, item := range s.scan(r.Context(), req.Type) {
+		if !slices.Contains(req.Paths, item.Path) {
+			continue
+		}
+		if err = item.clean(r.Context()); err != nil {
+			errs = append(errs, fmt.Errorf("%s: %w", item.Name, err))
+			continue
+		}
+		cleaned += item.bytes
 	}
-
-	if cleanErr != nil {
-		Error(w, http.StatusInternalServerError, "%v", cleanErr)
+	if len(errs) > 0 {
+		Error(w, http.StatusInternalServerError, "%v", errors.Join(errs...))
 		return
 	}
 
@@ -111,78 +95,30 @@ func (s *ToolboxLogService) Clean(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// scanPanelLogs 扫描面板日志
-func (s *ToolboxLogService) scanPanelLogs() []LogItem {
-	items := make([]LogItem, 0)
-	logPath := filepath.Join(app.Root, "panel/storage/logs")
-
-	if !io.Exists(logPath) {
-		return items
+func (s *ToolboxLogService) scan(ctx context.Context, typ string) []LogItem {
+	switch typ {
+	case "panel":
+		return fileItems("", filepath.Join(app.Root, "panel/storage/logs/*.log"))
+	case "website":
+		return s.scanWebsiteLogs()
+	case "mysql":
+		return s.scanMySQLLogs()
+	case "docker":
+		return s.scanDockerLogs(ctx)
+	case "system":
+		return s.scanSystemLogs(ctx)
 	}
-
-	entries, err := os.ReadDir(logPath)
-	if err != nil {
-		return items
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		info, err := entry.Info()
-		if err != nil {
-			continue
-		}
-		items = append(items, LogItem{
-			Name: entry.Name(),
-			Path: filepath.Join(logPath, entry.Name()),
-			Size: tools.FormatBytes(float64(info.Size())),
-		})
-	}
-
-	return items
+	return nil
 }
 
 // scanWebsiteLogs 扫描网站日志
 func (s *ToolboxLogService) scanWebsiteLogs() []LogItem {
+	var websites []*biz.Website
+	_ = s.db.Find(&websites).Error
+
 	items := make([]LogItem, 0)
-	sitesPath := filepath.Join(app.Root, "sites")
-
-	if !io.Exists(sitesPath) {
-		return items
-	}
-
-	// 获取所有网站
-	websites := make([]*biz.Website, 0)
-	if err := s.db.Find(&websites).Error; err != nil {
-		return items
-	}
-
 	for _, website := range websites {
-		logPath := filepath.Join(sitesPath, website.Name, "log")
-		if !io.Exists(logPath) {
-			continue
-		}
-
-		entries, err := os.ReadDir(logPath)
-		if err != nil {
-			continue
-		}
-
-		for _, entry := range entries {
-			if entry.IsDir() {
-				continue
-			}
-			info, err := entry.Info()
-			if err != nil {
-				continue
-			}
-			items = append(items, LogItem{
-				Name: fmt.Sprintf("%s - %s", website.Name, entry.Name()),
-				Path: filepath.Join(logPath, entry.Name()),
-				Size: tools.FormatBytes(float64(info.Size())),
-			})
-		}
+		items = append(items, fileItems(website.Name+" - ", filepath.Join(app.Root, "sites", website.Name, "log", "*"))...)
 	}
 
 	return items
@@ -190,460 +126,128 @@ func (s *ToolboxLogService) scanWebsiteLogs() []LogItem {
 
 // scanMySQLLogs 扫描 MySQL 日志
 func (s *ToolboxLogService) scanMySQLLogs() []LogItem {
-	items := make([]LogItem, 0)
 	mysqlPath := filepath.Join(app.Root, "server/mysql")
+	items := fileItems("", filepath.Join(mysqlPath, "mysql-slow.log"))
 
-	if !io.Exists(mysqlPath) {
-		return items
-	}
-
-	// 慢查询日志
-	slowLogPath := filepath.Join(mysqlPath, "mysql-slow.log")
-	if io.Exists(slowLogPath) {
-		if info, err := os.Stat(slowLogPath); err == nil {
-			items = append(items, LogItem{
-				Name: "mysql-slow.log",
-				Path: slowLogPath,
-				Size: tools.FormatBytes(float64(info.Size())),
-			})
-		}
-	}
-
-	// 二进制日志
-	entries, err := os.ReadDir(mysqlPath)
-	if err != nil {
-		return items
-	}
-
-	binLogRegex := regexp.MustCompile(`^mysql-bin\.\d+$`)
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		if binLogRegex.MatchString(entry.Name()) {
-			info, err := entry.Info()
-			if err != nil {
-				continue
-			}
-			items = append(items, LogItem{
-				Name: entry.Name(),
-				Path: filepath.Join(mysqlPath, entry.Name()),
-				Size: tools.FormatBytes(float64(info.Size())),
-			})
-		}
+	// binlog 只能按顺序清理且最后一个正在写入，合并为一项交给 MySQL 清理
+	if binlogs := fileItems("", filepath.Join(mysqlPath, "data/mysql-bin.[0-9]*")); len(binlogs) > 1 {
+		item := mergeItems(s.t.Get("Binary logs: %d files", len(binlogs)-1), "mysql:binlog", binlogs[:len(binlogs)-1])
+		item.clean = s.purgeBinlogs
+		items = append(items, item)
 	}
 
 	return items
+}
+
+func (s *ToolboxLogService) purgeBinlogs(ctx context.Context) error {
+	password, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
+	if err != nil {
+		return err
+	}
+	mysql, err := db.NewMySQL(ctx, "root", password, db.MySQLSocket(app.Root), "unix")
+	if err != nil {
+		return err
+	}
+	defer mysql.Close()
+
+	_, err = mysql.Exec(ctx, "PURGE BINARY LOGS BEFORE NOW()")
+	return err
 }
 
 // scanDockerLogs 扫描 Docker/Podman 相关内容
 func (s *ToolboxLogService) scanDockerLogs(ctx context.Context) []LogItem {
 	items := make([]LogItem, 0)
 
-	// 未使用的容器镜像 (Docker)
-	images, err := s.containerImageRepo.List(ctx)
-	if err == nil {
-		// 计算未使用的镜像
-		var unusedCount int
-		for _, img := range images {
-			if img.Containers == 0 {
-				unusedCount++
-			}
-		}
-
-		if unusedCount > 0 {
-			items = append(items, LogItem{
-				Name: s.t.Get("Unused container images: %d", unusedCount),
-				Path: "docker:images",
-				Size: s.t.Get("%d images", unusedCount),
-			})
-		}
+	images, _ := s.containerImageRepo.List(ctx)
+	if unused := lo.CountBy(images, func(img types.ContainerImage) bool { return img.Containers == 0 }); unused > 0 {
+		items = append(items, LogItem{
+			Name:  s.t.Get("Unused container images: %d", unused),
+			Path:  "docker:images",
+			Size:  s.t.Get("%d images", unused),
+			clean: s.containerImageRepo.Prune,
+		})
 	}
 
-	// Docker 容器日志路径
-	dockerLogPath := "/var/lib/docker/containers"
-	if io.Exists(dockerLogPath) {
-		totalSize, logCount := s.scanContainerLogDir(dockerLogPath)
-		if logCount > 0 {
-			items = append(items, LogItem{
-				Name: s.t.Get("Docker container logs: %d files", logCount),
-				Path: "docker:logs",
-				Size: tools.FormatBytes(float64(totalSize)),
-			})
-		}
+	if logs := fileItems("", "/var/lib/docker/containers/*/*.log"); len(logs) > 0 {
+		items = append(items, mergeItems(s.t.Get("Docker container logs: %d files", len(logs)), "docker:logs", logs))
 	}
-
-	// Podman 容器日志路径
-	podmanLogPaths := []string{
-		"/var/lib/containers/storage/overlay-containers",
-		"/run/containers/storage/overlay-containers",
-	}
-	for _, podmanLogPath := range podmanLogPaths {
-		if io.Exists(podmanLogPath) {
-			totalSize, logCount := s.scanContainerLogDir(podmanLogPath)
-			if logCount > 0 {
-				items = append(items, LogItem{
-					Name: s.t.Get("Podman container logs: %d files", logCount),
-					Path: "podman:logs",
-					Size: tools.FormatBytes(float64(totalSize)),
-				})
-				break
-			}
-		}
+	if logs := fileItems("",
+		"/var/lib/containers/storage/overlay-containers/*/userdata/*.log",
+		"/run/containers/storage/overlay-containers/*/userdata/*.log",
+	); len(logs) > 0 {
+		items = append(items, mergeItems(s.t.Get("Podman container logs: %d files", len(logs)), "podman:logs", logs))
 	}
 
 	return items
-}
-
-// scanContainerLogDir 扫描容器日志目录
-func (s *ToolboxLogService) scanContainerLogDir(logPath string) (int64, int) {
-	var totalSize int64
-	var logCount int
-
-	entries, err := os.ReadDir(logPath)
-	if err != nil {
-		return 0, 0
-	}
-
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-		containerPath := filepath.Join(logPath, entry.Name())
-		// 扫描 *.log 文件
-		logFiles, _ := filepath.Glob(filepath.Join(containerPath, "*.log"))
-		for _, logFile := range logFiles {
-			if info, err := os.Stat(logFile); err == nil {
-				totalSize += info.Size()
-				logCount++
-			}
-		}
-		// 扫描 userdata 子目录下的日志 (Podman)
-		userdataPath := filepath.Join(containerPath, "userdata")
-		if io.Exists(userdataPath) {
-			userdataLogs, _ := filepath.Glob(filepath.Join(userdataPath, "*.log"))
-			for _, logFile := range userdataLogs {
-				if info, err := os.Stat(logFile); err == nil {
-					totalSize += info.Size()
-					logCount++
-				}
-			}
-		}
-	}
-
-	return totalSize, logCount
 }
 
 // scanSystemLogs 扫描系统日志
 func (s *ToolboxLogService) scanSystemLogs(ctx context.Context) []LogItem {
-	items := make([]LogItem, 0)
+	items := fileItems("",
+		"/var/log/syslog", "/var/log/messages", "/var/log/auth.log", "/var/log/secure",
+		"/var/log/kern.log", "/var/log/dmesg", "/var/log/btmp", "/var/log/wtmp", "/var/log/*.log",
+	)
 
-	logFiles := []string{
-		"/var/log/syslog",
-		"/var/log/messages",
-		"/var/log/auth.log",
-		"/var/log/secure",
-		"/var/log/kern.log",
-		"/var/log/dmesg",
-		"/var/log/btmp",
-		"/var/log/wtmp",
-		"/var/log/lastlog",
-	}
-
-	for _, logFile := range logFiles {
-		if !io.Exists(logFile) {
-			continue
-		}
-		info, err := os.Stat(logFile)
-		if err != nil {
-			continue
-		}
-		items = append(items, LogItem{
-			Name: filepath.Base(logFile),
-			Path: logFile,
-			Size: tools.FormatBytes(float64(info.Size())),
-		})
-	}
-
-	// /var/log/*.log 文件
-	logPattern := "/var/log/*.log"
-	matches, _ := filepath.Glob(logPattern)
-	for _, match := range matches {
-		// 跳过已经添加的文件
-		if lo.Contains(logFiles, match) {
-			continue
-		}
-		info, err := os.Stat(match)
-		if err != nil {
-			continue
-		}
-		items = append(items, LogItem{
-			Name: filepath.Base(match),
-			Path: match,
-			Size: tools.FormatBytes(float64(info.Size())),
-		})
-	}
-
-	// journal 日志大小
-	journalOutput, _ := shell.Execf(ctx, "journalctl --disk-usage 2>/dev/null | grep -oP '\\d+\\.?\\d*[KMGT]?' || echo '0'")
-	journalSize := strings.TrimSpace(journalOutput)
-	if journalSize != "" && journalSize != "0" {
+	usage, _ := shell.Exec(ctx, `journalctl --disk-usage 2>/dev/null | grep -oP '\d+\.?\d*[KMGT]?' || echo '0'`)
+	if usage != "" && usage != "0" {
 		items = append(items, LogItem{
 			Name: s.t.Get("Journal logs"),
 			Path: "system:journal",
-			Size: journalSize,
+			Size: usage,
+			clean: func(ctx context.Context) error {
+				_, err := shell.Exec(ctx, "journalctl --vacuum-time=1d")
+				return err
+			},
 		})
 	}
 
 	return items
 }
 
-// cleanPanelLogs 清理面板日志
-func (s *ToolboxLogService) cleanPanelLogs(ctx context.Context) (int64, error) {
-	var cleaned int64
-	logPath := filepath.Join(app.Root, "panel/storage/logs")
-
-	if !io.Exists(logPath) {
-		return 0, nil
+// fileItems 列出匹配的日志文件，未轮转的可能仍被进程写着，只能清空不能删
+func fileItems(prefix string, patterns ...string) []LogItem {
+	var paths []string
+	for _, pattern := range patterns {
+		matches, _ := filepath.Glob(pattern)
+		paths = append(paths, matches...)
 	}
 
-	entries, err := os.ReadDir(logPath)
-	if err != nil {
-		return 0, err
-	}
-
-	re := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
-
-	for _, entry := range entries {
-		if entry.IsDir() {
+	items := make([]LogItem, 0, len(paths))
+	for _, path := range lo.Uniq(paths) {
+		info, err := os.Stat(path)
+		if err != nil || !info.Mode().IsRegular() {
 			continue
 		}
-		filePath := filepath.Join(logPath, entry.Name())
-		info, err := entry.Info()
-		if err != nil {
-			continue
+		clean := func(context.Context) error { return os.Truncate(path, 0) }
+		if rotatedLog.MatchString(info.Name()) {
+			clean = func(context.Context) error { return os.Remove(path) }
 		}
-		cleaned += info.Size()
-		// 名称带日期的日志文件，删除旧文件
-		if re.MatchString(entry.Name()) {
-			_ = os.Remove(filePath)
-		} else {
-			_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", filePath)
-		}
+		items = append(items, LogItem{
+			Name:  prefix + info.Name(),
+			Path:  path,
+			Size:  tools.FormatBytes(float64(info.Size())),
+			bytes: info.Size(),
+			clean: clean,
+		})
 	}
 
-	return cleaned, nil
+	return items
 }
 
-// cleanWebsiteLogs 清理网站日志
-func (s *ToolboxLogService) cleanWebsiteLogs(ctx context.Context) (int64, error) {
-	var cleaned int64
-	sitesPath := filepath.Join(app.Root, "sites")
-
-	if !io.Exists(sitesPath) {
-		return 0, nil
-	}
-
-	websites := make([]*biz.Website, 0)
-	if err := s.db.Find(&websites).Error; err != nil {
-		return 0, err
-	}
-
-	for _, website := range websites {
-		logPath := filepath.Join(sitesPath, website.Name, "log")
-		if !io.Exists(logPath) {
-			continue
-		}
-
-		entries, err := os.ReadDir(logPath)
-		if err != nil {
-			continue
-		}
-
-		for _, entry := range entries {
-			if entry.IsDir() {
-				continue
+// mergeItems 把多个日志项合并为一项
+func mergeItems(name, path string, items []LogItem) LogItem {
+	size := lo.SumBy(items, func(item LogItem) int64 { return item.bytes })
+	return LogItem{
+		Name:  name,
+		Path:  path,
+		Size:  tools.FormatBytes(float64(size)),
+		bytes: size,
+		clean: func(ctx context.Context) error {
+			errs := make([]error, 0, len(items))
+			for _, item := range items {
+				errs = append(errs, item.clean(ctx))
 			}
-			filePath := filepath.Join(logPath, entry.Name())
-			info, err := entry.Info()
-			if err != nil {
-				continue
-			}
-			cleaned += info.Size()
-			if _, err = shell.Execf(ctx, "cat /dev/null > '%s'", filePath); err != nil {
-				continue
-			}
-		}
+			return errors.Join(errs...)
+		},
 	}
-
-	return cleaned, nil
-}
-
-// cleanMySQLLogs 清理 MySQL 日志
-func (s *ToolboxLogService) cleanMySQLLogs(ctx context.Context) int64 {
-	var cleaned int64
-	mysqlPath := filepath.Join(app.Root, "server/mysql")
-
-	if !io.Exists(mysqlPath) {
-		return 0
-	}
-
-	// 清空慢查询日志
-	slowLogPath := filepath.Join(mysqlPath, "mysql-slow.log")
-	if io.Exists(slowLogPath) {
-		if info, err := os.Stat(slowLogPath); err == nil {
-			cleaned += info.Size()
-			_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", slowLogPath)
-		}
-	}
-
-	// 清理二进制日志
-	entries, err := os.ReadDir(mysqlPath)
-	if err != nil {
-		return cleaned
-	}
-
-	binLogRegex := regexp.MustCompile(`^mysql-bin\.\d+$`)
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		if binLogRegex.MatchString(entry.Name()) {
-			info, err := entry.Info()
-			if err != nil {
-				continue
-			}
-			cleaned += info.Size()
-		}
-	}
-
-	// 尝试通过 MySQL 清理二进制日志
-	// 从面板设置获取 root 密码
-	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
-	if err == nil && rootPassword != "" {
-		_, _ = shell.ExecfWithEnv(ctx, []string{"MYSQL_PWD=" + rootPassword}, "mysql -u root -e 'PURGE BINARY LOGS BEFORE NOW()' 2>/dev/null")
-	}
-
-	return cleaned
-}
-
-// cleanDockerLogs 清理 Docker/Podman 相关内容
-func (s *ToolboxLogService) cleanDockerLogs(ctx context.Context) int64 {
-	var cleaned int64
-
-	// 清理未使用的镜像 (Docker)
-	_ = s.containerImageRepo.Prune(ctx)
-
-	// 清理 Docker 容器日志
-	dockerLogPath := "/var/lib/docker/containers"
-	cleaned += s.cleanContainerLogDir(ctx, dockerLogPath)
-
-	// 清理 Podman 容器日志
-	podmanLogPaths := []string{
-		"/var/lib/containers/storage/overlay-containers",
-		"/run/containers/storage/overlay-containers",
-	}
-	for _, podmanLogPath := range podmanLogPaths {
-		cleaned += s.cleanContainerLogDir(ctx, podmanLogPath)
-	}
-
-	// 清理 Docker 系统
-	_, _ = shell.Execf(ctx, "docker system prune -f 2>/dev/null")
-
-	// 清理 Podman 系统
-	_, _ = shell.Execf(ctx, "podman system prune -f 2>/dev/null")
-
-	return cleaned
-}
-
-// cleanContainerLogDir 清理容器日志目录
-func (s *ToolboxLogService) cleanContainerLogDir(ctx context.Context, logPath string) int64 {
-	var cleaned int64
-
-	if !io.Exists(logPath) {
-		return 0
-	}
-
-	entries, err := os.ReadDir(logPath)
-	if err != nil {
-		return 0
-	}
-
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-		containerPath := filepath.Join(logPath, entry.Name())
-
-		// 清理 *.log 文件
-		logFiles, _ := filepath.Glob(filepath.Join(containerPath, "*.log"))
-		for _, logFile := range logFiles {
-			if info, err := os.Stat(logFile); err == nil {
-				cleaned += info.Size()
-				_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", logFile)
-			}
-		}
-
-		// 清理 userdata 子目录下的日志 (Podman)
-		userdataPath := filepath.Join(containerPath, "userdata")
-		if io.Exists(userdataPath) {
-			userdataLogs, _ := filepath.Glob(filepath.Join(userdataPath, "*.log"))
-			for _, logFile := range userdataLogs {
-				if info, err := os.Stat(logFile); err == nil {
-					cleaned += info.Size()
-					_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", logFile)
-				}
-			}
-		}
-	}
-
-	return cleaned
-}
-
-// cleanSystemLogs 清理系统日志
-func (s *ToolboxLogService) cleanSystemLogs(ctx context.Context) int64 {
-	var cleaned int64
-
-	// 清理 journal 日志 (保留最近 1 天)
-	_, _ = shell.Execf(ctx, "journalctl --vacuum-time=1d 2>/dev/null")
-
-	logFiles := []string{
-		"/var/log/syslog",
-		"/var/log/messages",
-		"/var/log/auth.log",
-		"/var/log/secure",
-		"/var/log/kern.log",
-		"/var/log/dmesg",
-		"/var/log/btmp",
-		"/var/log/wtmp",
-	}
-
-	for _, logFile := range logFiles {
-		if !io.Exists(logFile) {
-			continue
-		}
-		info, err := os.Stat(logFile)
-		if err != nil {
-			continue
-		}
-		cleaned += info.Size()
-		// 清空日志文件
-		_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", logFile)
-	}
-
-	// 清理 /var/log/*.log 文件
-	matches, _ := filepath.Glob("/var/log/*.log")
-	for _, match := range matches {
-		if lo.Contains(logFiles, match) {
-			continue
-		}
-		info, err := os.Stat(match)
-		if err != nil {
-			continue
-		}
-		cleaned += info.Size()
-		_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", match)
-	}
-
-	return cleaned
 }
