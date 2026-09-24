@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
+import cert from '@/api/panel/cert'
 import ListInput from '@/components/common/ListInput.vue'
 
 const { $gettext } = useGettext()
@@ -13,6 +14,26 @@ const httpsMode = computed({
   get: () => model.value.tls || 'off',
   set: (v: string) => {
     model.value.tls = v
+  },
+})
+
+// 证书管理中已签发的证书
+const certs = ref<any[]>([])
+useRequest(cert.certs(1, 10000)).onSuccess(({ data }) => {
+  certs.value = data.items.filter((item: any) => item.cert && item.key)
+})
+const certOptions = computed(() =>
+  certs.value.map((item: any) => ({ label: item.domains.join(', '), value: item.id })),
+)
+// 由证书内容反推选中项，手动改动证书后自动取消选中
+const selectedCert = computed({
+  get: () =>
+    certs.value.find((item) => item.cert === model.value.cert && item.key === model.value.key)
+      ?.id ?? null,
+  set: (id: number) => {
+    const item = certs.value.find((item) => item.id === id)
+    model.value.cert = item.cert
+    model.value.key = item.key
   },
 })
 </script>
@@ -271,6 +292,9 @@ const httpsMode = computed({
           </n-tooltip>
         </template>
         <ListInput v-model:value="model.public_ip" placeholder="127.0.0.1" show-sort-button />
+      </n-form-item>
+      <n-form-item v-if="httpsMode === 'custom'" :label="$gettext('Use Existing Certificate')">
+        <n-select v-model:value="selectedCert" :options="certOptions" filterable />
       </n-form-item>
       <n-form-item v-if="httpsMode === 'custom'" :label="$gettext('Certificate')">
         <n-input
