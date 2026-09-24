@@ -61,6 +61,7 @@ const initTerminal = async () => {
       tabStopWidth: 4,
       disableStdin: false,
       convertEol: true,
+      scrollOnEraseInDisplay: true,
       theme: {
         background:
           getComputedStyle(document.documentElement)

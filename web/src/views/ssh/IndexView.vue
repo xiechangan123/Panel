@@ -241,6 +241,7 @@ const initTerminal = async (tabId: string) => {
         cursorBlink: true,
         cursorStyle: 'underline',
         tabStopWidth: 4,
+        scrollOnEraseInDisplay: true,
         theme: {
           background:
             getComputedStyle(document.documentElement)

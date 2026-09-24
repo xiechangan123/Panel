@@ -43,6 +43,8 @@ type Turn struct {
 func NewPTYTurn(ctx context.Context, ws *websocket.Conn, shell string) (*Turn, error) {
 	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 	applyEnv(cmd)
+	// 服务环境没有 TERM 会导致无法清屏，LC_ALL=C 会把中文显示成转义，交互终端都要覆盖
+	cmd.Env = append(cmd.Env, "TERM=xterm-256color", "LC_ALL=C.UTF-8")
 
 	ptmx, err := pty.Start(cmd)
 	if err != nil {

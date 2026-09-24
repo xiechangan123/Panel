@@ -455,6 +455,7 @@ const handleOpenTerminal = async (row: any) => {
       cursorBlink: true,
       cursorStyle: 'underline',
       tabStopWidth: 4,
+      scrollOnEraseInDisplay: true,
       theme: { background: '#111', foreground: '#fff' },
     })
 
