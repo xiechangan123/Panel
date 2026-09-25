@@ -99,14 +99,58 @@ const titleLabel = computed(() => props.path || props.service || props.container
 
 const supported = computed(() => !!sourceParams.value)
 
+// oxlint-disable-next-line no-control-regex
+const NON_CSI_ESCAPE = /\x1b[\]PX^_][\s\S]*?(?:\x07|\x1b\\|$)|\x1b[\x20-\x2f]+[\x30-\x7e]|\x1b[\x30-\x5a\x5c-\x7e]|\x1b$/g
+
+const normalizeLine = (raw: string) => {
+  let line = raw.replace(/\r+$/, '')
+  line = line.slice(line.lastIndexOf('\r') + 1).replace(NON_CSI_ESCAPE, '')
+  if (!line.includes('\b')) return line
+  const out: string[] = []
+  for (const ch of line) {
+    if (ch === '\b') out.pop()
+    else out.push(ch)
+  }
+  return out.join('')
+}
+
+// xterm 256 色的 16–231 为 6×6×6 色立方、232–255 为灰阶；0–15 Anser 已映射成标准色类名
+const paletteColor = (n: number) => {
+  if (n >= 232) {
+    const v = 8 + (n - 232) * 10
+    return `rgb(${v}, ${v}, ${v})`
+  }
+  const level = (x: number) => (x ? 55 + x * 40 : 0)
+  const c = n - 16
+  return `rgb(${level(Math.floor(c / 36))}, ${level(Math.floor(c / 6) % 6)}, ${level(c % 6)})`
+}
+
+// Anser 把 256 色和真彩色输出成没有样式的类名与 data 属性，转成行内颜色
+const inlineColors = (html: string) =>
+  html.replace(
+    /<span class="([^"]*)"((?: data-ansi-truecolor-(?:fg|bg)="[^"]*")*)>/g,
+    (tag, classes: string, attrs: string) => {
+      const styles: string[] = []
+      for (const [, n, kind] of classes.matchAll(/ansi-palette-(\d+)-(fg|bg)/g)) {
+        styles.push(`${kind === 'fg' ? 'color' : 'background-color'}: ${paletteColor(Number(n))}`)
+      }
+      for (const [, kind, rgb] of attrs.matchAll(/data-ansi-truecolor-(fg|bg)="([^"]*)"/g)) {
+        styles.push(`${kind === 'fg' ? 'color' : 'background-color'}: rgb(${rgb})`)
+      }
+      return styles.length ? `<span class="${classes}" style="${styles.join('; ')}">` : tag
+    },
+  )
+
 // text 为剥离 ANSI 后的纯文本供搜索/复制/关键词标注使用
 // 行创建后 html/text 不再变更，markRaw 免掉每行一层 Proxy 与逐字段依赖（5000 行量级下省数 MB）
-const parseLine = (raw: string): LogLine =>
-  markRaw({
+const parseLine = (raw: string): LogLine => {
+  const line = normalizeLine(raw)
+  return markRaw({
     id: nextId++,
-    text: Anser.ansiToText(raw),
-    html: Anser.ansiToHtml(Anser.escapeForHtml(raw), { use_classes: true }),
+    text: Anser.ansiToText(line),
+    html: inlineColors(Anser.ansiToHtml(Anser.escapeForHtml(line), { use_classes: true })),
   })
+}
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -757,6 +801,30 @@ defineExpose({ clear })
   }
   .ansi-white-bg {
     background-color: #c7c7c7;
+  }
+  .ansi-bright-black-bg {
+    background-color: #686868;
+  }
+  .ansi-bright-red-bg {
+    background-color: #ff6e67;
+  }
+  .ansi-bright-green-bg {
+    background-color: #5ffa68;
+  }
+  .ansi-bright-yellow-bg {
+    background-color: #fffc67;
+  }
+  .ansi-bright-blue-bg {
+    background-color: #6871ff;
+  }
+  .ansi-bright-magenta-bg {
+    background-color: #ff77ff;
+  }
+  .ansi-bright-cyan-bg {
+    background-color: #60fdff;
+  }
+  .ansi-bright-white-bg {
+    background-color: #ffffff;
   }
 
   .ansi-bold {
