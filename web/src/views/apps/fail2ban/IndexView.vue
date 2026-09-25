@@ -83,6 +83,8 @@ const jailsColumns: any = [
             size: 'small',
             type: 'warning',
             secondary: true,
+            // 停用的规则不会被 fail2ban 加载，没有状态可查
+            disabled: !row.enabled,
             onClick: async () => {
               await getJailInfo(row.name)
               jailModal.value = true

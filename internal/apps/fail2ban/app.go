@@ -221,6 +221,11 @@ func (s *App) BanList(w http.ResponseWriter, r *http.Request) {
 
 	out, err := shell.Execf(r.Context(), "fail2ban-client status %s", req.Name)
 	if err != nil {
+		// 规则文件在但 fail2ban 没加载，多是写入后没重载，重启 fail2ban 即可
+		if strings.Contains(out, "does not exist") {
+			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("rule %s is not running, please try restarting Fail2ban", req.Name))
+			return
+		}
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get the status of rule %s: %v", req.Name, err))
 		return
 	}
