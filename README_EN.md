@@ -26,13 +26,13 @@ Website: [acepanel.net](https://acepanel.net) | QQ group: [12370907](https://jq.
 ## Advantages
 
 1. **Extremely low occupancy:** Developed in Go language, small installation package, low occupancy, single file operation, will not affect system performance
-2. **Low Destructiveness:** Designed to minimize additional modifications to the system, we make the fewest modifications to the system among similar products
+2. **Low Destructiveness:** Designed to minimize additional system modifications, featuring excellent forward and backward compatibility.
 3. **Follow the Times:** The overall design is at the forefront of the times, with good compatibility with new systems, leading in the same type of products
 4. **Efficient Operation and Maintenance:** Complete functions, strong customization capabilities, can quickly deploy small websites, and deploy complex applications based on customized requirements
 5. **Offline Operation:** Support offline mode, and even stop the panel process after deployment, without affecting any existing services
 6. **Safe and Stable:** The panel adopts a variety of industry technologies to ensure the security of the body, and has been running stably in multiple survival environments for a long time
 7. **Fully Open Source:** Few fully open source panels, you can freely modify and develop the panel on the premise of complying with the open source agreement
-8. **Permanently free:** Commit to the panel body will not introduce any charging/authorization functions in the future, and will be permanently free to use
+8. **Free to use:** Commit to the panel body will not introduce any charging/authorization functions in the future, and will be free to use
 
 ## Quick Install
 
