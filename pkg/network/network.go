@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -25,6 +26,9 @@ const (
 	// ConfirmTimeout 变更后等待确认的时长，超时未确认自动回滚，
 	// 避免配错导致远程失联后无法恢复
 	ConfirmTimeout = 30 * time.Second
+
+	// verifyTimeout 等待配置生效的上限，IPv6 重复地址检测默认约需 1～2 秒
+	verifyTimeout = 10 * time.Second
 )
 
 // ErrValidation 配置不合法，服务层据此返回 422
@@ -159,7 +163,7 @@ func (s *Service) Update(ctx context.Context, config Config) error {
 	if err != nil {
 		return err
 	}
-	if err = verify(config); err != nil {
+	if err = verify(ctx, config); err != nil {
 		return errors.Join(err, rollback(context.WithoutCancel(ctx)))
 	}
 
@@ -247,30 +251,68 @@ func (s *Service) detect(ctx context.Context) backend {
 	return s.backend
 }
 
-// verify 确认配置已在网卡上生效，挡住应用命令返回成功但实际未生效的情况
-func verify(config Config) error {
-	current, err := net.InterfaceByName(config.Name)
-	if err != nil {
-		return fmt.Errorf("network interface %s disappeared after applying: %w", config.Name, err)
+// verify 确认配置已在网卡上生效，挡住应用命令返回成功但实际未生效的情况。
+// 网络管理器可能异步提交地址，IPv6 地址还要等重复地址检测结束，检测失败的地址挂在网卡上却无法使用，
+// 因此轮询到全部就绪、确认冲突或超时为止
+func verify(ctx context.Context, config Config) error {
+	deadline := time.Now().Add(verifyTimeout)
+	for {
+		output, err := run(ctx, "ip", "-j", "address", "show", "dev", config.Name)
+		if err == nil {
+			err = checkApplied(config, output)
+		}
+		if err == nil || errors.Is(err, ErrValidation) || time.Now().After(deadline) {
+			return err
+		}
+		select {
+		case <-ctx.Done():
+			return err
+		case <-time.After(200 * time.Millisecond):
+		}
 	}
-	if current.Flags&net.FlagUp == 0 {
+}
+
+// checkApplied 根据 ip -j address 的输出检查网卡已启用且手动地址都已通过重复地址检测
+func checkApplied(config Config, output string) error {
+	var links []struct {
+		Flags    []string `json:"flags"`
+		AddrInfo []struct {
+			Local     string `json:"local"`
+			Prefixlen int    `json:"prefixlen"`
+			Tentative bool   `json:"tentative"`
+			DADFailed bool   `json:"dadfailed"`
+		} `json:"addr_info"`
+	}
+	if err := json.Unmarshal([]byte(output), &links); err != nil || len(links) != 1 {
+		return fmt.Errorf("failed to read addresses of %s: %s", config.Name, output)
+	}
+	if !slices.Contains(links[0].Flags, "UP") {
 		return fmt.Errorf("network interface %s is down after applying", config.Name)
 	}
 
-	ipv4, ipv6 := currentAddresses(*current)
-	if err = verifyAddresses(config.Name, config.IPv4, ipv4); err != nil {
-		return err
+	type state struct{ tentative, failed bool }
+	applied := make(map[netip.Prefix]state, len(links[0].AddrInfo))
+	for _, info := range links[0].AddrInfo {
+		if address, err := netip.ParseAddr(info.Local); err == nil {
+			applied[netip.PrefixFrom(address, info.Prefixlen)] = state{info.Tentative, info.DADFailed}
+		}
 	}
-	return verifyAddresses(config.Name, config.IPv6, ipv6)
-}
-
-func verifyAddresses(name string, config FamilyConfig, applied []string) error {
-	if config.Mode != ModeManual {
-		return nil
-	}
-	for _, address := range config.Addresses {
-		if !slices.Contains(applied, address) {
-			return fmt.Errorf("address %s was not applied to %s", address, name)
+	for _, family := range []FamilyConfig{config.IPv4, config.IPv6} {
+		if family.Mode != ModeManual {
+			continue
+		}
+		for _, value := range family.Addresses {
+			// 按解析结果比较，用户输入的大写或非压缩写法与内核的规范写法视为同一地址
+			prefix, _ := netip.ParsePrefix(value)
+			current, ok := applied[prefix]
+			switch {
+			case !ok:
+				return fmt.Errorf("address %s was not applied to %s", value, config.Name)
+			case current.failed:
+				return fmt.Errorf("%w: address %s is already in use by another device on the network (duplicate address detection failed)", ErrValidation, value)
+			case current.tentative:
+				return fmt.Errorf("address %s did not pass duplicate address detection on %s, it may be in use by another device on the network", value, config.Name)
+			}
 		}
 	}
 	return nil
@@ -314,6 +356,11 @@ func validateFamily(name string, config FamilyConfig, ipv4 bool) error {
 		prefix, err := netip.ParsePrefix(value)
 		if err != nil || prefix.Addr().Is4() != ipv4 {
 			return fmt.Errorf("%w: invalid %s CIDR: %s", ErrValidation, name, value)
+		}
+		// 主机位全零的是网络地址，IPv6 下即子网路由器任播地址，由上游路由器占用，
+		// 配到本机会因重复地址检测失败而不可用。/31、/127 点对点链路与单地址前缀不受此限
+		if prefix.Bits() < prefix.Addr().BitLen()-1 && prefix.Masked().Addr() == prefix.Addr() {
+			return fmt.Errorf("%w: %s address %s is a subnet network address and cannot be assigned to a host", ErrValidation, name, value)
 		}
 		if _, exists := addresses[prefix]; exists {
 			return fmt.Errorf("%w: duplicate %s address: %s", ErrValidation, name, value)
