@@ -162,11 +162,13 @@ func (r *certRepo) ObtainPanel(ctx context.Context, account *biz.CertAccount, na
 		return nil, nil, err
 	}
 
-	d, err := webserver.Get(webserver.Type(webServer))
-	if err != nil {
-		return nil, nil, err
+	// 未安装 Web 服务器时不传 writer，由内置 HTTP 服务器完成验证
+	var conf string
+	var writer acme.HTTPChallengeWriter
+	if d, err := webserver.Get(webserver.Type(webServer)); err == nil {
+		conf, writer = d.PanelACMEConf(), d
 	}
-	client.UsePanel(d.PanelACMEConf(), d)
+	client.UsePanel(conf, writer)
 
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancel()

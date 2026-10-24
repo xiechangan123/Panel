@@ -75,8 +75,8 @@ func (s *panelSolver) Present(ctx context.Context, challenge acme.Challenge) err
 		return nil
 	}
 
-	// 如果 80 端口没有被占用，则使用内置的 HTTP 服务器
-	if !pkgos.TCPPortInUse(80) { //nolint:contextcheck
+	// 没有 Web 服务器或 80 端口空闲时使用内置的 HTTP 服务器，端口被占用会在启动时报错
+	if s.writer == nil || !pkgos.TCPPortInUse(80) { //nolint:contextcheck
 		s.useBuiltin = true
 		return s.startServer()
 	}
@@ -140,7 +140,11 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 	// 善后必须做完：取消时跳过会留下占着 80 端口的服务器或运行中的 challenge 配置
 	ctx = context.WithoutCancel(ctx)
 
-	if s.useBuiltin && s.server != nil {
+	// 内置服务器启动失败时 Present 已报错，这里同样不能去动 Web 服务器配置
+	if s.useBuiltin {
+		if s.server == nil {
+			return nil
+		}
 		shutdownCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 		if err := s.server.Shutdown(shutdownCtx); err != nil {
