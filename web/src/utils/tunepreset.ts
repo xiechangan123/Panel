@@ -122,10 +122,15 @@ export const nginxPreset = (p: TuneProfile) => {
   }
 }
 
-// PHP-FPM
+// PHP-FPM / OPcache
 export const phpPreset = (p: TuneProfile) => {
   const perProcessMB = Number(p.scenario) || 50
   const maxChildren = Math.max(Math.floor(p.memoryMB / perProcessMB), 4)
+  // OPcache 按项目体量给，但不超过分配内存的 1/4
+  const opcacheMB = Math.min(
+    perProcessMB >= 128 ? 512 : perProcessMB >= 80 ? 256 : 128,
+    Math.max(Math.floor(p.memoryMB / 4), 64),
+  )
 
   return {
     pm: 'dynamic',
@@ -134,6 +139,12 @@ export const phpPreset = (p: TuneProfile) => {
     pmMinSpareServers: Math.max(Math.floor(maxChildren / 8), 2),
     pmMaxSpareServers: Math.max(Math.floor(maxChildren / 2), 4),
     memoryLimitM: perProcessMB >= 80 ? 512 : 256,
+    opcacheMemoryConsumption: opcacheMB,
+    opcacheInternedStringsBuffer: Math.min(Math.floor(opcacheMB / 4), 64),
+    opcacheMaxAcceleratedFiles: 100000,
+    opcacheRevalidateFreq: 3,
+    opcacheJit: 'tracing',
+    opcacheJitBufferSizeM: Math.floor(opcacheMB / 2),
   }
 }
 

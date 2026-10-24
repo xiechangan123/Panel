@@ -87,6 +87,16 @@ const handlePreset = (profile: TuneProfile) => {
   pmMaxSpareServers.value = r.pmMaxSpareServers
   memoryLimitNum.value = r.memoryLimitM
   memoryLimitUnit.value = 'M'
+  opcacheMemoryConsumption.value = r.opcacheMemoryConsumption
+  opcacheInternedStringsBuffer.value = r.opcacheInternedStringsBuffer
+  opcacheMaxAcceleratedFiles.value = r.opcacheMaxAcceleratedFiles
+  opcacheRevalidateFreq.value = r.opcacheRevalidateFreq
+  // JIT 从 PHP 8.0 开始才有
+  if (props.slug >= 80) {
+    opcacheJit.value = r.opcacheJit
+    opcacheJitBufferSizeNum.value = r.opcacheJitBufferSizeM
+    opcacheJitBufferSizeUnit.value = 'M'
+  }
   window.$message.success($gettext('Generated, review the values and save'))
 }
 const cleanSessionLoading = ref(false)
