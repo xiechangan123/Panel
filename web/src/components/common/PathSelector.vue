@@ -31,7 +31,7 @@ const sizeCache = ref<Map<string, string>>(new Map())
 const title = computed(() => (props.dir ? $gettext('Select Directory') : $gettext('Select File')))
 const isInput = ref(false)
 const pathInput = ref<InputInst | null>(null)
-const input = ref('www')
+const input = ref('')
 const sort = ref<string>('')
 const selected = ref<any[]>([])
 const tableRef = ref<DataTableInst | null>(null)
@@ -220,15 +220,17 @@ const handleInput = () => {
   })
 }
 
+// 输入框呈现完整绝对路径，复制出去可直接使用；失焦时容错补前导 / 并去掉尾部 /
 const handleBlur = () => {
-  input.value = input.value.replace(/(^\/)|(\/$)/g, '')
-  if (!checkPath(input.value)) {
+  const trimmed = input.value.trim().replace(/\/+$/, '')
+  const full = trimmed.startsWith('/') ? trimmed : '/' + trimmed
+  if (!checkPath(full.slice(1))) {
     window.$message.error($gettext('Invalid path'))
     return
   }
 
   isInput.value = false
-  currentPath.value = '/' + input.value
+  currentPath.value = full
 }
 
 const handleUp = () => {
@@ -248,7 +250,6 @@ const setPath = (index: number) => {
     .slice(0, index + 1)
     .join('/')
   currentPath.value = '/' + newPath
-  input.value = newPath
 }
 
 const handleSorterChange = (sorter: {
@@ -349,7 +350,7 @@ watch([crumbRef, currentPath], ([el]) => el?.scrollTo({ left: el.scrollWidth }),
 // 监听内部路径变化，刷新列表
 watch(currentPath, (value) => {
   if (!value) return
-  input.value = value.slice(1)
+  input.value = value
   selected.value = []
   create.value = false
   sizeCache.value.clear()
@@ -357,13 +358,17 @@ watch(currentPath, (value) => {
   reload()
 })
 
+const handleSelect = (value: string) => {
+  path.value = value
+  emit('select', value)
+  show.value = false
+}
+
 // 选择后更新外部path并关闭
 watch(selected, (val) => {
   if (val.length > 0) {
-    path.value = selected.value[0]
-    emit('select', selected.value[0])
+    handleSelect(val[0])
     selected.value = []
-    show.value = false
   }
 })
 </script>
@@ -400,7 +405,6 @@ watch(selected, (val) => {
             </n-breadcrumb>
           </div>
         </n-tag>
-        <n-input-group-label v-if="isInput">/</n-input-group-label>
         <n-input
           ref="pathInput"
           v-model:value="input"
@@ -432,6 +436,13 @@ watch(selected, (val) => {
       v-model:pageSize="pageSize"
       :pagination="pagination"
     />
+    <template v-if="dir" #footer>
+      <n-flex justify="end">
+        <n-button type="primary" @click="handleSelect(currentPath)">
+          {{ $gettext('Select Current Directory') }}
+        </n-button>
+      </n-flex>
+    </template>
   </app-modal>
 </template>
 

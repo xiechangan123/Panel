@@ -1,13 +1,15 @@
 <script lang="ts" setup>
-import { NButton, NDataTable, NFlex, NSwitch, NTag } from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NFlex, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import project from '@/api/panel/project'
 import systemctl from '@/api/panel/systemctl'
 import RealtimeLog from '@/components/common/RealtimeLog.vue'
-import { useConfirm } from '@/components/system/composables/useConfirm'
 import { useTablePagination } from '@/components/system/composables/useTablePagination'
+import ConfirmDialog from '@/components/system/ConfirmDialog.vue'
 import { useFileStore } from '@/stores'
+
+import ProxyModal from './ProxyModal.vue'
 
 const type = defineModel<string>('type', { type: String, required: true })
 const createModal = defineModel<boolean>('createModal', { type: Boolean, required: true })
@@ -15,10 +17,13 @@ const editModal = defineModel<boolean>('editModal', { type: Boolean, required: t
 const editId = defineModel<number>('editId', { type: Number, required: true })
 const logModal = ref(false)
 const logService = ref('')
+const proxyModal = ref(false)
+const proxyProject = ref({ id: 0, name: '' })
+// 删除项目时是否一并删除绑定的网站，默认只解除绑定
+const deleteWebsites = ref(false)
 
 const fileStore = useFileStore()
 const { $gettext } = useGettext()
-const { confirmDelete } = useConfirm()
 const router = useRouter()
 const selectedRowKeys = ref<any>([])
 const keyword = ref('')
@@ -119,7 +124,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 420,
+    width: 520,
     hideInExcel: true,
     render(row: any) {
       const buttons = [
@@ -174,27 +179,49 @@ const columns: any = [
           NButton,
           {
             size: 'small',
+            type: 'info',
+            secondary: true,
+            onClick: () => handleShowProxy(row),
+          },
+          { default: () => $gettext('Reverse Proxy') },
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
             type: 'primary',
             onClick: () => handleEdit(row),
           },
           { default: () => $gettext('Edit') },
         ),
         h(
-          NButton,
+          ConfirmDialog,
           {
-            size: 'small',
-            type: 'error',
-            onClick: async () => {
-              const ok = await confirmDelete({
-                content: $gettext('Are you sure you want to delete project %{ name }?', {
-                  name: row.name,
-                }),
-                countdown: 5,
-              })
-              if (ok) handleDelete(row.id)
-            },
+            type: 'delete',
+            countdown: 5,
+            onConfirm: () => handleDelete(row.id),
           },
-          { default: () => $gettext('Delete') },
+          {
+            default: () =>
+              h(NFlex, { vertical: true }, () => [
+                h(
+                  'strong',
+                  $gettext('Are you sure you want to delete project %{ name }?', {
+                    name: row.name,
+                  }),
+                ),
+                h(
+                  NCheckbox,
+                  {
+                    checked: deleteWebsites.value,
+                    onUpdateChecked: (v: boolean) => (deleteWebsites.value = v),
+                  },
+                  { default: () => $gettext('Also delete bound websites') },
+                ),
+              ]),
+            trigger: () =>
+              h(NButton, { size: 'small', type: 'error' }, { default: () => $gettext('Delete') }),
+          },
         ),
       )
 
@@ -263,13 +290,20 @@ const handleShowLog = (row: any) => {
   logModal.value = true
 }
 
+const handleShowProxy = (row: any) => {
+  proxyProject.value = { id: row.id, name: row.name }
+  proxyModal.value = true
+}
+
 const handleEdit = (row: any) => {
   editId.value = row.id
   editModal.value = true
 }
 
 const handleDelete = (id: number) => {
-  useRequest(project.delete(id)).onSuccess(() => {
+  useRequest(project.delete(id, deleteWebsites.value)).onSuccess(() => {
+    if (deleteWebsites.value) window.$bus.emit('website:refresh')
+    deleteWebsites.value = false
     refresh()
     window.$message.success($gettext('Deleted successfully'))
   })
@@ -321,7 +355,7 @@ onMounted(() => {
       striped
       remote
       :loading="loading"
-      :scroll-x="1500"
+      :scroll-x="1600"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
@@ -334,4 +368,5 @@ onMounted(() => {
   <app-modal v-model:show="logModal" :title="$gettext('Logs')" @mask-click="logModal = false">
     <realtime-log :service="logService" />
   </app-modal>
+  <proxy-modal v-model:show="proxyModal" :project="proxyProject" />
 </template>

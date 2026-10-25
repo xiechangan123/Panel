@@ -121,7 +121,7 @@ func (s *WebsiteService) GetDefaultSite(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	websites, _, err := s.websiteRepo.List("all", "", 1, 10000)
+	websites, _, err := s.websiteRepo.List("all", "", 0, 1, 10000)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -149,7 +149,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	websites, _, err := s.websiteRepo.List("all", "", 1, 10000)
+	websites, _, err := s.websiteRepo.List("all", "", 0, 1, 10000)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -257,7 +257,7 @@ func (s *WebsiteService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	websites, total, err := s.websiteRepo.List(req.Type, req.Keyword, req.Page, req.Limit)
+	websites, total, err := s.websiteRepo.List(req.Type, req.Keyword, req.ProjectID, req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -382,6 +382,21 @@ func (s *WebsiteService) ResetConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = s.websiteRepo.ResetConfig(r.Context(), req.ID); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+func (s *WebsiteService) UpdateProject(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.WebsiteUpdateProject](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.websiteRepo.UpdateProject(req.ID, req.ProjectID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

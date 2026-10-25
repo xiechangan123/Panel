@@ -47,7 +47,7 @@ func (uc *ToolboxMigrationUsecase) probeRemote(ctx context.Context, conn *reques
 
 // localItems 列出本地可推送到目标面板的资源
 func (uc *ToolboxMigrationUsecase) localItems(ctx context.Context) ([]types.MigrationItem, error) {
-	websites, _, err := uc.website.List("all", "", 1, 10000)
+	websites, _, err := uc.website.List("all", "", 0, 1, 10000)
 	if err != nil {
 		return nil, err
 	}

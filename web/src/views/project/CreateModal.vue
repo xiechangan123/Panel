@@ -3,17 +3,22 @@ import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import project from '@/api/panel/project'
-import website from '@/api/panel/website'
-import ListInput from '@/components/common/ListInput.vue'
+import setting from '@/api/panel/setting'
 import PathSelector from '@/components/common/PathSelector.vue'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
-import { notifyWebsiteCreated } from '@/utils'
+import { joinPath } from '@/utils'
+
+import { buildCommand, runtimes } from './command'
+import type { ProxyWebsiteForm } from './composables/useProxyWebsite'
+import { useProxyWebsite } from './composables/useProxyWebsite'
+import ProxyForm from './ProxyForm.vue'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const type = defineModel<string>('type', { type: String, required: true })
 
 const { $gettext } = useGettext()
 const formLayout = useFormLayout(100)
+const { validateProxyWebsite, createProxyWebsite } = useProxyWebsite()
 
 // Go 运行模式
 const goModes = [
@@ -21,351 +26,193 @@ const goModes = [
   { label: $gettext('Binary'), value: 'binary' },
 ]
 
-// Java 框架预设
-const javaFrameworks = [
-  { label: $gettext('Custom'), value: 'custom', command: '' },
-  { label: 'Spring Boot (JAR)', value: 'spring-boot-jar', command: '-jar app.jar' },
-  { label: 'Spring Boot (WAR)', value: 'spring-boot-war', command: '-jar app.war' },
-  { label: 'Quarkus', value: 'quarkus', command: '-jar quarkus-run.jar' },
-  { label: 'Micronaut', value: 'micronaut', command: '-jar app.jar' },
-  { label: 'Vert.x', value: 'vertx', command: '-jar app.jar' },
-  { label: 'Dropwizard', value: 'dropwizard', command: 'server config.yml' },
-]
-
-// Node.js 框架预设
-const nodejsFrameworks = [
-  { label: $gettext('Custom'), value: 'custom', command: '' },
-  { label: 'Express', value: 'express', command: 'app.js' },
-  { label: 'Koa', value: 'koa', command: 'app.js' },
-  { label: 'Fastify', value: 'fastify', command: 'app.js' },
-  { label: 'NestJS', value: 'nestjs', command: 'dist/main.js' },
-  { label: 'Next.js', value: 'nextjs', command: 'node_modules/.bin/next start' },
-  { label: 'Nuxt.js', value: 'nuxtjs', command: 'node_modules/.bin/nuxt start' },
-  { label: 'Hapi', value: 'hapi', command: 'server.js' },
-  { label: 'AdonisJS', value: 'adonisjs', command: 'server.js' },
-]
-
-// PHP 框架预设
-const phpFrameworks = [
-  { label: $gettext('Custom'), value: 'custom', command: '' },
-  { label: 'Laravel Octane', value: 'laravel-octane', command: 'artisan octane:start' },
-  { label: 'Laravel (Artisan Serve)', value: 'laravel-serve', command: 'artisan serve' },
-  { label: 'ThinkPHP', value: 'thinkphp', command: 'think run' },
-  { label: 'Webman', value: 'webman', command: 'start.php start' },
-  { label: 'Hyperf', value: 'hyperf', command: 'bin/hyperf.php start' },
-  { label: 'Swoole HTTP', value: 'swoole', command: 'server.php' },
-  { label: 'RoadRunner', value: 'roadrunner', command: 'vendor/bin/rr serve' },
-]
-
-// Python 框架预设
-const pythonFrameworks = [
-  { label: $gettext('Custom'), value: 'custom', command: '' },
-  { label: 'Django', value: 'django', command: 'manage.py runserver 0.0.0.0:8000' },
-  { label: 'Flask', value: 'flask', command: '-m flask run --host=0.0.0.0' },
-  { label: 'FastAPI (Uvicorn)', value: 'fastapi', command: '-m uvicorn main:app --host 0.0.0.0' },
-  { label: 'Tornado', value: 'tornado', command: 'app.py' },
-  { label: 'Sanic', value: 'sanic', command: '-m sanic server.app --host=0.0.0.0' },
-  { label: 'aiohttp', value: 'aiohttp', command: 'app.py' },
-  { label: 'Gunicorn', value: 'gunicorn', command: '-m gunicorn -w 4 app:app' },
-]
-
-// .NET 框架预设
-const dotnetFrameworks = [
-  { label: $gettext('Custom'), value: 'custom', command: '' },
-  { label: 'ASP.NET Core Web', value: 'aspnet-web', command: 'run' },
-  { label: 'ASP.NET Core API', value: 'aspnet-api', command: 'run' },
-  { label: 'Blazor Server', value: 'blazor-server', command: 'run' },
-  { label: 'gRPC Service', value: 'grpc', command: 'run' },
-  { label: 'Worker Service', value: 'worker', command: 'run' },
-]
+// 各语言的框架预设，命令接在运行时之后
+const custom = { label: $gettext('Custom'), value: 'custom', command: '' }
+const frameworks: Record<string, { label: string; value: string; command: string }[]> = {
+  java: [
+    custom,
+    { label: 'Spring Boot (JAR)', value: 'spring-boot-jar', command: '-jar app.jar' },
+    { label: 'Spring Boot (WAR)', value: 'spring-boot-war', command: '-jar app.war' },
+    { label: 'Quarkus', value: 'quarkus', command: '-jar quarkus-run.jar' },
+    { label: 'Micronaut', value: 'micronaut', command: '-jar app.jar' },
+    { label: 'Vert.x', value: 'vertx', command: '-jar app.jar' },
+    { label: 'Dropwizard', value: 'dropwizard', command: 'server config.yml' },
+  ],
+  nodejs: [
+    custom,
+    { label: 'Express', value: 'express', command: 'app.js' },
+    { label: 'Koa', value: 'koa', command: 'app.js' },
+    { label: 'Fastify', value: 'fastify', command: 'app.js' },
+    { label: 'NestJS', value: 'nestjs', command: 'dist/main.js' },
+    { label: 'Next.js', value: 'nextjs', command: 'node_modules/.bin/next start' },
+    { label: 'Nuxt.js', value: 'nuxtjs', command: 'node_modules/.bin/nuxt start' },
+    { label: 'Hapi', value: 'hapi', command: 'server.js' },
+    { label: 'AdonisJS', value: 'adonisjs', command: 'server.js' },
+  ],
+  php: [
+    custom,
+    { label: 'Laravel Octane', value: 'laravel-octane', command: 'artisan octane:start' },
+    { label: 'Laravel (Artisan Serve)', value: 'laravel-serve', command: 'artisan serve' },
+    { label: 'ThinkPHP', value: 'thinkphp', command: 'think run' },
+    { label: 'Webman', value: 'webman', command: 'start.php start' },
+    { label: 'Hyperf', value: 'hyperf', command: 'bin/hyperf.php start' },
+    { label: 'Swoole HTTP', value: 'swoole', command: 'server.php' },
+    { label: 'RoadRunner', value: 'roadrunner', command: 'vendor/bin/rr serve' },
+  ],
+  python: [
+    custom,
+    { label: 'Django', value: 'django', command: 'manage.py runserver 0.0.0.0:8000' },
+    { label: 'Flask', value: 'flask', command: '-m flask run --host=0.0.0.0' },
+    {
+      label: 'FastAPI (Uvicorn)',
+      value: 'fastapi',
+      command: '-m uvicorn main:app --host 0.0.0.0',
+    },
+    { label: 'Tornado', value: 'tornado', command: 'app.py' },
+    { label: 'Sanic', value: 'sanic', command: '-m sanic server.app --host=0.0.0.0' },
+    { label: 'aiohttp', value: 'aiohttp', command: 'app.py' },
+    { label: 'Gunicorn', value: 'gunicorn', command: '-m gunicorn -w 4 app:app' },
+  ],
+  dotnet: [
+    custom,
+    { label: 'ASP.NET Core Web', value: 'aspnet-web', command: 'run' },
+    { label: 'ASP.NET Core API', value: 'aspnet-api', command: 'run' },
+    { label: 'Blazor Server', value: 'blazor-server', command: 'run' },
+    { label: 'gRPC Service', value: 'grpc', command: 'run' },
+    { label: 'Worker Service', value: 'worker', command: 'run' },
+  ],
+}
 
 const defaultCreateModel = () => ({
   name: '',
   type: '',
   root_dir: '',
-  working_dir: '',
   exec_start: '',
   user: 'www',
 })
 
-// 反向代理相关
-const defaultProxyOptions = () => ({
-  enabled: false,
-  domains: [] as string[],
-  port: null as number | null,
-})
-
-// Go 特有字段
-const defaultGoOptions = () => ({
-  mode: 'source' as string,
-  version: '' as string,
-  entryFile: 'main.go' as string,
-})
-
-// Java / Node.js / Python / .NET 共用的版本与框架字段
-const defaultVersionOptions = () => ({
-  version: '' as string,
+const defaultRuntime = () => ({
+  version: null as string | number | null,
   framework: 'custom',
-})
-
-// PHP 特有字段
-const defaultPhpOptions = () => ({
-  version: null as number | null,
-  framework: 'custom',
+  mode: 'source', // Go 运行方式
+  entry: '', // 选中的入口文件或可执行文件
 })
 
 const createModel = ref(defaultCreateModel())
-const proxyOptions = ref(defaultProxyOptions())
-const goOptions = ref(defaultGoOptions())
-const javaOptions = ref(defaultVersionOptions())
-const nodejsOptions = ref(defaultVersionOptions())
-const phpOptions = ref(defaultPhpOptions())
-const pythonOptions = ref(defaultVersionOptions())
-const dotnetOptions = ref(defaultVersionOptions())
-
-const resetForm = () => {
-  createModel.value = defaultCreateModel()
-  proxyOptions.value = defaultProxyOptions()
-  goOptions.value = defaultGoOptions()
-  javaOptions.value = defaultVersionOptions()
-  nodejsOptions.value = defaultVersionOptions()
-  phpOptions.value = defaultPhpOptions()
-  pythonOptions.value = defaultVersionOptions()
-  dotnetOptions.value = defaultVersionOptions()
-}
-
-// 弹窗复用同一实例，每次打开时重置表单，避免残留在其他语言标签下生成的启动命令等字段
-watch(show, (value) => {
-  if (value) {
-    resetForm()
-  }
-})
-
-const showPathSelector = ref(false)
-const pathSelectorPath = ref('/opt/ace/projects')
+const runtime = ref(defaultRuntime())
+const proxyEnabled = ref(false)
+const proxyForm = ref<ProxyWebsiteForm>({ name: '', domains: [], port: null })
 const loading = ref(false)
 
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
-  initialData: {
-    go: [],
-    java: [],
-    nodejs: [],
-    php: [],
-    python: [],
-    dotnet: [],
+  initialData: {},
+})
+const { data: settings } = useRequest(setting.list, { initialData: {} })
+
+const versionOptions = computed<{ label: string; value: string | number }[]>(
+  () => installedEnvironment.value?.[type.value] || [],
+)
+const hasRuntime = computed(() => !!runtimes[type.value])
+const isGoBinary = computed(() => type.value === 'go' && runtime.value.mode === 'binary')
+
+// 与后端一致：留空时为默认目录/项目名，缺少前导 / 时补上
+const defaultDir = computed(() => settings.value?.project_path || '/opt/ace/projects')
+const projectDir = computed(() => {
+  const dir =
+    createModel.value.root_dir.trim() ||
+    joinPath(defaultDir.value, createModel.value.name || 'project')
+  return dir.startsWith('/') ? dir : '/' + dir
+})
+
+// 运行时命令名带版本号，Go 二进制和通用项目没有运行时
+const runtimeName = computed(() => {
+  if (!hasRuntime.value || isGoBinary.value) return ''
+  return `${runtimes[type.value]}${runtime.value.version ?? ''}`
+})
+
+// 选了文件按文件生成，否则用框架预设；Go 源码默认运行当前目录的包，二进制默认项目目录下的 main
+const generatedCommand = computed(() => {
+  const { entry, framework } = runtime.value
+  if (entry) return buildCommand(type.value, runtimeName.value, entry, projectDir.value)
+  if (isGoBinary.value) return joinPath(projectDir.value, 'main')
+  if (type.value === 'go') return `${runtimeName.value} run .`
+  const preset = frameworks[type.value]?.find((f) => f.value === framework)
+  return preset?.command ? `${runtimeName.value} ${preset.command}` : ''
+})
+
+// 只在生成结果变化时覆盖，手改过的命令不会因为改名、改目录被冲掉
+watch(generatedCommand, (command) => {
+  if (command) createModel.value.exec_start = command
+})
+
+// 换框架或 Go 运行方式后，之前选的文件不再适用
+watch(
+  () => runtime.value.framework,
+  (framework) => {
+    if (framework !== 'custom') runtime.value.entry = ''
   },
-})
+)
+watch(
+  () => runtime.value.mode,
+  () => {
+    runtime.value.entry = ''
+  },
+)
 
-// Go 版本选项
-const goVersionOptions = computed(() => {
-  return installedEnvironment.value?.go || []
-})
-
-// Java 版本选项
-const javaVersionOptions = computed(() => {
-  return installedEnvironment.value?.java || []
-})
-
-// Node.js 版本选项
-const nodejsVersionOptions = computed(() => {
-  return installedEnvironment.value?.nodejs || []
-})
-
-// PHP 版本选项
-const phpVersionOptions = computed(() => {
-  return installedEnvironment.value?.php || []
-})
-
-// Python 版本选项
-const pythonVersionOptions = computed(() => {
-  return installedEnvironment.value?.python || []
-})
-
-// .NET 版本选项
-const dotnetVersionOptions = computed(() => {
-  return installedEnvironment.value?.dotnet || []
-})
-
-// 根据语言版本和框架生成启动命令
-const generateCommand = () => {
-  switch (type.value) {
-    case 'go': {
-      if (goOptions.value.mode === 'source') {
-        // 源码模式
-        if (!goOptions.value.version || !goOptions.value.entryFile) return
-        const goBin = `go${goOptions.value.version}`
-        createModel.value.exec_start = `${goBin} run ${goOptions.value.entryFile}`
-      } else {
-        // 二进制模式
-        const rootDir =
-          createModel.value.root_dir || `/opt/ace/projects/${createModel.value.name || 'project'}`
-        createModel.value.exec_start = `${rootDir}/main`
-      }
-      break
-    }
-    case 'java': {
-      if (!javaOptions.value.version) return
-      const framework = javaFrameworks.find((f) => f.value === javaOptions.value.framework)
-      if (!framework || framework.value === 'custom') return
-      const javaBin = `java${javaOptions.value.version}`
-      createModel.value.exec_start = `${javaBin} ${framework.command}`
-      break
-    }
-    case 'nodejs': {
-      if (!nodejsOptions.value.version) return
-      const framework = nodejsFrameworks.find((f) => f.value === nodejsOptions.value.framework)
-      if (!framework || framework.value === 'custom') return
-      const nodeBin = `node${nodejsOptions.value.version}`
-      createModel.value.exec_start = `${nodeBin} ${framework.command}`
-      break
-    }
-    case 'php': {
-      if (!phpOptions.value.version) return
-      const framework = phpFrameworks.find((f) => f.value === phpOptions.value.framework)
-      if (!framework || framework.value === 'custom') return
-      const phpBin = `php${phpOptions.value.version}`
-      createModel.value.exec_start = `${phpBin} ${framework.command}`
-      break
-    }
-    case 'python': {
-      if (!pythonOptions.value.version) return
-      const framework = pythonFrameworks.find((f) => f.value === pythonOptions.value.framework)
-      if (!framework || framework.value === 'custom') return
-      const pythonBin = `python${pythonOptions.value.version}`
-      createModel.value.exec_start = `${pythonBin} ${framework.command}`
-      break
-    }
-    case 'dotnet': {
-      if (!dotnetOptions.value.version) return
-      const framework = dotnetFrameworks.find((f) => f.value === dotnetOptions.value.framework)
-      if (!framework || framework.value === 'custom') return
-      const dotnetBin = `dotnet${dotnetOptions.value.version}`
-      createModel.value.exec_start = `${dotnetBin} ${framework.command}`
-      break
-    }
-  }
+// 默认选中第一个已安装的版本，免得生成不带版本号的命令
+const pickDefaultVersion = () => {
+  if (runtime.value.version === null) runtime.value.version = versionOptions.value[0]?.value ?? null
 }
+watch(versionOptions, pickDefaultVersion)
 
-// 监听 Go 选项变化
-watch(
-  () => [
-    goOptions.value.mode,
-    goOptions.value.version,
-    goOptions.value.entryFile,
-    createModel.value.root_dir,
-    createModel.value.name,
-  ],
-  () => {
-    if (type.value === 'go') generateCommand()
-  },
-)
+// 弹窗复用同一实例，每次打开时重置表单，避免残留在其他语言标签下生成的启动命令等字段
+watch(show, (value) => {
+  if (!value) return
+  createModel.value = defaultCreateModel()
+  runtime.value = defaultRuntime()
+  proxyEnabled.value = false
+  proxyForm.value = { name: '', domains: [], port: null }
+  pickDefaultVersion()
+  createModel.value.exec_start = generatedCommand.value
+})
 
-// 监听 Java 版本和框架变化
-watch(
-  () => [javaOptions.value.version, javaOptions.value.framework],
-  () => {
-    if (type.value === 'java') generateCommand()
-  },
-)
+// 目录选择器：项目目录或启动命令要用的文件，都从项目目录开始浏览
+type PathTarget = 'root_dir' | 'entry'
+const showPathSelector = ref(false)
+const pathSelectorPath = ref('')
+const pathSelectorTarget = ref<PathTarget>('root_dir')
 
-// 监听 Node.js 版本和框架变化
-watch(
-  () => [nodejsOptions.value.version, nodejsOptions.value.framework],
-  () => {
-    if (type.value === 'nodejs') generateCommand()
-  },
-)
-
-// 监听 PHP 版本和框架变化
-watch(
-  () => [phpOptions.value.version, phpOptions.value.framework],
-  () => {
-    if (type.value === 'php') generateCommand()
-  },
-)
-
-// 监听 Python 版本和框架变化
-watch(
-  () => [pythonOptions.value.version, pythonOptions.value.framework],
-  () => {
-    if (type.value === 'python') generateCommand()
-  },
-)
-
-// 监听 .NET 版本和框架变化
-watch(
-  () => [dotnetOptions.value.version, dotnetOptions.value.framework],
-  () => {
-    if (type.value === 'dotnet') generateCommand()
-  },
-)
-
-// 处理目录选择
-const handleSelectPath = () => {
-  pathSelectorPath.value = createModel.value.root_dir || '/opt/ace/projects'
+const handleSelectPath = (target: PathTarget) => {
+  pathSelectorTarget.value = target
+  pathSelectorPath.value = createModel.value.root_dir.trim() ? projectDir.value : defaultDir.value
   showPathSelector.value = true
 }
 
-// 目录选择完成
-watch(showPathSelector, (val) => {
-  if (!val && pathSelectorPath.value) {
-    createModel.value.root_dir = pathSelectorPath.value
+const handlePathSelected = (path: string) => {
+  if (pathSelectorTarget.value === 'root_dir') {
+    createModel.value.root_dir = path
+    return
   }
-})
+  runtime.value.framework = 'custom'
+  runtime.value.entry = path
+}
 
-const handleCreate = async () => {
+const handleCreate = () => {
   createModel.value.type = type.value == 'all' ? 'general' : type.value
-
-  // 如果启用了反向代理，先创建网站
-  if (proxyOptions.value.enabled) {
-    // 验证域名和端口
-    const domains = proxyOptions.value.domains.filter((d) => d.trim() !== '')
-    if (domains.length === 0) {
-      window.$message.warning($gettext('Please enter at least one domain'))
-      return
-    }
-    if (!proxyOptions.value.port) {
-      window.$message.warning($gettext('Please enter the project port'))
-      return
-    }
-
-    // 先创建反向代理网站
-    const websiteData = {
-      type: 'proxy',
-      name: createModel.value.name,
-      domains: domains,
-      listens: ['80'],
-      proxy: `http://127.0.0.1:${proxyOptions.value.port}`,
-      remark: $gettext('Auto-created for project: %{ name }', { name: createModel.value.name }),
-    }
-
-    try {
-      await new Promise<void>((resolve, reject) => {
-        useRequest(website.create(websiteData))
-          .onSuccess(({ data }) => {
-            notifyWebsiteCreated(websiteData.name, data.warnings)
-            resolve()
-          })
-          .onError((err) => reject(err))
-      })
-    } catch {
-      // 网站创建失败，不继续创建项目
-      loading.value = false
-      return
-    }
-  }
+  proxyForm.value.name = createModel.value.name
+  if (proxyEnabled.value && !validateProxyWebsite(proxyForm.value)) return
 
   loading.value = true
   useRequest(project.create(createModel.value))
-    .onSuccess(() => {
+    .onSuccess(async ({ data }) => {
       window.$bus.emit('project:refresh')
-      if (proxyOptions.value.enabled) {
-        window.$bus.emit('website:refresh')
-      }
       window.$message.success($gettext('Project created successfully'))
+      // 项目已建好，反代网站创建失败也关闭弹窗，可以到项目的反向代理里重试
+      if (proxyEnabled.value) await createProxyWebsite(data, proxyForm.value)
+      loading.value = false
       show.value = false
     })
-    .onComplete(() => {
+    .onError(() => {
       loading.value = false
     })
 }
@@ -383,6 +230,15 @@ const modalTitle = computed(() => {
   }
   return titles[type.value] || $gettext('Create Project')
 })
+
+const versionLabels: Record<string, { label: string; placeholder: string }> = {
+  go: { label: $gettext('Go Version'), placeholder: $gettext('Select Go Version') },
+  java: { label: $gettext('Java Version'), placeholder: $gettext('Select Java Version') },
+  nodejs: { label: $gettext('Node.js Version'), placeholder: $gettext('Select Node.js Version') },
+  php: { label: $gettext('PHP Version'), placeholder: $gettext('Select PHP Version') },
+  python: { label: $gettext('Python Version'), placeholder: $gettext('Select Python Version') },
+  dotnet: { label: $gettext('.NET Version'), placeholder: $gettext('Select .NET Version') },
+}
 </script>
 
 <template>
@@ -403,165 +259,75 @@ const modalTitle = computed(() => {
             v-model:value="createModel.root_dir"
             type="text"
             @keydown.enter.prevent
-            :placeholder="
-              $gettext(
-                'Project root directory (if left empty, defaults to project directory/project name)',
-              )
-            "
+            :placeholder="joinPath(defaultDir, createModel.name || '')"
           />
-          <n-button @click="handleSelectPath">
+          <n-button @click="handleSelectPath('root_dir')">
             <template #icon>
               <i-mdi-folder-open />
             </template>
           </n-button>
         </n-input-group>
+        <template #feedback>
+          <span class="text-gray-400">
+            {{ $gettext('Also used as the working directory of the project') }}
+          </span>
+        </template>
       </n-form-item>
 
-      <!-- Go 类型特有字段 -->
-      <template v-if="type === 'go'">
-        <n-form-item :label="$gettext('Run Mode')">
-          <n-radio-group v-model:value="goOptions.mode">
-            <n-radio-button
-              v-for="mode in goModes"
-              :key="mode.value"
-              :value="mode.value"
-              :label="mode.label"
-            />
-          </n-radio-group>
-        </n-form-item>
+      <n-form-item v-if="type === 'go'" :label="$gettext('Run Mode')">
+        <n-radio-group v-model:value="runtime.mode">
+          <n-radio-button
+            v-for="mode in goModes"
+            :key="mode.value"
+            :value="mode.value"
+            :label="mode.label"
+          />
+        </n-radio-group>
+      </n-form-item>
 
-        <!-- 源码模式 -->
-        <template v-if="goOptions.mode === 'source'">
-          <n-grid cols="1 m:24" :x-gap="24" responsive="screen">
-            <n-form-item-gi :span="12" :label="$gettext('Go Version')">
-              <n-select
-                v-model:value="goOptions.version"
-                :options="goVersionOptions"
-                :placeholder="$gettext('Select Go Version')"
-                @keydown.enter.prevent
-              />
-            </n-form-item-gi>
-            <n-form-item-gi :span="12" :label="$gettext('Entry File')">
-              <n-input
-                v-model:value="goOptions.entryFile"
-                type="text"
-                @keydown.enter.prevent
-                :placeholder="$gettext('e.g., main.go, cmd/server/main.go')"
-              />
-            </n-form-item-gi>
-          </n-grid>
+      <n-grid v-if="hasRuntime && !isGoBinary" cols="1 m:24" :x-gap="24" responsive="screen">
+        <n-form-item-gi :span="frameworks[type] ? 12 : 24" :label="versionLabels[type]?.label">
+          <n-select
+            v-model:value="runtime.version"
+            :options="versionOptions"
+            :placeholder="versionLabels[type]?.placeholder"
+            @keydown.enter.prevent
+          />
+        </n-form-item-gi>
+        <n-form-item-gi v-if="frameworks[type]" :span="12" :label="$gettext('Framework')">
+          <n-select
+            v-model:value="runtime.framework"
+            :options="frameworks[type]"
+            :placeholder="$gettext('Select Framework')"
+            @keydown.enter.prevent
+          />
+        </n-form-item-gi>
+      </n-grid>
+
+      <n-form-item path="exec_start" :label="$gettext('Start Command')" required>
+        <n-input-group>
+          <n-input
+            v-model:value="createModel.exec_start"
+            type="text"
+            @keydown.enter.prevent
+            :placeholder="$gettext('e.g., php artisan serve, node app.js')"
+          />
+          <n-button @click="handleSelectPath('entry')">
+            <template #icon>
+              <i-mdi-file-outline />
+            </template>
+          </n-button>
+        </n-input-group>
+        <template #feedback>
+          <span class="text-gray-400">
+            {{
+              hasRuntime && !isGoBinary
+                ? $gettext('Select the entry file on the right to generate the command')
+                : $gettext('Select the executable file on the right as the command')
+            }}
+          </span>
         </template>
-      </template>
-
-      <!-- Java 类型特有字段 -->
-      <template v-if="type === 'java'">
-        <n-grid cols="1 m:24" :x-gap="24" responsive="screen">
-          <n-form-item-gi :span="12" :label="$gettext('Java Version')">
-            <n-select
-              v-model:value="javaOptions.version"
-              :options="javaVersionOptions"
-              :placeholder="$gettext('Select Java Version')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-          <n-form-item-gi :span="12" :label="$gettext('Framework')">
-            <n-select
-              v-model:value="javaOptions.framework"
-              :options="javaFrameworks"
-              :placeholder="$gettext('Select Framework')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-        </n-grid>
-      </template>
-
-      <!-- Node.js 类型特有字段 -->
-      <template v-if="type === 'nodejs'">
-        <n-grid cols="1 m:24" :x-gap="24" responsive="screen">
-          <n-form-item-gi :span="12" :label="$gettext('Node.js Version')">
-            <n-select
-              v-model:value="nodejsOptions.version"
-              :options="nodejsVersionOptions"
-              :placeholder="$gettext('Select Node.js Version')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-          <n-form-item-gi :span="12" :label="$gettext('Framework')">
-            <n-select
-              v-model:value="nodejsOptions.framework"
-              :options="nodejsFrameworks"
-              :placeholder="$gettext('Select Framework')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-        </n-grid>
-      </template>
-
-      <!-- PHP 类型特有字段 -->
-      <template v-if="type === 'php'">
-        <n-grid cols="1 m:24" :x-gap="24" responsive="screen">
-          <n-form-item-gi :span="12" :label="$gettext('PHP Version')">
-            <n-select
-              v-model:value="phpOptions.version"
-              :options="phpVersionOptions"
-              :placeholder="$gettext('Select PHP Version')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-          <n-form-item-gi :span="12" :label="$gettext('Framework')">
-            <n-select
-              v-model:value="phpOptions.framework"
-              :options="phpFrameworks"
-              :placeholder="$gettext('Select Framework')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-        </n-grid>
-      </template>
-
-      <!-- Python 类型特有字段 -->
-      <template v-if="type === 'python'">
-        <n-grid cols="1 m:24" :x-gap="24" responsive="screen">
-          <n-form-item-gi :span="12" :label="$gettext('Python Version')">
-            <n-select
-              v-model:value="pythonOptions.version"
-              :options="pythonVersionOptions"
-              :placeholder="$gettext('Select Python Version')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-          <n-form-item-gi :span="12" :label="$gettext('Framework')">
-            <n-select
-              v-model:value="pythonOptions.framework"
-              :options="pythonFrameworks"
-              :placeholder="$gettext('Select Framework')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-        </n-grid>
-      </template>
-
-      <!-- .NET 类型特有字段 -->
-      <template v-if="type === 'dotnet'">
-        <n-grid cols="1 m:24" :x-gap="24" responsive="screen">
-          <n-form-item-gi :span="12" :label="$gettext('.NET Version')">
-            <n-select
-              v-model:value="dotnetOptions.version"
-              :options="dotnetVersionOptions"
-              :placeholder="$gettext('Select .NET Version')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-          <n-form-item-gi :span="12" :label="$gettext('Framework')">
-            <n-select
-              v-model:value="dotnetOptions.framework"
-              :options="dotnetFrameworks"
-              :placeholder="$gettext('Select Framework')"
-              @keydown.enter.prevent
-            />
-          </n-form-item-gi>
-        </n-grid>
-      </template>
+      </n-form-item>
 
       <n-form-item path="user" :label="$gettext('Run User')">
         <n-select
@@ -582,44 +348,16 @@ const modalTitle = computed(() => {
           </span>
         </template>
       </n-form-item>
-      <n-form-item path="exec_start" :label="$gettext('Start Command')" required>
-        <n-input
-          v-model:value="createModel.exec_start"
-          type="text"
-          @keydown.enter.prevent
-          :placeholder="$gettext('e.g., php artisan serve, node app.js')"
-        />
-      </n-form-item>
+
       <n-form-item :label="$gettext('Reverse Proxy')">
-        <n-switch v-model:value="proxyOptions.enabled" />
+        <n-switch v-model:value="proxyEnabled" />
         <template #feedback>
           <span class="text-gray-400">
             {{ $gettext('Automatically create a reverse proxy website for this project') }}
           </span>
         </template>
       </n-form-item>
-
-      <template v-if="proxyOptions.enabled">
-        <n-grid cols="1 m:24" :x-gap="24" responsive="screen">
-          <n-form-item-gi :span="16" :label="$gettext('Domain')">
-            <ListInput
-              v-model:value="proxyOptions.domains"
-              placeholder="example.com"
-              :min="1"
-              show-sort-button
-            />
-          </n-form-item-gi>
-          <n-form-item-gi :span="8" :label="$gettext('Project Port')">
-            <n-input-number
-              v-model:value="proxyOptions.port"
-              :min="1"
-              :max="65535"
-              style="width: 100%"
-              :placeholder="$gettext('e.g., 3000')"
-            />
-          </n-form-item-gi>
-        </n-grid>
-      </template>
+      <proxy-form v-if="proxyEnabled" v-model:value="proxyForm" />
     </n-form>
 
     <n-button
@@ -634,8 +372,12 @@ const modalTitle = computed(() => {
     </n-button>
   </app-modal>
 
-  <!-- 目录选择器 -->
-  <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="true" />
+  <path-selector
+    v-model:show="showPathSelector"
+    v-model:path="pathSelectorPath"
+    :dir="pathSelectorTarget === 'root_dir'"
+    @select="handlePathSelected"
+  />
 </template>
 
 <style scoped lang="scss"></style>

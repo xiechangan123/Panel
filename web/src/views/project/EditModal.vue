@@ -8,6 +8,8 @@ import systemctl from '@/api/panel/systemctl'
 import PathSelector from '@/components/common/PathSelector.vue'
 import { useFormLayout } from '@/components/system/composables/useFormLayout'
 
+import { buildCommand, currentRuntime } from './command'
+
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const editId = defineModel<number>('editId', { type: Number, required: true })
 
@@ -53,6 +55,7 @@ const model = ref({
 })
 
 const loading = ref(false)
+const projectType = ref('')
 
 // Restart 策略选项
 const restartOptions = [
@@ -149,8 +152,14 @@ const dependencyItems = [
   },
 ] as const
 
-// 目录选择器
-type PathTarget = 'root_dir' | 'working_dir' | 'read_write_paths' | 'read_only_paths'
+// 与后端一致：工作目录留空时用项目目录，缺少前导 / 时补上
+const workDir = computed(() => {
+  const dir = model.value.working_dir.trim() || model.value.root_dir.trim()
+  return dir.startsWith('/') ? dir : '/' + dir
+})
+
+// 目录选择器，exec_start 选的是启动命令要用的文件
+type PathTarget = 'root_dir' | 'working_dir' | 'exec_start' | 'read_write_paths' | 'read_only_paths'
 const showPathSelector = ref(false)
 const pathSelectorPath = ref('')
 const pathSelectorTarget = ref<PathTarget>('root_dir')
@@ -159,13 +168,18 @@ const handleSelectPath = (target: PathTarget) => {
   const current = model.value[target]
   pathSelectorTarget.value = target
   pathSelectorPath.value =
-    (Array.isArray(current) ? '' : current) || model.value.root_dir || '/opt/ace/projects'
+    target === 'exec_start'
+      ? workDir.value
+      : (Array.isArray(current) ? '' : current) || model.value.root_dir || '/opt/ace/projects'
   showPathSelector.value = true
 }
 
 const handlePathSelected = (path: string) => {
   const target = pathSelectorTarget.value
-  if (target === 'root_dir' || target === 'working_dir') {
+  if (target === 'exec_start') {
+    const runtime = currentRuntime(projectType.value, model.value.exec_start)
+    model.value.exec_start = buildCommand(projectType.value, runtime, path, workDir.value)
+  } else if (target === 'root_dir' || target === 'working_dir') {
     model.value[target] = path
   } else if (!model.value[target].includes(path)) {
     model.value[target].push(path)
@@ -211,6 +225,7 @@ const loadProject = async () => {
         read_write_paths: data.read_write_paths || [],
         read_only_paths: data.read_only_paths || [],
       }
+      projectType.value = data.type
     })
     .onComplete(() => {
       loading.value = false
@@ -331,12 +346,19 @@ const handleSave = async () => {
         <n-tab-pane name="runtime" :tab="$gettext('Runtime Settings')">
           <n-form :model="model" v-bind="formLayoutWide">
             <n-form-item path="exec_start" :label="$gettext('Start Command')">
-              <n-input
-                v-model:value="model.exec_start"
-                type="text"
-                @keydown.enter.prevent
-                :placeholder="$gettext('e.g., php artisan serve, node app.js')"
-              />
+              <n-input-group>
+                <n-input
+                  v-model:value="model.exec_start"
+                  type="text"
+                  @keydown.enter.prevent
+                  :placeholder="$gettext('e.g., php artisan serve, node app.js')"
+                />
+                <n-button @click="handleSelectPath('exec_start')">
+                  <template #icon>
+                    <i-mdi-file-outline />
+                  </template>
+                </n-button>
+              </n-input-group>
             </n-form-item>
             <n-form-item path="exec_start_pre" :label="$gettext('Pre-start Command')">
               <n-input
@@ -660,7 +682,7 @@ const handleSave = async () => {
   <path-selector
     v-model:show="showPathSelector"
     v-model:path="pathSelectorPath"
-    :dir="true"
+    :dir="pathSelectorTarget !== 'exec_start'"
     @select="handlePathSelected"
   />
 </template>

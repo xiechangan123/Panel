@@ -202,4 +202,20 @@ func init() {
 			return tx.Migrator().DropColumn(&biz.Website{}, "cert_id")
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20261025-add-website-project",
+		Migrate: func(tx *gorm.DB) error {
+			if err := tx.AutoMigrate(&biz.Website{}); err != nil {
+				return err
+			}
+
+			// 之前项目按同名约定创建反代网站，没有关联字段，按名称补上绑定
+			return tx.Exec(`UPDATE websites SET project_id = (
+				SELECT projects.id FROM projects WHERE projects.name = websites.name
+			) WHERE type = 'proxy' AND EXISTS (SELECT 1 FROM projects WHERE projects.name = websites.name)`).Error
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropColumn(&biz.Website{}, "project_id")
+		},
+	})
 }

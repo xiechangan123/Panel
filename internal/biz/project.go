@@ -39,16 +39,18 @@ type ProjectRepo interface {
 }
 
 type ProjectUsecase struct {
-	repo ProjectRepo
-	log  *slog.Logger
-	t    *gotext.Locale
+	repo    ProjectRepo
+	website *WebsiteUsecase
+	log     *slog.Logger
+	t       *gotext.Locale
 }
 
-func NewProjectUsecase(t *gotext.Locale, log *slog.Logger, projectRepo ProjectRepo) *ProjectUsecase {
+func NewProjectUsecase(t *gotext.Locale, log *slog.Logger, projectRepo ProjectRepo, websiteUsecase *WebsiteUsecase) *ProjectUsecase {
 	return &ProjectUsecase{
-		repo: projectRepo,
-		log:  log,
-		t:    t,
+		repo:    projectRepo,
+		website: websiteUsecase,
+		log:     log,
+		t:       t,
 	}
 }
 
@@ -138,9 +140,13 @@ func (uc *ProjectUsecase) Update(ctx context.Context, req *request.ProjectUpdate
 	return uc.repo.UpdateUnitFile(ctx, project.Name, req)
 }
 
-func (uc *ProjectUsecase) Delete(ctx context.Context, id uint) error {
+func (uc *ProjectUsecase) Delete(ctx context.Context, id uint, websites bool) error {
 	project, err := uc.repo.GetEntity(id)
 	if err != nil {
+		return err
+	}
+
+	if err = uc.website.ReleaseProject(ctx, id, websites); err != nil {
 		return err
 	}
 

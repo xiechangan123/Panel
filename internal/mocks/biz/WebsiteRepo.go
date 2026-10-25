@@ -45,7 +45,7 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //			GetRewritesFunc: func() (map[string]string, error) {
 //				panic("mock out the GetRewrites method")
 //			},
-//			ListFunc: func(typ string, keyword string, page uint, limit uint) ([]*biz.Website, int64, error) {
+//			ListFunc: func(typ string, keyword string, projectID uint, page uint, limit uint) ([]*biz.Website, int64, error) {
 //				panic("mock out the List method")
 //			},
 //			RebuildFunc: func(ctx context.Context, website *biz.Website) (bool, []string, error) {
@@ -63,6 +63,9 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //			SwitchTypeFunc: func(ctx context.Context, req *request.WebsiteSwitchType) (*biz.Website, error) {
 //				panic("mock out the SwitchType method")
 //			},
+//			UnbindProjectFunc: func(projectID uint) error {
+//				panic("mock out the UnbindProject method")
+//			},
 //			UpdateFunc: func(ctx context.Context, req *request.WebsiteUpdate) (*biz.Website, error) {
 //				panic("mock out the Update method")
 //			},
@@ -74,6 +77,9 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //			},
 //			UpdateExpireAtFunc: func(id uint, expireAt *time.Time) error {
 //				panic("mock out the UpdateExpireAt method")
+//			},
+//			UpdateProjectFunc: func(id uint, projectID uint) error {
+//				panic("mock out the UpdateProject method")
 //			},
 //			UpdateRemarkFunc: func(id uint, remark string) error {
 //				panic("mock out the UpdateRemark method")
@@ -110,7 +116,7 @@ type WebsiteRepo struct {
 	GetRewritesFunc func() (map[string]string, error)
 
 	// ListFunc mocks the List method.
-	ListFunc func(typ string, keyword string, page uint, limit uint) ([]*biz.Website, int64, error)
+	ListFunc func(typ string, keyword string, projectID uint, page uint, limit uint) ([]*biz.Website, int64, error)
 
 	// RebuildFunc mocks the Rebuild method.
 	RebuildFunc func(ctx context.Context, website *biz.Website) (bool, []string, error)
@@ -127,6 +133,9 @@ type WebsiteRepo struct {
 	// SwitchTypeFunc mocks the SwitchType method.
 	SwitchTypeFunc func(ctx context.Context, req *request.WebsiteSwitchType) (*biz.Website, error)
 
+	// UnbindProjectFunc mocks the UnbindProject method.
+	UnbindProjectFunc func(projectID uint) error
+
 	// UpdateFunc mocks the Update method.
 	UpdateFunc func(ctx context.Context, req *request.WebsiteUpdate) (*biz.Website, error)
 
@@ -138,6 +147,9 @@ type WebsiteRepo struct {
 
 	// UpdateExpireAtFunc mocks the UpdateExpireAt method.
 	UpdateExpireAtFunc func(id uint, expireAt *time.Time) error
+
+	// UpdateProjectFunc mocks the UpdateProject method.
+	UpdateProjectFunc func(id uint, projectID uint) error
 
 	// UpdateRemarkFunc mocks the UpdateRemark method.
 	UpdateRemarkFunc func(id uint, remark string) error
@@ -186,6 +198,8 @@ type WebsiteRepo struct {
 			Typ string
 			// Keyword is the keyword argument value.
 			Keyword string
+			// ProjectID is the projectID argument value.
+			ProjectID uint
 			// Page is the page argument value.
 			Page uint
 			// Limit is the limit argument value.
@@ -226,6 +240,11 @@ type WebsiteRepo struct {
 			// Req is the req argument value.
 			Req *request.WebsiteSwitchType
 		}
+		// UnbindProject holds details about calls to the UnbindProject method.
+		UnbindProject []struct {
+			// ProjectID is the projectID argument value.
+			ProjectID uint
+		}
 		// Update holds details about calls to the Update method.
 		Update []struct {
 			// Ctx is the ctx argument value.
@@ -253,6 +272,13 @@ type WebsiteRepo struct {
 			ID uint
 			// ExpireAt is the expireAt argument value.
 			ExpireAt *time.Time
+		}
+		// UpdateProject holds details about calls to the UpdateProject method.
+		UpdateProject []struct {
+			// ID is the id argument value.
+			ID uint
+			// ProjectID is the projectID argument value.
+			ProjectID uint
 		}
 		// UpdateRemark holds details about calls to the UpdateRemark method.
 		UpdateRemark []struct {
@@ -284,10 +310,12 @@ type WebsiteRepo struct {
 	lockRemoveFiles         sync.RWMutex
 	lockResetConfig         sync.RWMutex
 	lockSwitchType          sync.RWMutex
+	lockUnbindProject       sync.RWMutex
 	lockUpdate              sync.RWMutex
 	lockUpdateCert          sync.RWMutex
 	lockUpdateDefaultConfig sync.RWMutex
 	lockUpdateExpireAt      sync.RWMutex
+	lockUpdateProject       sync.RWMutex
 	lockUpdateRemark        sync.RWMutex
 	lockUpdateStatus        sync.RWMutex
 }
@@ -511,25 +539,27 @@ func (mock *WebsiteRepo) GetRewritesCalls() []struct {
 }
 
 // List calls ListFunc.
-func (mock *WebsiteRepo) List(typ string, keyword string, page uint, limit uint) ([]*biz.Website, int64, error) {
+func (mock *WebsiteRepo) List(typ string, keyword string, projectID uint, page uint, limit uint) ([]*biz.Website, int64, error) {
 	if mock.ListFunc == nil {
 		panic("WebsiteRepo.ListFunc: method is nil but WebsiteRepo.List was just called")
 	}
 	callInfo := struct {
-		Typ     string
-		Keyword string
-		Page    uint
-		Limit   uint
+		Typ       string
+		Keyword   string
+		ProjectID uint
+		Page      uint
+		Limit     uint
 	}{
-		Typ:     typ,
-		Keyword: keyword,
-		Page:    page,
-		Limit:   limit,
+		Typ:       typ,
+		Keyword:   keyword,
+		ProjectID: projectID,
+		Page:      page,
+		Limit:     limit,
 	}
 	mock.lockList.Lock()
 	mock.calls.List = append(mock.calls.List, callInfo)
 	mock.lockList.Unlock()
-	return mock.ListFunc(typ, keyword, page, limit)
+	return mock.ListFunc(typ, keyword, projectID, page, limit)
 }
 
 // ListCalls gets all the calls that were made to List.
@@ -537,16 +567,18 @@ func (mock *WebsiteRepo) List(typ string, keyword string, page uint, limit uint)
 //
 //	len(mockedWebsiteRepo.ListCalls())
 func (mock *WebsiteRepo) ListCalls() []struct {
-	Typ     string
-	Keyword string
-	Page    uint
-	Limit   uint
+	Typ       string
+	Keyword   string
+	ProjectID uint
+	Page      uint
+	Limit     uint
 } {
 	var calls []struct {
-		Typ     string
-		Keyword string
-		Page    uint
-		Limit   uint
+		Typ       string
+		Keyword   string
+		ProjectID uint
+		Page      uint
+		Limit     uint
 	}
 	mock.lockList.RLock()
 	calls = mock.calls.List
@@ -734,6 +766,38 @@ func (mock *WebsiteRepo) SwitchTypeCalls() []struct {
 	return calls
 }
 
+// UnbindProject calls UnbindProjectFunc.
+func (mock *WebsiteRepo) UnbindProject(projectID uint) error {
+	if mock.UnbindProjectFunc == nil {
+		panic("WebsiteRepo.UnbindProjectFunc: method is nil but WebsiteRepo.UnbindProject was just called")
+	}
+	callInfo := struct {
+		ProjectID uint
+	}{
+		ProjectID: projectID,
+	}
+	mock.lockUnbindProject.Lock()
+	mock.calls.UnbindProject = append(mock.calls.UnbindProject, callInfo)
+	mock.lockUnbindProject.Unlock()
+	return mock.UnbindProjectFunc(projectID)
+}
+
+// UnbindProjectCalls gets all the calls that were made to UnbindProject.
+// Check the length with:
+//
+//	len(mockedWebsiteRepo.UnbindProjectCalls())
+func (mock *WebsiteRepo) UnbindProjectCalls() []struct {
+	ProjectID uint
+} {
+	var calls []struct {
+		ProjectID uint
+	}
+	mock.lockUnbindProject.RLock()
+	calls = mock.calls.UnbindProject
+	mock.lockUnbindProject.RUnlock()
+	return calls
+}
+
 // Update calls UpdateFunc.
 func (mock *WebsiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) (*biz.Website, error) {
 	if mock.UpdateFunc == nil {
@@ -875,6 +939,42 @@ func (mock *WebsiteRepo) UpdateExpireAtCalls() []struct {
 	mock.lockUpdateExpireAt.RLock()
 	calls = mock.calls.UpdateExpireAt
 	mock.lockUpdateExpireAt.RUnlock()
+	return calls
+}
+
+// UpdateProject calls UpdateProjectFunc.
+func (mock *WebsiteRepo) UpdateProject(id uint, projectID uint) error {
+	if mock.UpdateProjectFunc == nil {
+		panic("WebsiteRepo.UpdateProjectFunc: method is nil but WebsiteRepo.UpdateProject was just called")
+	}
+	callInfo := struct {
+		ID        uint
+		ProjectID uint
+	}{
+		ID:        id,
+		ProjectID: projectID,
+	}
+	mock.lockUpdateProject.Lock()
+	mock.calls.UpdateProject = append(mock.calls.UpdateProject, callInfo)
+	mock.lockUpdateProject.Unlock()
+	return mock.UpdateProjectFunc(id, projectID)
+}
+
+// UpdateProjectCalls gets all the calls that were made to UpdateProject.
+// Check the length with:
+//
+//	len(mockedWebsiteRepo.UpdateProjectCalls())
+func (mock *WebsiteRepo) UpdateProjectCalls() []struct {
+	ID        uint
+	ProjectID uint
+} {
+	var calls []struct {
+		ID        uint
+		ProjectID uint
+	}
+	mock.lockUpdateProject.RLock()
+	calls = mock.calls.UpdateProject
+	mock.lockUpdateProject.RUnlock()
 	return calls
 }
 

@@ -231,7 +231,7 @@ func (r *websiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
 	return r.Get(website.ID)
 }
 
-func (r *websiteRepo) List(typ, keyword string, page, limit uint) ([]*biz.Website, int64, error) {
+func (r *websiteRepo) List(typ, keyword string, projectID, page, limit uint) ([]*biz.Website, int64, error) {
 	websites := make([]*biz.Website, 0)
 	var total int64
 
@@ -241,6 +241,9 @@ func (r *websiteRepo) List(typ, keyword string, page, limit uint) ([]*biz.Websit
 	}
 	if keyword != "" {
 		query = query.Where("name LIKE ? OR remark LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+	}
+	if projectID > 0 {
+		query = query.Where("project_id = ?", projectID)
 	}
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
@@ -278,12 +281,13 @@ func (r *websiteRepo) List(typ, keyword string, page, limit uint) ([]*biz.Websit
 
 func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*biz.Website, error) {
 	w := &biz.Website{
-		Name:   req.Name,
-		Type:   biz.WebsiteType(req.Type),
-		Status: true,
-		Path:   req.Path,
-		SSL:    false,
-		Remark: req.Remark,
+		Name:      req.Name,
+		Type:      biz.WebsiteType(req.Type),
+		Status:    true,
+		Path:      req.Path,
+		SSL:       false,
+		Remark:    req.Remark,
+		ProjectID: req.ProjectID,
 	}
 
 	d, err := r.dialect()
@@ -1082,6 +1086,14 @@ func (r *websiteRepo) UpdateRemark(id uint, remark string) error {
 
 	website.Remark = remark
 	return r.db.Save(website).Error
+}
+
+func (r *websiteRepo) UpdateProject(id, projectID uint) error {
+	return r.db.Model(&biz.Website{}).Where("id = ?", id).Update("project_id", projectID).Error
+}
+
+func (r *websiteRepo) UnbindProject(projectID uint) error {
+	return r.db.Model(&biz.Website{}).Where("project_id = ?", projectID).Update("project_id", 0).Error
 }
 
 func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {

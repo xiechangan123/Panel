@@ -357,8 +357,6 @@ func initAce() (*app.Ace, func() error, error) {
 
 	wireValue113_0 := data.NewProjectRepo(wireValue4_0, wireValue1_0)
 
-	wireValue74_0 := biz.NewProjectUsecase(wireValue1_0, wireValue3_0, wireValue113_0)
-
 	wireValue126_0, wireErr126 := data.NewWebsiteStatRepo()
 	if wireErr126 != nil {
 		wireCommitted = true
@@ -369,6 +367,8 @@ func initAce() (*app.Ace, func() error, error) {
 	wireValue87_0 := biz.NewWebsiteStatUsecase(wireValue126_0)
 
 	wireValue86_0 := biz.NewWebsiteUsecase(wireValue56_0, wireValue55_0, wireValue64_0, wireValue68_0, wireValue79_0, wireValue87_0, wireValue1_0, wireValue3_0, wireValue106_0, wireValue125_0)
+
+	wireValue74_0 := biz.NewProjectUsecase(wireValue1_0, wireValue3_0, wireValue113_0, wireValue86_0)
 
 	wireValue160_0 := service.NewHomeService(wireValue51_0, wireValue52_0, wireValue58_0, wireValue63_0, wireValue67_0, wireValue69_0, wireValue74_0, wireValue77_0, wireValue80_0, wireValue86_0, wireValue0_0, wireValue1_0)
 

@@ -33,7 +33,8 @@ type Website struct {
 	Status    bool        `gorm:"not null;default:true" json:"status"`
 	Path      string      `gorm:"not null;default:''" json:"path"`
 	SSL       bool        `gorm:"not null;default:false" json:"ssl"`
-	CertID    uint        `gorm:"not null;index;default:0" json:"cert_id"` // 部署的证书 ID
+	CertID    uint        `gorm:"not null;index;default:0" json:"cert_id"`    // 部署的证书 ID
+	ProjectID uint        `gorm:"not null;index;default:0" json:"project_id"` // 绑定的项目 ID，0 表示未绑定
 	Remark    string      `gorm:"not null;default:''" json:"remark"`
 	ExpireAt  *time.Time  `json:"expire_at"` // 到期时间，nil 表示不限时
 	CreatedAt time.Time   `json:"created_at"`
@@ -52,7 +53,7 @@ type WebsiteRepo interface {
 	Count() (int64, error)
 	Get(id uint) (*types.WebsiteSetting, error)
 	GetByName(name string) (*types.WebsiteSetting, error)
-	List(typ, keyword string, page, limit uint) ([]*Website, int64, error)
+	List(typ, keyword string, projectID, page, limit uint) ([]*Website, int64, error)
 	Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error)
 	Update(ctx context.Context, req *request.WebsiteUpdate) (*Website, error)
 	SwitchType(ctx context.Context, req *request.WebsiteSwitchType) (*Website, error)
@@ -66,6 +67,8 @@ type WebsiteRepo interface {
 	UpdateStatus(ctx context.Context, id uint, status bool) error
 	UpdateExpireAt(id uint, expireAt *time.Time) error
 	UpdateCert(ctx context.Context, req *request.WebsiteUpdateCert) error
+	UpdateProject(id, projectID uint) error
+	UnbindProject(projectID uint) error
 }
 
 type WebsiteUsecase struct {
@@ -116,8 +119,8 @@ func (uc *WebsiteUsecase) GetByName(name string) (*types.WebsiteSetting, error) 
 	return uc.repo.GetByName(name)
 }
 
-func (uc *WebsiteUsecase) List(typ, keyword string, page, limit uint) ([]*Website, int64, error) {
-	return uc.repo.List(typ, keyword, page, limit)
+func (uc *WebsiteUsecase) List(typ, keyword string, projectID, page, limit uint) ([]*Website, int64, error) {
+	return uc.repo.List(typ, keyword, projectID, page, limit)
 }
 
 func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate) (*Website, []string, error) {
@@ -230,6 +233,30 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 
 func (uc *WebsiteUsecase) UpdateRemark(id uint, remark string) error {
 	return uc.repo.UpdateRemark(id, remark)
+}
+
+// UpdateProject 绑定到项目，projectID 为 0 时解除绑定
+func (uc *WebsiteUsecase) UpdateProject(id, projectID uint) error {
+	return uc.repo.UpdateProject(id, projectID)
+}
+
+// ReleaseProject 处理项目删除后留下的网站：remove 为 true 时一并删除，否则解除绑定成为普通网站
+func (uc *WebsiteUsecase) ReleaseProject(ctx context.Context, projectID uint, remove bool) error {
+	if !remove {
+		return uc.repo.UnbindProject(projectID)
+	}
+
+	websites, _, err := uc.repo.List("all", "", projectID, 1, 10000)
+	if err != nil {
+		return err
+	}
+	for _, website := range websites {
+		if err = uc.Delete(ctx, &request.WebsiteDelete{ID: website.ID, Path: true}); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Rebuild 按当前 Web 服务器重建站点配置

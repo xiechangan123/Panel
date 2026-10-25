@@ -95,13 +95,13 @@ func (s *ProjectService) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ProjectService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+	req, err := Bind[request.ProjectDelete](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	if err = s.projectRepo.Delete(r.Context(), req.ID); err != nil {
+	if err = s.projectRepo.Delete(r.Context(), req.ID, req.Websites); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -14,8 +14,9 @@ type WebsiteDefaultConfig struct {
 }
 
 type WebsiteList struct {
-	Type    string `json:"type" form:"type" validate:"required && in:all,proxy,static,php"`
-	Keyword string `json:"keyword" form:"keyword" query:"keyword"`
+	Type      string `json:"type" form:"type" validate:"required && in:all,proxy,static,php"`
+	Keyword   string `json:"keyword" form:"keyword" query:"keyword"`
+	ProjectID uint   `json:"project_id" form:"project_id" query:"project_id"` // 只看绑定到该项目的网站，0 为不限
 	Paginate
 }
 
@@ -32,8 +33,9 @@ type WebsiteCreate struct {
 	DBPassword string   `form:"db_password" json:"db_password" validate:"required_if:DB,true"`
 	Remark     string   `form:"remark" json:"remark"`
 
-	PHP   uint   `form:"php" json:"php"`                                       // 仅 PHP 网站需要，0 为不使用 PHP
-	Proxy string `form:"proxy" json:"proxy" validate:"required_if:Type,proxy"` // 仅反向代理网站需要
+	PHP       uint   `form:"php" json:"php"`                                             // 仅 PHP 网站需要，0 为不使用 PHP
+	Proxy     string `form:"proxy" json:"proxy" validate:"required_if:Type,proxy"`       // 仅反向代理网站需要
+	ProjectID uint   `form:"project_id" json:"project_id" validate:"exists:projects,id"` // 绑定的项目，0 为不绑定
 }
 
 type WebsiteDelete struct {
@@ -101,6 +103,11 @@ type WebsiteCustomConfig struct {
 type WebsiteUpdateRemark struct {
 	ID     uint   `form:"id" json:"id" validate:"required && exists:websites,id"`
 	Remark string `form:"remark" json:"remark"`
+}
+
+type WebsiteUpdateProject struct {
+	ID        uint `form:"id" json:"id" validate:"required && exists:websites,id"`
+	ProjectID uint `form:"project_id" json:"project_id" validate:"exists:projects,id"` // 0 为解除绑定
 }
 
 type WebsiteUpdateStatus struct {

@@ -759,7 +759,7 @@ func (s *CliService) FirewallPort(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) WebsiteList(ctx context.Context, cmd *cli.Command) error {
-	websites, _, err := s.websiteRepo.List("all", "", 1, math.MaxUint32)
+	websites, _, err := s.websiteRepo.List("all", "", 0, 1, math.MaxUint32)
 	if err != nil {
 		return err
 	}
@@ -857,7 +857,7 @@ func (s *CliService) WebsiteCert(ctx context.Context, cmd *cli.Command) error {
 
 // WebsiteRebuild 按当前 Web 服务器重建全部站点配置，供切换 Web 服务器的安装脚本调用
 func (s *CliService) WebsiteRebuild(ctx context.Context, cmd *cli.Command) error {
-	websites, _, err := s.websiteRepo.List("all", "", 1, 10000)
+	websites, _, err := s.websiteRepo.List("all", "", 0, 1, 10000)
 	if err != nil {
 		return err
 	}

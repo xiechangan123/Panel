@@ -20,6 +20,11 @@ type ProjectCreate struct {
 	Environments []types.KV
 }
 
+type ProjectDelete struct {
+	ID       uint `form:"id" json:"id" validate:"required && exists:projects,id"`
+	Websites bool `form:"websites" json:"websites"` // 同时删除绑定的网站，否则只解除绑定
+}
+
 type ProjectUpdate struct {
 	ID              uint       `form:"id" json:"id" validate:"required && exists:projects,id"`
 	Name            string     `form:"name" json:"name" validate:"required && regex:\"^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]{0,126}[A-Za-z0-9_-])$\""`

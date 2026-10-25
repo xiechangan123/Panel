@@ -25,6 +25,6 @@ func ProjectRoutes(projectService *service.ProjectService) Endpoints {
 		{Method: http.MethodPut, Path: "/api/project/{id}", Handler: svc.Update,
 			Summary: "更新项目", Tags: []string{"项目"}, Document: DescribeReq[request.ProjectUpdate]()},
 		{Method: http.MethodDelete, Path: "/api/project/{id}", Handler: svc.Delete,
-			Summary: "删除项目", Tags: []string{"项目"}, Document: DescribeReq[request.ID]()},
+			Summary: "删除项目", Tags: []string{"项目"}, Document: DescribeReq[request.ProjectDelete]()},
 	}
 }

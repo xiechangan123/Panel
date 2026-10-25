@@ -44,6 +44,8 @@ func WebsiteRoutes(websiteService *service.WebsiteService) Endpoints {
 			Summary: "更新备注", Tags: []string{"网站"}, Document: DescribeReq[request.WebsiteUpdateRemark]()},
 		{Method: http.MethodPost, Path: "/api/website/{id}/reset_config", Handler: svc.ResetConfig,
 			Summary: "重置配置", Tags: []string{"网站"}, Document: DescribeReq[request.ID]()},
+		{Method: http.MethodPost, Path: "/api/website/{id}/project", Handler: svc.UpdateProject,
+			Summary: "绑定项目", Tags: []string{"网站"}, Document: DescribeReq[request.WebsiteUpdateProject]()},
 		{Method: http.MethodPost, Path: "/api/website/{id}/status", Handler: svc.UpdateStatus,
 			Summary: "修改状态", Tags: []string{"网站"}, Document: DescribeReq[request.WebsiteUpdateStatus]()},
 		{Method: http.MethodPost, Path: "/api/website/{id}/expire_at", Handler: svc.UpdateExpireAt,

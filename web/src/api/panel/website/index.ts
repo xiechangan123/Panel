@@ -2,8 +2,8 @@ import { http } from '@/utils'
 
 export default {
   // 列表
-  list: (type: string, page: number, limit: number, keyword?: string): any =>
-    http.Get('/website', { params: { type, page, limit, keyword } }),
+  list: (type: string, page: number, limit: number, keyword?: string, project_id?: number): any =>
+    http.Get('/website', { params: { type, page, limit, keyword, project_id } }),
   // 创建
   create: (data: any): any => http.Post('/website', data),
   // 删除
@@ -30,6 +30,9 @@ export default {
     http.Post(`/website/${id}` + '/update_remark', { remark }),
   // 重置配置
   resetConfig: (id: number): any => http.Post(`/website/${id}/reset_config`),
+  // 绑定项目，project_id 为 0 时解除绑定
+  updateProject: (id: number, project_id: number): any =>
+    http.Post(`/website/${id}/project`, { project_id }),
   // 修改状态
   status: (id: number, status: boolean): any => http.Post(`/website/${id}/status`, { status }),
   // 修改到期时间
