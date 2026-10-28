@@ -118,22 +118,24 @@ func (r *userRepo) UpdateEmail(id uint, email string) error {
 }
 
 func (r *userRepo) Delete(id uint) (string, error) {
-	user := new(biz.User)
-	if err := r.db.Preload("Tokens").First(user, id).Error; err != nil {
+	user, err := r.Get(id)
+	if err != nil {
 		return "", err
 	}
 
-	username := user.Username
-	if err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&user).Association("Tokens").Delete(); err != nil {
+	if err = r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("user_id = ?", id).Delete(&biz.UserToken{}).Error; err != nil {
 			return err
 		}
-		return tx.Delete(&user).Error
+		if err := tx.Where("user_id = ?", id).Delete(&biz.UserPasskey{}).Error; err != nil {
+			return err
+		}
+		return tx.Delete(user).Error
 	}); err != nil {
 		return "", err
 	}
 
-	return username, nil
+	return user.Username, nil
 }
 
 func (r *userRepo) CheckPassword(username, password string) (*biz.User, error) {

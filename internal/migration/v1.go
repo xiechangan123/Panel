@@ -218,4 +218,36 @@ func init() {
 			return tx.Migrator().DropColumn(&biz.Website{}, "project_id")
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20261028-user-hard-delete",
+		Migrate: func(tx *gorm.DB) error {
+			// 用户和通行密钥改为硬删除，软删除残留的行会占住唯一的用户名
+			for _, table := range []string{"users", "user_passkeys"} {
+				if !tx.Migrator().HasColumn(table, "deleted_at") {
+					continue
+				}
+				if err := tx.Exec("DELETE FROM `" + table + "` WHERE deleted_at IS NOT NULL").Error; err != nil {
+					return err
+				}
+				if err := tx.Exec("DROP INDEX IF EXISTS `idx_" + table + "_deleted_at`").Error; err != nil {
+					return err
+				}
+				if err := tx.Migrator().DropColumn(table, "deleted_at"); err != nil {
+					return err
+				}
+			}
+
+			// 之前删除用户没有真正删掉令牌和通行密钥
+			for _, model := range []any{&biz.UserToken{}, &biz.UserPasskey{}} {
+				if err := tx.Where("user_id NOT IN (SELECT id FROM users)").Delete(model).Error; err != nil {
+					return err
+				}
+			}
+
+			return nil
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return nil
+		},
+	})
 }

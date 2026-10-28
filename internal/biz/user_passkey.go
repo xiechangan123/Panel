@@ -1,26 +1,21 @@
 package biz
 
-import (
-	"time"
-
-	"gorm.io/gorm"
-)
+import "time"
 
 type UserPasskey struct {
-	ID             uint           `gorm:"primaryKey" json:"id"`
-	UserID         uint           `gorm:"index;not null" json:"user_id"`
-	Name           string         `gorm:"not null;default:''" json:"name"`
-	CredentialID   []byte         `gorm:"uniqueIndex;not null" json:"-"`
-	PublicKey      []byte         `gorm:"not null" json:"-"`
-	AAGUID         []byte         `json:"-"`
-	SignCount      uint32         `gorm:"not null;default:0" json:"-"`
-	Transports     string         `gorm:"not null;default:''" json:"transports"` // JSON: ["internal","hybrid"]
-	BackupEligible bool           `gorm:"not null;default:false" json:"-"`
-	BackupState    bool           `gorm:"not null;default:false" json:"-"`
-	LastUsedAt     *time.Time     `json:"last_used_at"`
-	CreatedAt      time.Time      `json:"created_at"`
-	UpdatedAt      time.Time      `json:"updated_at"`
-	DeletedAt      gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	ID             uint       `gorm:"primaryKey" json:"id"`
+	UserID         uint       `gorm:"index;not null" json:"user_id"`
+	Name           string     `gorm:"not null;default:''" json:"name"`
+	CredentialID   []byte     `gorm:"uniqueIndex;not null" json:"-"`
+	PublicKey      []byte     `gorm:"not null" json:"-"`
+	AAGUID         []byte     `json:"-"`
+	SignCount      uint32     `gorm:"not null;default:0" json:"-"`
+	Transports     string     `gorm:"not null;default:''" json:"transports"` // JSON: ["internal","hybrid"]
+	BackupEligible bool       `gorm:"not null;default:false" json:"-"`
+	BackupState    bool       `gorm:"not null;default:false" json:"-"`
+	LastUsedAt     *time.Time `json:"last_used_at"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
 }
 
 type UserPasskeyRepo interface {

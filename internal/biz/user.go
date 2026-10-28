@@ -8,20 +8,16 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"gorm.io/gorm"
 )
 
 type User struct {
-	ID        uint           `gorm:"primaryKey" json:"id"`
-	Username  string         `gorm:"not null;default:'';unique" json:"username"`
-	Password  string         `gorm:"not null;default:''" json:"password"`
-	Email     string         `gorm:"not null;default:''" json:"email"`
-	TwoFA     string         `gorm:"not null;default:''" json:"two_fa"` // 2FA secret，为空表示未开启
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
-
-	Tokens []*UserToken `gorm:"foreignKey:UserID" json:"-"`
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Username  string    `gorm:"not null;default:'';unique" json:"username"`
+	Password  string    `gorm:"not null;default:''" json:"password"`
+	Email     string    `gorm:"not null;default:''" json:"email"`
+	TwoFA     string    `gorm:"not null;default:''" json:"two_fa"` // 2FA secret，为空表示未开启
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type UserRepo interface {
